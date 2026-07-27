@@ -1,4 +1,4 @@
 interface:
-  display_name: "Register Dashboard Project"
-  short_description: "Register a project entry through Dashboard EngineMessage"
-  default_prompt: "Use $register-project-entry to register the current project in Dashboard Engine and verify the saved entry."
+  display_name: "Register Dashboard Project (Compatibility)"
+  short_description: "Delegate legacy registration to canonical Skill"
+  default_prompt: "Use $register-project-entry from this legacy path only to load the canonical .agents/skills/register-project-entry workflow."

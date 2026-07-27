@@ -9,6 +9,7 @@
 - 保持 Inbound Boundary → Business Core → Outbound Boundary：Domain/Application 不得依赖 HTTP、DOM、CLI、文件系统、数据库、浏览器 `localStorage` 或具体 Probe Client。
 - 只有 Composition Root 可以认识具体 Adapter；Port 必须窄且由 Business Core 声明。
 - CLI、HTTP、Provider 和 Web UI 必须复用同一 validator、dispatcher、Application 和 Domain，不建立 UI 私有业务 API。
+- Electron Desktop Shell 只能作为可选 Inbound Host 复用现有 Web/HTTP 边界；必须保持 `nodeIntegration: false`、`contextIsolation: true`，preload 仅允许解析用户主动拖入 File 的绝对路径。
 - Action Catalog 与 `contracts/actions/*.schema.json` 是公开 payload Contract 的唯一事实来源；运行时和测试必须读取这些文件。
 
 ## 状态与运行
@@ -30,12 +31,14 @@
 
 ## Web 与迁移
 
-- Web UI 只保留 theme、搜索、Tab、表单、toast 等界面状态；paths/notes/projects 必须来自 `dashboard.snapshot.get`。
+- Web UI 只保留 theme、搜索、Tab、表单、toast 等界面状态；groups/paths/notes/projects 必须来自 `dashboard.snapshot.get`。
+- GROUP 是独立 Registry 实体；Path 只通过 `groupId` 引用。名称和颜色必须通过 Group Action 或兼容的 Path upsert 统一修改，禁止恢复逐条 path `groupColor` 持久化。
 - 所有写入必须携带 `expectedRevision`；冲突时提示并重新读取 snapshot，不在浏览器静默合并。
 - 直接打开 HTML 或 Server 断开时必须只读，不得回退为 localStorage 业务写入者。
 - legacy paths/notes 仅在首次成功连接后检测；迁移必须明确确认、先 dry-run、再正式 `dashboard.backup.import`。
 - 迁移成功前后都不得自动删除旧 localStorage；仅允许独立确认的手动清理，theme 保留。
 - 保持高密度 key-value UI、吸顶搜索、复制、置顶、拖放和 200ms 图标展开交互。
+- Desktop 启动时优先复用健康的现有 Dashboard Server；仅在 Server 不存在时创建并拥有它，退出时不得停止非自身拥有的 Server。
 
 ## 修改与验证
 
@@ -45,3 +48,11 @@
 - 完成修改后至少运行 `npm run check`、相关分层测试、`npm test` 和 `openspec validate --all --json`。
 - 注册表只有在根黑盒 `node conformance/runner.mjs --engine dashboard --json` 真正通过后才能标为 `engine/conformant`。
 - 不自动归档 OpenSpec Change，不创建 Git commit，不清理或覆盖用户已有未提交文件。
+
+## 项目级 Skills
+
+- 完整 Skill 统一位于 `.agents/skills/`。
+- 使用 `.agents/skills/operate-dashboard/SKILL.md` 启动、测试、调用或诊断本 Engine；它必须保持 Server/Standalone 单写入者边界。
+- 使用 `.agents/skills/register-project-entry/SKILL.md` 将其他工程接入 Dashboard 项目入口。
+- `skills/register-project-entry/SKILL.md` 是旧路径兼容 Adapter，必须先委托 canonical Skill，不能维护第二份注册流程。
+- Skill 必须通过 `engine.manifest.json` 且 `id=dashboard` 发现工程根，不得依赖固定父目录层数。

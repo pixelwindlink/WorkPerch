@@ -30,7 +30,8 @@ JSON Repository / Lock / Clock / ID / Seed / Probe  Outbound Boundary
 |---|---|
 | `engine.describe` | 描述 Engine、Transport 和 Action Contract |
 | `system.health` | 返回生命周期和状态所有权健康检查 |
-| `dashboard.snapshot.get` | 读取 aggregate revision 与 paths/notes/projects |
+| `dashboard.snapshot.get` | 读取 aggregate revision 与 groups/paths/notes/projects |
+| `dashboard.group.upsert` / `dashboard.group.delete` | 统一维护共享 GROUP 名称和颜色；仅允许删除未使用 GROUP |
 | `dashboard.path.upsert` / `dashboard.path.delete` | 路径新增、编辑、置顶和删除 |
 | `dashboard.note.upsert` / `dashboard.note.delete` | 速记新增、编辑、置顶和删除 |
 | `dashboard.project.upsert` / `dashboard.project.delete` | 项目入口目录维护；command 永远是惰性数据 |
@@ -39,6 +40,8 @@ JSON Repository / Lock / Clock / ID / Seed / Probe  Outbound Boundary
 | `dashboard.backup.import` | `merge` / `replace`、`dryRun` 和原子提交；兼容 legacy version 1 |
 
 所有 Action request/success Schema 位于 `contracts/actions/`，运行时校验和契约测试读取同一文件。写 Action 使用 `expectedRevision`；过期写入返回 `DASHBOARD_REVISION_CONFLICT`。
+
+文件路径通过 `groupId` 引用独立 GROUP Registry。GROUP 的名称和颜色只保存一份，Registry 或任一路径编辑弹窗修改共享颜色后，所有引用该 GROUP 的路径会统一显示；旧 path-level `groupColor` 仅用于迁移。
 
 ## 状态所有权
 
@@ -69,6 +72,21 @@ DASHBOARD_RUNTIME_DIR=/absolute/path/to/dashboard-runtime npm start
 默认绑定 `127.0.0.1:4173`。可使用 `DASHBOARD_HOST`（只允许 loopback）和 `DASHBOARD_PORT` 调整。Web UI 访问 <http://127.0.0.1:4173>，所有业务读写均发送完整 EngineMessage 到 `POST /engine-message`。
 
 UI 保留紧凑 key-value 路径/速记列表、项目入口、搜索、过滤、复制、置顶、拖放和 200ms 图标说明动画。Server 不可用或直接打开 `index.html` 时进入只读连接失败状态，不会把浏览器数据当成第二份业务真相。
+
+## Electron Desktop Shell
+
+开发模式启动桌面窗口：
+
+```bash
+cd /Users/ugreen/workspace/generic_engines/engine_projects/dashboard
+npm run desktop
+```
+
+Desktop Shell 复用同一套 UI 和 `POST /engine-message`。如果 `127.0.0.1:4173` 已经运行 Dashboard Server，它只连接现有 Server；否则由 Desktop 进程启动并拥有 Server，退出时仅停止自己创建的实例。
+
+在 Electron 窗口中从 Finder 拖入文件或文件夹时，受限 preload bridge 使用 Electron `webUtils.getPathForFile` 取得真实绝对路径，因此 KEY 和 VALUE 都会自动填入。普通浏览器仍受浏览器安全限制：无法取得路径时只预填名称，并提示使用 Finder `⌥⌘C` 复制路径。
+
+Desktop Renderer 保持 `nodeIntegration: false`、`contextIsolation: true`；preload 只暴露拖入 File 的路径解析，不开放文件系统、命令执行或任意 IPC。
 
 ## CLI
 
@@ -111,7 +129,9 @@ stdout 恰好输出一个 EngineMessage response；诊断只写 stderr。成功�
 Use $register-project-entry to register the current project in Dashboard Engine and verify the saved entry.
 ```
 
-Skill 位于 `skills/register-project-entry/SKILL.md`。它要求 Agent 读取自身工程事实，通过 `dashboard.snapshot.get` 获取 revision，再通过 `dashboard.project.upsert` 注册或更新，最后回读 snapshot 验证。Skill 明确禁止直接修改 Dashboard seed、状态文件、锁或执行项目 command。
+Canonical Skill 位于 `.agents/skills/register-project-entry/SKILL.md`。它要求 Agent 读取自身工程事实，通过 `dashboard.snapshot.get` 获取 revision，再通过 `dashboard.project.upsert` 注册或更新，最后回读 snapshot 验证。Skill 明确禁止直接修改 Dashboard seed、状态文件、锁或执行项目 command。
+
+旧 `skills/register-project-entry/SKILL.md` 保留为兼容入口，会先委托 canonical Skill，因此已有 Prompt 或绝对路径不会因迁移失效。操作 Dashboard 工程本身时使用 `.agents/skills/operate-dashboard/SKILL.md`，其中统一了 check/test、Server Client、Standalone Exclusive、临时 runtime 和根 conformance 流程。
 
 如果希望直接把一份任务文件交给其他 Agent，可使用 `prompts/register-project-entry.prompt.md`；该 Prompt 已包含目标、Server 地址、执行边界和完成报告格式。
 

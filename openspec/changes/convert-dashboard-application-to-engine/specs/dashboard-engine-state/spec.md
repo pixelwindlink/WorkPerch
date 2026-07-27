@@ -7,6 +7,21 @@ Dashboard SHALL persist schemaVersion, aggregateRevision, paths, notes, projects
 - **WHEN** no state file exists and Dashboard owns the root
 - **THEN** Dashboard SHALL atomically create schema version 1.0 state with revision zero and configured first-run project seed
 
+#### Scenario: Existing path has no group color
+- **WHEN** a valid schema version 1.0 aggregate created before groupColor support is loaded
+- **THEN** Dashboard SHALL accept it without rewriting state, and groupColor SHALL remain optional until the path is edited
+
+### Requirement: Aggregate owns one shared Group Registry
+Dashboard aggregate SHALL persist a groups collection with unique IDs and normalized names, and every registry-aware Path SHALL reference an existing Group through groupId while retaining a synchronized compatibility group name.
+
+#### Scenario: Legacy aggregate has only path group strings
+- **WHEN** Server starts while owning a valid aggregate without groups/groupId
+- **THEN** Repository SHALL atomically create one Group per normalized name, attach groupId references, preserve paths and increment aggregateRevision once
+
+#### Scenario: Group rename commits
+- **WHEN** a Group name changes successfully
+- **THEN** the same atomic commit SHALL update compatibility group names for all referencing Paths
+
 ### Requirement: Runtime data location is separated from source
 Dashboard SHALL use `DASHBOARD_RUNTIME_DIR` as the runtime-root override, SHALL require an absolute isolated directory for Standalone CLI and tests, and SHALL never commit state, locks, backups or user data to Git.
 

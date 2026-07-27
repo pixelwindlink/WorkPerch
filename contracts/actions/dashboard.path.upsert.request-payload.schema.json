@@ -15,7 +15,9 @@
         "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
         "name": { "type": "string", "minLength": 1, "maxLength": 120 },
         "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/" },
+        "groupId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
         "group": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "groupColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
         "description": { "type": "string", "maxLength": 500 },
         "pinned": { "type": "boolean" }
       }

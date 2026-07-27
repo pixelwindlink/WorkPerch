@@ -57,6 +57,43 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
     assert.deepEqual(cliMessage.payload, httpMessage.payload);
     await assert.rejects(() => fs.access(path.join(clientRuntime, "dashboard-state.json")), (error) => error.code === "ENOENT");
 
+    async function postAction(action, payload, id) {
+      const response = await fetch(`${baseUrl}/engine-message`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(request(action, payload, { id })),
+      });
+      const message = await response.json();
+      assert.equal(message.status, "ok", JSON.stringify(message));
+      return message.payload;
+    }
+    const group = await postAction("dashboard.group.upsert", {
+      expectedRevision: httpMessage.payload.aggregateRevision,
+      item: { name: "工程", color: "#38BDF8" },
+    }, "http-group");
+    const firstPath = await postAction("dashboard.path.upsert", {
+      expectedRevision: group.aggregateRevision,
+      item: { name: "One", path: "/tmp/http-one", groupId: group.item.id, group: group.item.name, description: "", pinned: false },
+    }, "http-path-one");
+    const secondPath = await postAction("dashboard.path.upsert", {
+      expectedRevision: firstPath.aggregateRevision,
+      item: { name: "Two", path: "/tmp/http-two", groupId: group.item.id, group: group.item.name, description: "", pinned: false },
+    }, "http-path-two");
+    const pathColorEdit = await postAction("dashboard.path.upsert", {
+      expectedRevision: secondPath.aggregateRevision,
+      item: { id: firstPath.item.id, name: "One", path: "/tmp/http-one", groupId: group.item.id, group: group.item.name, groupColor: "#EC4899", description: "", pinned: false },
+    }, "http-path-color");
+    const recolored = await postAction("dashboard.snapshot.get", {}, "http-shared-color");
+    assert.equal(recolored.groups.find((item) => item.id === group.item.id).color, "#EC4899");
+    assert.equal(recolored.paths.filter((item) => [firstPath.item.id, secondPath.item.id].includes(item.id)).every((item) => item.groupId === group.item.id), true);
+    const registryEdit = await postAction("dashboard.group.upsert", {
+      expectedRevision: pathColorEdit.aggregateRevision,
+      item: { id: group.item.id, name: "核心工程", color: "#FF8A00" },
+    }, "http-group-edit");
+    const renamed = await postAction("dashboard.snapshot.get", {}, "http-shared-name");
+    assert.equal(registryEdit.item.color, "#FF8A00");
+    assert.equal(renamed.paths.filter((item) => item.groupId === group.item.id).every((item) => item.group === "核心工程"), true);
+
     const invalidJson = await fetch(`${baseUrl}/engine-message`, { method: "POST", body: "{invalid" });
     assert.equal(invalidJson.status, 400);
     const invalidMessage = await invalidJson.json();
@@ -86,6 +123,8 @@ test("Web UI preserves compact interactions without browser-owned business state
 
   assert.match(app, /dashboard\.snapshot\.get/);
   assert.match(app, /dashboard\.path\.upsert/);
+  assert.match(app, /dashboard\.group\.upsert/);
+  assert.match(app, /dashboard\.group\.delete/);
   assert.match(app, /dashboard\.note\.upsert/);
   assert.match(app, /dashboard\.project\.upsert/);
   assert.match(app, /dashboard\.project\.probe/);
@@ -109,6 +148,22 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="addProjectButton"/);
   assert.match(html, /formnovalidate/);
   assert.match(html, /id="legacyMigrationDialog"/);
+  assert.match(html, /NAME \/ GROUP \/ NOTE/);
+  assert.match(app, /class="path-name"/);
+  assert.match(app, /class="path-note"/);
+  assert.match(app, /GROUP_COLORS/);
+  assert.match(app, /groupColorFor/);
+  assert.match(html, /id="editPathGroupColor"/);
+  assert.match(html, /id="pathColorPalette"/);
+  assert.match(html, /id="manageGroupsButton"/);
+  assert.match(html, /id="groupRegistryDialog"/);
+  assert.match(html, /id="groupRegistryList"/);
+  assert.match(app, /state\.groups = snapshot\.groups/);
+  assert.match(app, /group\.id === state\.pathCategory/);
+  assert.match(app, /groupReferenceCount/);
+  assert.match(css, /\.group-registry-row/);
+  assert.match(css, /\.path-name[\s\S]*font-size:\s*13px/);
+  assert.match(css, /\.path-group[\s\S]*font-size:\s*10px/);
   assert.match(css, /position:\s*sticky/);
   assert.match(css, /transition-delay:\s*\.2s/);
   assert.match(css, /grid-template-columns/);

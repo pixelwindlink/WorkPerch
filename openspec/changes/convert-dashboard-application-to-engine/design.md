@@ -171,9 +171,35 @@ Import 同时接受：
 
 `replace` 完整替换三类目录，`merge` 按 Path 规范化值和 Note/Project ID 合并；任何元素非法都拒绝整个导入。
 
+### 13. 路径分组颜色采用向后兼容的可选字段
+
+Path public item、状态和 Engine backup 增加可选 `groupColor`，格式固定为六位十六进制颜色 `#RRGGBB`。字段保持可选，因此现有 schemaVersion 1.0 aggregate 和旧 Engine backup 无需重写即可继续加载；新建或编辑路径时 UI 会提交显式颜色。
+
+legacy `dashboard-key-value-list` 继续接受历史 `color` 字段，并在它是合法六位十六进制颜色时映射为 `groupColor`。没有持久化颜色的旧路径由 Web UI 根据 group 名称选择稳定的鲜艳默认色，只有用户保存后才进入 Engine 状态。颜色仅影响呈现，不参与路径身份、去重或 revision 规则。
+
+编辑弹窗提供有限的鲜艳色板和原生自定义取色器。列表将 GROUP 放大为标签并与 NAME、NOTE 同行，保持紧凑三列布局；所有持久化仍通过 `dashboard.path.upsert`。
+
+### 14. GROUP 升级为独立 Registry 实体
+
+颜色不能继续归属于单条 Path。Aggregate 增加 `groups` 集合，每个 Group Item 拥有稳定 `id`、唯一规范化 `name`、共享 `color` 和时间戳；Path 增加 `groupId` 引用，并保留同步的 `group` 名称作为公开兼容字段。Group Item 是名称与颜色的权威，修改 Group 时同一事务更新引用路径的兼容名称。
+
+`dashboard.group.upsert` 创建或编辑 Group，`dashboard.group.delete` 只允许删除未被任何 Path 引用的 Group。`dashboard.path.upsert` 优先解析 groupId；旧客户端只提交 group 名称时按规范化名称解析或原子创建 Group。旧的 path-level groupColor 仅作为迁移输入：启动升级时同名 Path 合并到一个 Group，选择已有合法颜色或稳定默认色，然后从新持久化 Path 中移除逐条颜色。
+
+Repository 在持有 single-writer 锁后检测旧 schemaVersion 1.0 aggregate 是否缺少 groups/groupId；若需要，生成 Registry、写入引用并以一个可备份的 revision 原子升级。旧文件在候选完整验证前保持不变。
+
+Web UI 提供独立 Group Registry 弹窗，显示共享颜色、名称和引用数。路径行和过滤器按 groupId/Registry 解析；在任一路径编辑中改变共享颜色，也由 Domain 更新同一 Group Item，因此所有引用路径刷新后颜色一致。
+
+### 15. Electron Desktop Shell 只增加受限本机拖放能力
+
+Electron 作为可选 Inbound Host 复用现有 `index.html`、`app.js` 和 loopback `POST /engine-message`，不创建桌面专用业务 API。Desktop Main Process 启动时先验证 `http://127.0.0.1:4173` 是否为可用 Dashboard Server；已有 Server 时只连接，未运行时才创建并拥有 Server，退出时仅停止自己创建的实例，因此不会产生第二个状态写入者。
+
+Renderer 保持 `nodeIntegration: false` 和 `contextIsolation: true`。Preload 只暴露 `getPathForFile(file)`，内部调用 Electron `webUtils.getPathForFile`；不暴露 `fs`、shell、任意 IPC、进程环境或命令执行能力。拖入对象的绝对路径只用于预填现有 Path 编辑弹窗，最终仍由 `dashboard.path.upsert` 和 Domain 校验后写入。
+
+普通浏览器继续尝试标准 `text/uri-list`、`text/plain` 和可用的非标准 File path；若浏览器未暴露绝对路径，则保留文件名、空 VALUE 和明确提示。Desktop 能力缺失不得伪造路径或改变 Web UI 的 EngineMessage-only 写入边界。
+
 ## Risks / Trade-offs
 
-- [标准浏览器不暴露拖放绝对路径] → 保留文件名预填和明确提示；不伪造路径，最终由用户输入和 Engine 校验。
+- [标准浏览器不暴露拖放绝对路径] → Electron Desktop Shell 通过受限 preload bridge 提供真实路径；普通浏览器保留文件名预填和明确提示，不伪造路径。
 - [单 JSON aggregate 随数据增长] → 当前数据规模小且便于原子替换；设置项目/路径/速记数量和字段长度上限，未来规模触发独立存储 Change。
 - [自有 Schema Validator 支持集有限] → 对支持关键字显式白名单并失败得响亮；契约测试覆盖每个正式 Schema，未来需要时替换 Adapter。
 - [Server crash 遗留锁] → 锁记录 PID/host，只清理同主机已确认死亡的 owner；不确定时宁可冲突而非双写。

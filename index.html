@@ -57,6 +57,7 @@
           <select id="pathCategory" aria-label="按分组筛选">
             <option value="all">全部分组</option>
           </select>
+          <button class="quiet-button group-registry-button" id="manageGroupsButton" type="button">GROUPS <b id="groupCount">0</b></button>
           <button class="quiet-button clear-filter" id="clearPathFilter" type="button">清除</button>
         </div>
 
@@ -64,7 +65,7 @@
 
         <div class="kv-list path-list">
           <div class="kv-head path-columns" aria-hidden="true">
-            <span>KEY</span><span>VALUE</span><span>GROUP / NOTE</span><span>ACTIONS</span>
+            <span>NAME / GROUP / NOTE</span><span>FILE PATH</span><span>ACTIONS</span>
           </div>
           <div id="pathList"></div>
         </div>
@@ -150,15 +151,51 @@
         </div>
         <div class="dialog-notice" id="pathDialogNotice" hidden></div>
         <input id="editPathId" type="hidden" />
+        <input id="editPathGroupId" type="hidden" />
         <label><span>KEY</span><input id="editPathKey" required maxlength="60" /></label>
         <label><span>VALUE / FILE PATH</span><input id="editPathValue" required /></label>
         <div class="dialog-row">
-          <label><span>GROUP</span><input id="editPathGroup" maxlength="24" list="pathGroups" /></label>
+          <label>
+            <span>GROUP / COLOR</span>
+            <div class="group-color-editor">
+              <input id="editPathGroup" maxlength="80" list="pathGroups" />
+              <input class="group-color-input" id="editPathGroupColor" type="color" value="#38BDF8" aria-label="自定义分组颜色" title="自定义分组颜色" />
+            </div>
+            <div class="group-color-palette" id="pathColorPalette" aria-label="鲜艳颜色快捷选择"></div>
+          </label>
           <label><span>NOTE</span><input id="editPathNote" maxlength="120" /></label>
         </div>
         <div class="dialog-actions">
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
           <button class="add-button" id="pathDialogSubmit" value="save" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="edit-dialog group-registry-dialog" id="groupRegistryDialog">
+      <form method="dialog" id="groupRegistryForm">
+        <div class="dialog-heading">
+          <div><small>SHARED REGISTRY</small><h2>GROUP Registry <span id="groupRegistryCount">0</span></h2></div>
+          <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <p class="dialog-copy">每个 GROUP 只保存一份名称和颜色；修改后，所有引用它的文件路径会立即统一。</p>
+        <section class="group-registry-editor">
+          <div class="group-registry-editor-heading">
+            <strong id="groupRegistryEditorTitle">新增 GROUP</strong>
+            <button class="quiet-button" id="groupRegistryReset" type="button">清空</button>
+          </div>
+          <input id="editGroupId" type="hidden" />
+          <div class="group-registry-fields">
+            <label><span>GROUP NAME</span><input id="editGroupName" required maxlength="80" /></label>
+            <label><span>COLOR</span><input class="group-color-input" id="editGroupColor" type="color" value="#38BDF8" aria-label="GROUP 颜色" /></label>
+            <button class="add-button" id="groupRegistrySubmit" value="group-save" type="submit">添加 GROUP</button>
+          </div>
+          <div class="group-color-palette" id="groupColorPalette" aria-label="鲜艳颜色快捷选择"></div>
+        </section>
+        <div class="group-registry-list" id="groupRegistryList"></div>
+        <div class="group-registry-empty" id="groupRegistryEmpty" hidden>还没有 GROUP Item。</div>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>完成</button>
         </div>
       </form>
     </dialog>

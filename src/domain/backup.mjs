@@ -1,6 +1,14 @@
 import { dashboardError } from "./errors.mjs";
-import { assertAggregate, assertExpectedRevision, normalizeNoteItem, normalizePathItem, normalizeProjectItem } from "./dashboard-aggregate.mjs";
-import { LIMITS, assertAllowedKeys, comparablePath } from "./value-objects.mjs";
+import {
+  assertAggregate,
+  assertExpectedRevision,
+  materializeGroupRegistry,
+  normalizeGroupItem,
+  normalizeNoteItem,
+  normalizePathItem,
+  normalizeProjectItem
+} from "./dashboard-aggregate.mjs";
+import { LIMITS, assertAllowedKeys, comparableGroupName, comparablePath } from "./value-objects.mjs";
 
 function blankSummary() {
   return {
@@ -21,16 +29,27 @@ function normalizeBackup(backup, { now, idFactory }) {
   if (!legacy && !engine) throw dashboardError("DASHBOARD_IMPORT_INVALID", "不支持的备份格式或版本。");
   assertAllowedKeys(
     backup,
-    legacy ? ["format", "version", "exportedAt", "paths", "notes"] : ["format", "version", "aggregateRevision", "exportedAt", "paths", "notes", "projects"],
+    legacy ? ["format", "version", "exportedAt", "paths", "notes"] : ["format", "version", "aggregateRevision", "exportedAt", "groups", "paths", "notes", "projects"],
     "backup",
     "DASHBOARD_IMPORT_INVALID"
   );
   if (!Array.isArray(backup.paths) || !Array.isArray(backup.notes) || (engine && !Array.isArray(backup.projects))) {
     throw dashboardError("DASHBOARD_IMPORT_INVALID", "备份集合不完整。");
   }
-  if (backup.paths.length > LIMITS.paths || backup.notes.length > LIMITS.notes || (engine && backup.projects.length > LIMITS.projects)) {
+  if (
+    backup.paths.length > LIMITS.paths
+    || backup.notes.length > LIMITS.notes
+    || (engine && backup.projects.length > LIMITS.projects)
+    || (Array.isArray(backup.groups) && backup.groups.length > LIMITS.groups)
+  ) {
     throw dashboardError("DASHBOARD_IMPORT_REJECTED", "备份集合超过 Dashboard 容量限制。");
   }
+  if (engine && backup.groups !== undefined && !Array.isArray(backup.groups)) {
+    throw dashboardError("DASHBOARD_IMPORT_INVALID", "backup.groups 必须是数组。");
+  }
+  const groups = engine && backup.groups
+    ? backup.groups.map((item) => normalizeGroupItem(item, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID", stored: true }))
+    : undefined;
   const paths = backup.paths.map((item) => normalizePathItem(item, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID", legacy, stored: engine }));
   const notes = backup.notes.map((item) => normalizeNoteItem(item, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID", legacy, stored: engine }));
   const projects = engine ? backup.projects.map((item) => normalizeProjectItem(item, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID", stored: true })) : null;
@@ -47,7 +66,25 @@ function normalizeBackup(backup, { now, idFactory }) {
       ids.add(item.id);
     }
   }
-  return { legacy, paths, notes, projects };
+  let registry;
+  try {
+    registry = materializeGroupRegistry({
+      schemaVersion: "1.0",
+      aggregateRevision: 0,
+      ...(groups ? { groups } : {}),
+      paths,
+      notes,
+      projects: projects || [],
+      createdAt: now,
+      updatedAt: now
+    }, { now, idFactory, incrementRevision: false }).state;
+  } catch (error) {
+    if (error?.code === "DASHBOARD_STATE_CORRUPT") {
+      throw dashboardError("DASHBOARD_IMPORT_INVALID", `备份 Group Registry 不合法：${error.message}`, { cause: error });
+    }
+    throw error;
+  }
+  return { legacy, groups: registry.groups, paths: registry.paths, notes, projects };
 }
 
 function mergeCollection(current, incoming, keyOf, summary) {
@@ -79,12 +116,40 @@ function replaceSummary(current, incoming) {
   return result;
 }
 
+function mergeGroups(current, incoming) {
+  const groups = structuredClone(current);
+  const remap = new Map();
+  for (const item of incoming) {
+    let index = groups.findIndex((candidate) => candidate.id === item.id);
+    if (index < 0) index = groups.findIndex((candidate) => comparableGroupName(candidate.name) === comparableGroupName(item.name));
+    if (index < 0) {
+      groups.push(item);
+      remap.set(item.id, item.id);
+      continue;
+    }
+    const existing = groups[index];
+    const merged = { ...item, id: existing.id, createdAt: existing.createdAt };
+    groups[index] = merged;
+    remap.set(item.id, existing.id);
+  }
+  const byId = new Map(groups.map((item) => [item.id, item]));
+  return {
+    groups,
+    paths: (paths) => paths.map((item) => {
+      const groupId = remap.get(item.groupId) || item.groupId;
+      const group = byId.get(groupId);
+      return { ...item, groupId, group: group?.name || item.group };
+    })
+  };
+}
+
 export function exportBackup(state, exportedAt) {
   return {
     format: "dashboard-engine-backup",
     version: 1,
     aggregateRevision: state.aggregateRevision,
     exportedAt,
+    groups: structuredClone(state.groups),
     paths: structuredClone(state.paths),
     notes: structuredClone(state.notes),
     projects: structuredClone(state.projects)
@@ -99,9 +164,11 @@ export function planBackupImport(state, { backup, mode, dryRun, expectedRevision
   const normalized = normalizeBackup(backup, { now, idFactory });
   const summary = blankSummary();
   let paths;
+  let groups;
   let notes;
   let projects;
   if (mode === "replace") {
+    groups = normalized.groups;
     paths = normalized.paths;
     notes = normalized.notes;
     projects = normalized.projects ?? structuredClone(state.projects);
@@ -110,7 +177,9 @@ export function planBackupImport(state, { backup, mode, dryRun, expectedRevision
     if (normalized.projects) summary.projects = replaceSummary(state.projects, projects);
     else summary.projects.skipped = state.projects.length;
   } else if (mode === "merge") {
-    paths = mergeCollection(state.paths, normalized.paths, (item) => comparablePath(item.path), summary.paths);
+    const mergedGroups = mergeGroups(state.groups, normalized.groups);
+    groups = mergedGroups.groups;
+    paths = mergeCollection(state.paths, mergedGroups.paths(normalized.paths), (item) => comparablePath(item.path), summary.paths);
     notes = mergeCollection(state.notes, normalized.notes, (item) => item.id, summary.notes);
     projects = normalized.projects ? mergeCollection(state.projects, normalized.projects, (item) => item.id, summary.projects) : structuredClone(state.projects);
     if (!normalized.projects) summary.projects.skipped = state.projects.length;
@@ -119,6 +188,7 @@ export function planBackupImport(state, { backup, mode, dryRun, expectedRevision
   }
   const candidate = {
     ...structuredClone(state),
+    groups,
     paths,
     notes,
     projects,

@@ -22,7 +22,7 @@ Every Action request and success payload SHALL be validated against its JSON Sch
 - **THEN** the success payload SHALL contain revision metadata and paths but SHALL omit notes and projects
 
 ### Requirement: Path Actions enforce path invariants and revision
-`dashboard.path.upsert` SHALL create or update a path with name, absolute path, group, description and pinned state; `dashboard.path.delete` SHALL delete by ID; both SHALL require expectedRevision for writes.
+`dashboard.path.upsert` SHALL create or update a path with name, absolute path, group, optional six-digit hexadecimal groupColor, description and pinned state; `dashboard.path.delete` SHALL delete by ID; both SHALL require expectedRevision for writes.
 
 #### Scenario: New normalized path already exists
 - **WHEN** an upsert without that existing ID uses an equivalent normalized absolute path
@@ -31,6 +31,29 @@ Every Action request and success payload SHALL be validated against its JSON Sch
 #### Scenario: Path write uses stale revision
 - **WHEN** expectedRevision differs from the current aggregateRevision
 - **THEN** Dashboard SHALL return `DASHBOARD_REVISION_CONFLICT` without writing state
+
+#### Scenario: Caller selects a custom group color
+- **WHEN** path upsert contains a valid `#RRGGBB` groupColor
+- **THEN** Dashboard SHALL persist and return it without changing path identity or duplicate semantics
+
+#### Scenario: Caller submits an invalid group color
+- **WHEN** groupColor is not a six-digit hexadecimal color
+- **THEN** Dashboard SHALL reject the payload and SHALL not change revision
+
+### Requirement: Group Actions manage shared Registry items
+Dashboard SHALL expose `dashboard.group.upsert` and `dashboard.group.delete`; each Group SHALL have a stable ID, unique normalized name and shared hexadecimal color, and every Path SHALL reference one Group Item through groupId.
+
+#### Scenario: Two paths share one Group
+- **WHEN** both paths resolve to the same groupId
+- **THEN** snapshot SHALL expose one Group Item and both paths SHALL reference it
+
+#### Scenario: Group color changes
+- **WHEN** dashboard.group.upsert changes the shared color at the current revision
+- **THEN** every Path referencing that groupId SHALL render the new color after snapshot refresh without per-path writes
+
+#### Scenario: Referenced Group is deleted
+- **WHEN** dashboard.group.delete targets a Group used by one or more Paths
+- **THEN** Dashboard SHALL return `DASHBOARD_GROUP_IN_USE` without changing revision
 
 ### Requirement: Note Actions enforce note invariants and revision
 `dashboard.note.upsert` SHALL create or update title, content and pinned state; `dashboard.note.delete` SHALL delete by ID; both SHALL use expectedRevision and stable generated IDs for creates.

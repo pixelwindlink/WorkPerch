@@ -28,6 +28,10 @@ Dashboard SHALL accept the existing `format: dashboard-key-value-list`, `version
 - **WHEN** it is imported in merge mode
 - **THEN** existing Engine projects SHALL remain unchanged
 
+#### Scenario: Legacy path contains a valid color
+- **WHEN** a version 1 path item contains a six-digit hexadecimal `color`
+- **THEN** Dashboard SHALL map it to public groupColor while preserving legacy backup compatibility
+
 ### Requirement: Merge and replace are explicit
 Backup import SHALL require mode `merge` or `replace`; merge SHALL combine validated items using stable identity rules, while replace SHALL replace all catalog collections represented by the accepted backup semantics.
 

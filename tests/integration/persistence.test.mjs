@@ -109,3 +109,48 @@ test("invalid legacy import produces no partial state write", async () => {
     await removeRuntime(runtimeDir);
   }
 });
+
+test("legacy path group strings migrate atomically once into a shared Registry", async () => {
+  const runtimeDir = await tempRuntime("dashboard-group-migration-");
+  const statePath = path.join(runtimeDir, "dashboard-state.json");
+  const createdAt = "2026-07-27T00:00:00.000Z";
+  const legacy = {
+    schemaVersion: "1.0",
+    aggregateRevision: 38,
+    paths: [
+      { id: "path-one", name: "One", path: "/tmp/one", group: "工程", description: "", pinned: false, createdAt, updatedAt: createdAt },
+      { id: "path-two", name: "Two", path: "/tmp/two", group: "工程", groupColor: "#EC4899", description: "", pinned: false, createdAt, updatedAt: createdAt },
+    ],
+    notes: [],
+    projects: [],
+    createdAt,
+    updatedAt: createdAt,
+  };
+  await fs.writeFile(statePath, `${JSON.stringify(legacy, null, 2)}\n`, "utf8");
+
+  const first = await createDashboardEngine({ mode: "standalone", runtimeDir, genericEnginesRoot: GENERIC_ENGINES_ROOT });
+  try {
+    await first.start();
+    const snapshot = await first.handle(request("dashboard.snapshot.get", {}, { id: "migrated" }));
+    assert.equal(snapshot.payload.aggregateRevision, 39);
+    assert.equal(snapshot.payload.groups.length, 1);
+    assert.equal(snapshot.payload.groups[0].name, "工程");
+    assert.equal(snapshot.payload.groups[0].color, "#EC4899");
+    assert.equal(snapshot.payload.paths.every((item) => item.groupId === snapshot.payload.groups[0].id), true);
+    assert.equal(snapshot.payload.paths.every((item) => item.groupColor === undefined), true);
+  } finally {
+    await first.shutdown();
+  }
+
+  const backup = JSON.parse(await fs.readFile(path.join(runtimeDir, "backups/revision-00000038.json"), "utf8"));
+  assert.equal(Object.hasOwn(backup, "groups"), false);
+  const second = await createDashboardEngine({ mode: "standalone", runtimeDir, genericEnginesRoot: GENERIC_ENGINES_ROOT });
+  try {
+    await second.start();
+    const snapshot = await second.handle(request("dashboard.snapshot.get", {}, { id: "not-remigrated" }));
+    assert.equal(snapshot.payload.aggregateRevision, 39);
+  } finally {
+    await second.shutdown();
+    await removeRuntime(runtimeDir);
+  }
+});

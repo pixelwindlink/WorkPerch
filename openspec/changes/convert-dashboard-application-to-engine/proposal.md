@@ -14,6 +14,8 @@ Dashboard 当前只是由浏览器 `localStorage` 持有业务状态的静态 Ap
 - 将浏览器端口探测替换为 Engine-owned 受限 Probe Adapter，只允许已登记项目的 loopback endpoint，并限制超时和并发。
 - 保留现有文件路径、项目入口和速记 UI，以及搜索、过滤、复制、置顶、拖放、导入导出体验；所有业务读写改走 `POST /engine-message`。
 - 保持 `dashboard-key-value-list` version 1 备份读取兼容，并提供 `merge`、`replace`、`dryRun` 的正式导入 Action。
+- 为路径分组增加可选 `groupColor`，让 GROUP 作为更醒目的自定义彩色标签展示，同时保持现有无颜色状态和 legacy `color` 字段可读。
+- 新增可选 Electron Desktop Shell，复用同一 Web UI 和 Engine Server，并通过最小 preload bridge 获取用户主动拖入文件/文件夹的真实本机绝对路径；普通浏览器继续保留安全降级行为。
 - **BREAKING**：浏览器 `localStorage` 不再是 paths/notes 的业务真相；直接打开 `index.html` 不再提供完整可写模式，只显示需要连接 Dashboard Engine Server 的只读/迁移提示。
 - **BREAKING**：CLI 与 Server 不再能无协调地打开同一状态根；冲突返回 `STATE_OWNERSHIP_CONFLICT`，不会静默 fallback 为第二写入者。
 - 更新根注册表中的 dashboard 分类、manifest、状态所有权与真实证据；只有全部黑盒验证通过后才晋级 `engine/conformant`。

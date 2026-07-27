@@ -1,0 +1,4 @@
+interface:
+  display_name: "Register Dashboard Project"
+  short_description: "Register projects through Dashboard EngineMessage"
+  default_prompt: "Use $register-project-entry to register the current project in Dashboard Engine and verify the saved entry."

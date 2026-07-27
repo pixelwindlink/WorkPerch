@@ -19,7 +19,7 @@ test("every declared Action uses its canonical request and success Schema", asyn
   const engine = await createDashboardEngine({ mode: "standalone", runtimeDir, genericEnginesRoot: GENERIC_ENGINES_ROOT });
   await engine.start();
   try {
-    assert.equal(contracts.actions.size, 12);
+    assert.equal(contracts.actions.size, 14);
     const seen = new Set();
     async function invoke(action, payload) {
       const contract = contracts.actions.get(action);
@@ -36,9 +36,13 @@ test("every declared Action uses its canonical request and success Schema", asyn
     await invoke("engine.describe", {});
     await invoke("system.health", {});
     const snapshot = await invoke("dashboard.snapshot.get", {});
-    const pathUpsert = await invoke("dashboard.path.upsert", {
+    const groupUpsert = await invoke("dashboard.group.upsert", {
       expectedRevision: snapshot.aggregateRevision,
-      item: { name: "Contract Path", path: "/tmp/contract-path", group: "Test", description: "", pinned: false },
+      item: { name: "Contract Group", color: "#A855F7" },
+    });
+    const pathUpsert = await invoke("dashboard.path.upsert", {
+      expectedRevision: groupUpsert.aggregateRevision,
+      item: { name: "Contract Path", path: "/tmp/contract-path", groupId: groupUpsert.item.id, group: groupUpsert.item.name, description: "", pinned: false },
     });
     const noteUpsert = await invoke("dashboard.note.upsert", {
       expectedRevision: pathUpsert.aggregateRevision,
@@ -55,7 +59,8 @@ test("every declared Action uses its canonical request and success Schema", asyn
     const exported = await invoke("dashboard.backup.export", {});
     await invoke("dashboard.backup.import", { backup: exported.backup, mode: "merge", dryRun: true });
     const pathDelete = await invoke("dashboard.path.delete", { id: pathUpsert.item.id, expectedRevision: projectUpsert.aggregateRevision });
-    const noteDelete = await invoke("dashboard.note.delete", { id: noteUpsert.item.id, expectedRevision: pathDelete.aggregateRevision });
+    const groupDelete = await invoke("dashboard.group.delete", { id: groupUpsert.item.id, expectedRevision: pathDelete.aggregateRevision });
+    const noteDelete = await invoke("dashboard.note.delete", { id: noteUpsert.item.id, expectedRevision: groupDelete.aggregateRevision });
     await invoke("dashboard.project.delete", { id: projectUpsert.item.id, expectedRevision: noteDelete.aggregateRevision });
     assert.deepEqual([...seen].sort(), [...contracts.actions.keys()].sort());
   } finally {
@@ -124,7 +129,7 @@ test("standard and domain error codes produce legal EngineMessage responses", as
   const contracts = await loadContractRegistry({ genericEnginesRoot: GENERIC_ENGINES_ROOT });
   const codes = [
     "DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_IMPORT_INVALID", "DASHBOARD_IMPORT_REJECTED",
-    "DASHBOARD_STATE_CORRUPT", "DASHBOARD_PROBE_FORBIDDEN", "STATE_OWNERSHIP_CONFLICT", "INVALID_PAYLOAD",
+    "DASHBOARD_GROUP_ALREADY_EXISTS", "DASHBOARD_GROUP_IN_USE", "DASHBOARD_STATE_CORRUPT", "DASHBOARD_PROBE_FORBIDDEN", "STATE_OWNERSHIP_CONFLICT", "INVALID_PAYLOAD",
     "UNSUPPORTED_ACTION", "INTERNAL_ERROR",
   ];
   for (const code of codes) {

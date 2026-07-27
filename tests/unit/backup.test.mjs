@@ -21,13 +21,15 @@ test("legacy merge dry-run plans without changing revision or source", () => {
   const backup = {
     format: "dashboard-key-value-list",
     version: 1,
-    paths: [{ id: "legacy-path", name: "A2", path: "/tmp/a", group: "G", description: "new", pinned: true }],
+    paths: [{ id: "legacy-path", name: "A2", path: "/tmp/a", group: "G", color: "#ec4899", description: "new", pinned: true }],
     notes: [{ id: "legacy-note", title: "Imported", content: "value", pinned: false }],
   };
   const plan = planBackupImport(state, { backup, mode: "merge", dryRun: true }, { now: t2, idFactory });
   assert.equal(plan.candidate.aggregateRevision, state.aggregateRevision);
   assert.equal(plan.summary.paths.updated, 1);
   assert.equal(plan.summary.notes.added, 1);
+  assert.equal(plan.candidate.paths[0].groupColor, undefined);
+  assert.equal(plan.candidate.groups.find((group) => group.id === plan.candidate.paths[0].groupId)?.color, "#EC4899");
   assert.equal(state.paths[0].name, "A");
 });
 
@@ -43,6 +45,24 @@ test("replace commit increments once and Engine backup round-trips", () => {
   assert.equal(plan.candidate.aggregateRevision, state.aggregateRevision + 1);
   assert.deepEqual(plan.candidate.paths, state.paths);
   assert.deepEqual(plan.candidate.notes, state.notes);
+  assert.deepEqual(plan.candidate.groups, state.groups);
+});
+
+test("old Engine backups without groups materialize one shared Registry", () => {
+  const state = populatedState();
+  const backup = exportBackup(state, t2);
+  delete backup.groups;
+  backup.paths = backup.paths.map(({ groupId, ...item }) => ({ ...item, groupColor: "#FF8A00" }));
+  const plan = planBackupImport(state, {
+    backup,
+    mode: "replace",
+    dryRun: false,
+    expectedRevision: state.aggregateRevision,
+  }, { now: t2, idFactory });
+  assert.equal(plan.candidate.groups.length, 1);
+  assert.equal(plan.candidate.groups[0].color, "#FF8A00");
+  assert.equal(plan.candidate.paths[0].groupId, plan.candidate.groups[0].id);
+  assert.equal(plan.candidate.paths[0].groupColor, undefined);
 });
 
 test("invalid or duplicated backup items reject the complete import", () => {

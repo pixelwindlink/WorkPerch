@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operate Dashboard Engine"
+  short_description: "Run and verify Dashboard without state conflicts"
+  default_prompt: "Use $operate-dashboard to safely start, test, call, and diagnose Dashboard Engine with correct state ownership."

@@ -29,6 +29,20 @@
       "deprecated": false
     },
     {
+      "name": "dashboard.group.upsert",
+      "requestPayloadSchema": "contracts/actions/dashboard.group.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.group.upsert.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_GROUP_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.group.delete",
+      "requestPayloadSchema": "contracts/actions/dashboard.group.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.group.delete.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_GROUP_IN_USE", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
       "name": "dashboard.path.upsert",
       "requestPayloadSchema": "contracts/actions/dashboard.path.upsert.request-payload.schema.json",
       "successPayloadSchema": "contracts/actions/dashboard.path.upsert.success-payload.schema.json",

@@ -17,6 +17,8 @@ const ICONS = {
   folder: '<path d="M3 6.5A2.5 2.5 0 0 1 5.5 4H9l2 2h7.5A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-10Z"/>',
 };
 
+const GROUP_COLORS = ["#FF4D6D", "#FF8A00", "#FFD60A", "#22C55E", "#2DD4BF", "#38BDF8", "#6366F1", "#A855F7", "#EC4899", "#F97316"];
+
 class EngineClientError extends Error {
   constructor(code, message) {
     super(message);
@@ -38,6 +40,8 @@ const state = {
   dropQueue: [],
   pathDialogFromDrop: false,
   highlightPathId: null,
+  pathColorTouched: false,
+  groups: [],
   paths: [],
   notes: [],
   projects: [],
@@ -56,6 +60,8 @@ const elements = {
   noteList: document.querySelector("#noteList"),
   noteEmpty: document.querySelector("#noteEmpty"),
   editPathDialog: document.querySelector("#editPathDialog"),
+  groupRegistryDialog: document.querySelector("#groupRegistryDialog"),
+  groupRegistryList: document.querySelector("#groupRegistryList"),
   editNoteDialog: document.querySelector("#editNoteDialog"),
   editProjectDialog: document.querySelector("#editProjectDialog"),
   legacyDialog: document.querySelector("#legacyMigrationDialog"),
@@ -91,6 +97,66 @@ function escapeHtml(value = "") {
 
 function normalize(value = "") {
   return String(value).trim().toLocaleLowerCase("zh-CN");
+}
+
+function validGroupColor(value) {
+  return typeof value === "string" && /^#[0-9A-Fa-f]{6}$/.test(value) ? value.toUpperCase() : null;
+}
+
+function derivedGroupColor(group = "未分组") {
+  let hash = 0;
+  for (const character of String(group || "未分组")) hash = ((hash * 31) + character.codePointAt(0)) >>> 0;
+  return GROUP_COLORS[hash % GROUP_COLORS.length];
+}
+
+function groupById(id) {
+  return state.groups.find((item) => item.id === id);
+}
+
+function groupByName(name) {
+  const key = normalize(name || "未分组");
+  return state.groups.find((item) => normalize(item.name) === key);
+}
+
+function groupForPath(item) {
+  return groupById(item?.groupId) || groupByName(item?.group) || {
+    id: item?.groupId || "",
+    name: item?.group || "未分组",
+    color: validGroupColor(item?.groupColor) || derivedGroupColor(item?.group),
+  };
+}
+
+function groupColorFor(item) {
+  return validGroupColor(groupForPath(item).color) || derivedGroupColor(groupForPath(item).name);
+}
+
+function setPathGroupColor(color, { touched = true } = {}) {
+  const selected = validGroupColor(color) || GROUP_COLORS[5];
+  document.querySelector("#editPathGroupColor").value = selected;
+  state.pathColorTouched = touched;
+  document.querySelectorAll("#pathColorPalette [data-group-color]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.groupColor === selected);
+  });
+}
+
+function renderPathColorPalette(selected) {
+  const palette = document.querySelector("#pathColorPalette");
+  palette.innerHTML = GROUP_COLORS.map((color) => `<button type="button" data-group-color="${color}" style="--swatch-color:${color}" aria-label="选择颜色 ${color}" title="${color}"></button>`).join("");
+  setPathGroupColor(selected, { touched: false });
+}
+
+function setRegistryGroupColor(color) {
+  const selected = validGroupColor(color) || GROUP_COLORS[5];
+  document.querySelector("#editGroupColor").value = selected;
+  document.querySelectorAll("#groupColorPalette [data-group-color]").forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.groupColor === selected);
+  });
+}
+
+function renderRegistryColorPalette(selected) {
+  const palette = document.querySelector("#groupColorPalette");
+  palette.innerHTML = GROUP_COLORS.map((color) => `<button type="button" data-group-color="${color}" style="--swatch-color:${color}" aria-label="选择颜色 ${color}" title="${color}"></button>`).join("");
+  setRegistryGroupColor(selected);
 }
 
 function messageId() {
@@ -197,6 +263,7 @@ async function loadSnapshot({ silent = false, probe = true } = {}) {
   try {
     const snapshot = await engineAction("dashboard.snapshot.get", {});
     state.aggregateRevision = snapshot.aggregateRevision;
+    state.groups = snapshot.groups || [];
     state.paths = snapshot.paths || [];
     state.notes = snapshot.notes || [];
     state.projects = snapshot.projects || [];
@@ -261,6 +328,14 @@ function normalizeDroppedPath(value) {
   return raw.startsWith("/") ? raw : "";
 }
 
+function desktopDroppedPath(file) {
+  try {
+    return normalizeDroppedPath(window.dashboardDesktop?.getPathForFile?.(file) || "");
+  } catch {
+    return "";
+  }
+}
+
 function pathName(filePath) {
   const parts = String(filePath || "").replace(/\/+$/, "").split("/").filter(Boolean);
   return parts.at(-1) || "未命名路径";
@@ -277,7 +352,11 @@ function extractDroppedCandidates(dataTransfer) {
     .map((item) => {
       const entry = item.webkitGetAsEntry?.();
       const file = item.getAsFile?.();
-      return { name: entry?.name || file?.name || "", isDirectory: Boolean(entry?.isDirectory), directPath: normalizeDroppedPath(file?.path || "") };
+      return {
+        name: entry?.name || file?.name || "",
+        isDirectory: Boolean(entry?.isDirectory),
+        directPath: desktopDroppedPath(file) || normalizeDroppedPath(file?.path || "")
+      };
     });
   const textPaths = [];
   for (const type of ["text/uri-list", "text/plain"]) {
@@ -331,7 +410,9 @@ function processNextDroppedCandidate() {
     }
     openPathEditor({ name: candidate.name || pathName(candidate.path), path: candidate.path, group: candidate.isDirectory ? "文件夹" : "文件", description: "" }, {
       fromDrop: true,
-      notice: candidate.path ? "已从拖放内容中识别到绝对路径，请确认后添加。" : "当前浏览器没有提供绝对路径。文件名已识别，请补充完整路径后添加。",
+      notice: candidate.path
+        ? (window.dashboardDesktop ? "Desktop Shell 已识别真实绝对路径，请确认后添加。" : "已从拖放内容中识别到绝对路径，请确认后添加。")
+        : "普通浏览器不会暴露本机绝对路径。文件名已识别；可在 Finder 按 ⌥⌘C 复制路径后粘贴到 VALUE。",
     });
     return;
   }
@@ -362,28 +443,35 @@ function handleDrop(event) {
 }
 
 function renderPathGroups() {
-  const groups = [...new Set(state.paths.map((item) => item.group || "未分组"))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+  const groups = [...state.groups].sort((a, b) => a.name.localeCompare(b.name, "zh-CN"));
   const select = document.querySelector("#pathCategory");
   const current = state.pathCategory;
-  select.innerHTML = '<option value="all">全部分组</option>' + groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join("");
-  select.value = groups.includes(current) ? current : "all";
+  select.innerHTML = '<option value="all">全部分组</option>' + groups.map((group) => `<option value="${escapeHtml(group.id)}">${escapeHtml(group.name)}</option>`).join("");
+  select.value = groups.some((group) => group.id === current) ? current : "all";
   state.pathCategory = select.value;
-  document.querySelector("#pathGroups").innerHTML = groups.map((group) => `<option value="${escapeHtml(group)}"></option>`).join("");
+  document.querySelector("#pathGroups").innerHTML = groups.map((group) => `<option value="${escapeHtml(group.name)}"></option>`).join("");
+  document.querySelector("#groupCount").textContent = String(groups.length);
 }
 
 function renderPaths() {
   const query = normalize(state.pathSearch);
   const rows = [...state.paths]
     .filter((item) => {
-      const groupMatches = state.pathCategory === "all" || (item.group || "未分组") === state.pathCategory;
-      return groupMatches && (!query || normalize([item.name, item.path, item.group, item.description].join(" ")).includes(query));
+      const group = groupForPath(item);
+      const groupMatches = state.pathCategory === "all" || group.id === state.pathCategory;
+      return groupMatches && (!query || normalize([item.name, item.path, group.name, item.description].join(" ")).includes(query));
     })
     .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || a.name.localeCompare(b.name, "zh-CN"));
-  elements.pathList.innerHTML = rows.map((item) => `
+  elements.pathList.innerHTML = rows.map((item) => {
+    const group = groupForPath(item);
+    return `
     <div class="kv-row path-row ${item.pinned ? "is-pinned" : ""} ${state.highlightPathId === item.id ? "duplicate-hit" : ""}" data-id="${escapeHtml(item.id)}">
-      <div class="kv-key"><strong title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</strong><small>${item.pinned ? "PINNED · " : ""}KEY</small></div>
+      <div class="path-identity">
+        <strong class="path-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</strong>
+        <span class="group-tag path-group" style="--tag-color:${groupColorFor(item)}">${escapeHtml(group.name)}</span>
+        <span class="path-note" title="${escapeHtml(item.description || "暂无备注")}">${escapeHtml(item.description || "暂无备注")}</span>
+      </div>
       <button class="kv-value" data-action="copy-path" type="button" title="点击复制：${escapeHtml(item.path)}">${escapeHtml(item.path)}</button>
-      <div class="kv-meta"><span class="group-tag">${escapeHtml(item.group || "未分组")}</span>${escapeHtml(item.description || "—")}</div>
       <div class="row-actions">
         <button class="row-button ${item.pinned ? "is-active" : ""}" data-action="pin-path" data-label="${item.pinned ? "取消置顶" : "置顶"}" ${item.pinned ? 'data-long="true"' : ""} type="button" aria-label="${item.pinned ? "取消置顶" : "置顶"}" ${state.connected ? "" : "disabled"}>${icon("pin")}</button>
         <button class="row-button" data-action="copy-path" data-label="复制" type="button" aria-label="复制路径">${icon("copy")}</button>
@@ -391,7 +479,8 @@ function renderPaths() {
         <button class="row-button" data-action="edit-path" data-label="编辑" type="button" aria-label="编辑" ${state.connected ? "" : "disabled"}>${icon("edit")}</button>
         <button class="row-button danger" data-action="delete-path" data-label="删除" type="button" aria-label="删除" ${state.connected ? "" : "disabled"}>${icon("trash")}</button>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   document.querySelector("#pathCount").textContent = String(state.paths.length);
   document.querySelector("#totalPathCount").textContent = String(state.paths.length);
   document.querySelector("#visiblePathCount").textContent = String(rows.length);
@@ -460,6 +549,7 @@ function renderAll() {
   renderPaths();
   renderProjects();
   renderNotes();
+  if (elements.groupRegistryDialog?.open) renderGroupRegistry();
 }
 
 function formatDate(value) {
@@ -469,7 +559,8 @@ function formatDate(value) {
 }
 
 function pathInput(item, changes = {}) {
-  return { id: item.id, name: item.name, path: item.path, group: item.group, description: item.description, pinned: item.pinned, ...changes };
+  const group = groupForPath(item);
+  return { id: item.id, name: item.name, path: item.path, groupId: group.id, group: group.name, description: item.description, pinned: item.pinned, ...changes };
 }
 
 function noteInput(item, changes = {}) {
@@ -493,6 +584,14 @@ function projectInput(item, changes = {}) {
   };
 }
 
+function syncPathGroupSelection(name, { forceColor = false } = {}) {
+  const group = groupByName(name);
+  document.querySelector("#editPathGroupId").value = group?.id || "";
+  if (forceColor || !state.pathColorTouched) {
+    setPathGroupColor(group?.color || derivedGroupColor(name || "未分组"), { touched: false });
+  }
+}
+
 function openPathEditor(item = null, options = {}) {
   if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
   const editing = Boolean(item?.id);
@@ -506,20 +605,27 @@ function openPathEditor(item = null, options = {}) {
   document.querySelector("#editPathId").value = item?.id || "";
   document.querySelector("#editPathKey").value = item?.name || "";
   document.querySelector("#editPathValue").value = item?.path || "";
-  document.querySelector("#editPathGroup").value = item?.group || "";
+  const selectedGroup = item ? groupForPath(item) : null;
+  document.querySelector("#editPathGroupId").value = selectedGroup?.id || "";
+  document.querySelector("#editPathGroup").value = selectedGroup?.name || item?.group || "";
+  state.pathColorTouched = false;
+  renderPathColorPalette(selectedGroup?.color || derivedGroupColor(item?.group || "未分组"));
   document.querySelector("#editPathNote").value = item?.description || "";
   elements.editPathDialog.showModal();
-  setTimeout(() => document.querySelector("#editPathKey").focus(), 0);
+  setTimeout(() => document.querySelector(options.fromDrop && !item?.path ? "#editPathValue" : "#editPathKey").focus(), 0);
 }
 
 async function savePathEdit() {
   const id = document.querySelector("#editPathId").value;
+  const groupId = document.querySelector("#editPathGroupId").value;
   const existing = state.paths.find((item) => item.id === id);
   const item = {
     ...(id ? { id } : {}),
+    ...(groupId ? { groupId } : {}),
     name: document.querySelector("#editPathKey").value.trim(),
-    path: document.querySelector("#editPathValue").value.trim(),
+    path: normalizeDroppedPath(document.querySelector("#editPathValue").value) || document.querySelector("#editPathValue").value.trim(),
     group: document.querySelector("#editPathGroup").value.trim() || "未分组",
+    groupColor: document.querySelector("#editPathGroupColor").value.toUpperCase(),
     description: document.querySelector("#editPathNote").value.trim(),
     pinned: existing?.pinned || false,
   };
@@ -539,6 +645,81 @@ async function savePathEdit() {
     }
     await handleWriteError(error, "保存路径失败");
     return false;
+  }
+}
+
+function groupReferenceCount(groupId) {
+  return state.paths.filter((item) => item.groupId === groupId).length;
+}
+
+function resetGroupEditor(group = null) {
+  document.querySelector("#editGroupId").value = group?.id || "";
+  document.querySelector("#editGroupName").value = group?.name || "";
+  document.querySelector("#groupRegistryEditorTitle").textContent = group ? "编辑 GROUP" : "新增 GROUP";
+  document.querySelector("#groupRegistrySubmit").textContent = group ? "保存 GROUP" : "添加 GROUP";
+  renderRegistryColorPalette(group?.color || GROUP_COLORS[5]);
+}
+
+function renderGroupRegistry() {
+  const groups = [...state.groups].sort((a, b) => groupReferenceCount(b.id) - groupReferenceCount(a.id) || a.name.localeCompare(b.name, "zh-CN"));
+  elements.groupRegistryList.innerHTML = groups.map((group) => {
+    const references = groupReferenceCount(group.id);
+    return `
+      <div class="group-registry-row" data-group-id="${escapeHtml(group.id)}">
+        <span class="group-registry-swatch" style="--tag-color:${escapeHtml(group.color)}"></span>
+        <div class="group-registry-name"><strong>${escapeHtml(group.name)}</strong><small>${references} 条路径引用</small></div>
+        <code>${escapeHtml(group.color)}</code>
+        <div class="row-actions">
+          <button class="row-button" data-group-action="edit" data-label="编辑" type="button" aria-label="编辑 ${escapeHtml(group.name)}">${icon("edit")}</button>
+          <button class="row-button danger" data-group-action="delete" data-label="${references ? "使用中" : "删除"}" type="button" aria-label="删除 ${escapeHtml(group.name)}" ${references ? "disabled" : ""}>${icon("trash")}</button>
+        </div>
+      </div>`;
+  }).join("");
+  document.querySelector("#groupRegistryEmpty").hidden = groups.length > 0;
+  document.querySelector("#groupRegistryCount").textContent = String(groups.length);
+}
+
+function openGroupRegistry(groupId = "") {
+  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  renderGroupRegistry();
+  resetGroupEditor(groupById(groupId) || null);
+  elements.groupRegistryDialog.showModal();
+  setTimeout(() => document.querySelector("#editGroupName").focus(), 0);
+}
+
+async function saveGroupEdit() {
+  const id = document.querySelector("#editGroupId").value;
+  const item = {
+    ...(id ? { id } : {}),
+    name: document.querySelector("#editGroupName").value.trim(),
+    color: document.querySelector("#editGroupColor").value.toUpperCase(),
+  };
+  try {
+    await engineAction("dashboard.group.upsert", { expectedRevision: state.aggregateRevision, item });
+    await afterWrite(id ? "GROUP 已统一更新" : "GROUP 已添加");
+    resetGroupEditor();
+    return true;
+  } catch (error) {
+    await handleWriteError(error, "保存 GROUP 失败");
+    return false;
+  }
+}
+
+async function handleGroupRegistryAction(event) {
+  const action = event.target.closest("[data-group-action]");
+  const group = groupById(action?.closest("[data-group-id]")?.dataset.groupId);
+  if (!action || !group) return;
+  if (action.dataset.groupAction === "edit") {
+    resetGroupEditor(group);
+    document.querySelector("#editGroupName").focus();
+    return;
+  }
+  if (action.dataset.groupAction === "delete" && confirm(`删除未使用的 GROUP“${group.name}”？`)) {
+    try {
+      await engineAction("dashboard.group.delete", { id: group.id, expectedRevision: state.aggregateRevision });
+      await afterWrite("GROUP 已删除");
+      if (document.querySelector("#editGroupId").value === group.id) resetGroupEditor();
+    } catch (error) { await handleWriteError(error, "删除 GROUP 失败"); }
   }
 }
 
@@ -817,6 +998,14 @@ function bindEvents() {
   document.querySelector("#addPathButton").addEventListener("click", () => openPathEditor());
   document.querySelector("#pathSearch").addEventListener("input", (event) => { state.pathSearch = event.target.value; renderPaths(); });
   document.querySelector("#pathCategory").addEventListener("change", (event) => { state.pathCategory = event.target.value; renderPaths(); });
+  document.querySelector("#editPathGroup").addEventListener("input", (event) => {
+    syncPathGroupSelection(event.target.value);
+  });
+  document.querySelector("#editPathGroupColor").addEventListener("input", (event) => setPathGroupColor(event.target.value));
+  document.querySelector("#pathColorPalette").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-group-color]");
+    if (button) setPathGroupColor(button.dataset.groupColor);
+  });
   document.querySelector("#clearPathFilter").addEventListener("click", () => {
     state.pathSearch = "";
     state.pathCategory = "all";
@@ -831,6 +1020,21 @@ function bindEvents() {
     state.pathDialogFromDrop = false;
     document.querySelector("#pathDialogNotice").hidden = true;
     if (continueDrop && state.dropQueue.length) setTimeout(processNextDroppedCandidate, 80);
+  });
+  document.querySelector("#manageGroupsButton").addEventListener("click", () => openGroupRegistry());
+  document.querySelector("#groupRegistryReset").addEventListener("click", () => resetGroupEditor());
+  document.querySelector("#editGroupColor").addEventListener("input", (event) => setRegistryGroupColor(event.target.value));
+  document.querySelector("#groupColorPalette").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-group-color]");
+    if (button) setRegistryGroupColor(button.dataset.groupColor);
+  });
+  elements.groupRegistryList.addEventListener("click", handleGroupRegistryAction);
+  document.querySelector("#groupRegistryForm").addEventListener("submit", async (event) => {
+    if (event.submitter?.value !== "group-save") return;
+    event.preventDefault();
+    if (!event.currentTarget.reportValidity()) return;
+    event.submitter.disabled = true;
+    try { await saveGroupEdit(); } finally { event.submitter.disabled = false; }
   });
 
   document.querySelector("#addProjectButton").addEventListener("click", () => openProjectEditor());
@@ -913,6 +1117,7 @@ function bindEvents() {
   });
 }
 
+if (window.dashboardDesktop?.getPathForFile) document.documentElement.dataset.desktop = "true";
 applyTheme(storageGet(STORAGE_KEYS.theme) || "dark");
 setConnectionStatus("connecting", "正在连接 Dashboard Engine…", "业务数据由 Engine Server 单一持有。");
 renderAll();

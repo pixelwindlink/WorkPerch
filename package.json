@@ -3,11 +3,13 @@
   "version": "1.1.0",
   "private": true,
   "type": "module",
+  "main": "electron/main.mjs",
   "description": "通过 EngineMessage 管理本地开发路径、速记与项目入口目录的 Dashboard Engine。",
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "check": "node --check server.mjs && node --check cli.mjs && node --check app.js && node --check src/composition/create-dashboard-engine.mjs && node --check src/inbound/dispatcher.mjs && node --check src/application/dashboard-application.mjs && node --check src/domain/dashboard-aggregate.mjs",
+    "desktop": "electron .",
+    "check": "node --check server.mjs && node --check cli.mjs && node --check app.js && node --check electron/main.mjs && node --check electron/server-coordinator.mjs && node --check electron/preload.cjs && node --check src/composition/create-dashboard-engine.mjs && node --check src/inbound/dispatcher.mjs && node --check src/application/dashboard-application.mjs && node --check src/domain/dashboard-aggregate.mjs",
     "test": "node --test tests/**/*.test.mjs",
     "test:unit": "node --test tests/unit/*.test.mjs",
     "test:contract": "node --test tests/contract/*.test.mjs",
@@ -16,5 +18,8 @@
   },
   "engines": {
     "node": ">=22.13.0"
+  },
+  "devDependencies": {
+    "electron": "^43.2.0"
   }
 }

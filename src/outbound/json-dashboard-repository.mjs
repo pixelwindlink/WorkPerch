@@ -3,7 +3,7 @@ import { constants } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { DashboardRepositoryPort } from "../application/ports/dashboard-repository.mjs";
-import { assertAggregate, createInitialAggregate } from "../domain/dashboard-aggregate.mjs";
+import { assertAggregate, createInitialAggregate, materializeGroupRegistry } from "../domain/dashboard-aggregate.mjs";
 import { dashboardError, isDashboardError } from "../domain/errors.mjs";
 
 export class JsonDashboardRepository extends DashboardRepositoryPort {
@@ -21,7 +21,14 @@ export class JsonDashboardRepository extends DashboardRepositoryPort {
     await fs.mkdir(this.backupsDir, { recursive: true });
     try {
       await fs.access(this.statePath);
-      return await this.load();
+      const current = await this.load();
+      const migration = materializeGroupRegistry(current, {
+        now: this.clock.now(),
+        idFactory: (prefix) => this.idGenerator.next(prefix)
+      });
+      if (!migration.changed) return current;
+      await this.#writeAtomic(migration.state, { backup: true });
+      return structuredClone(migration.state);
     } catch (error) {
       if (error?.code !== "ENOENT") throw error;
     }

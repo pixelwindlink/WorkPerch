@@ -1,8 +1,10 @@
 import {
+  deleteGroup,
   deleteNote,
   deletePath,
   deleteProject,
   snapshotOf,
+  upsertGroup,
   upsertNote,
   upsertPath,
   upsertProject
@@ -35,7 +37,25 @@ export class DashboardApplication {
 
   async snapshot(payload) {
     const state = await this.repository.load();
-    return snapshotOf(state, payload.include || ["paths", "notes", "projects"]);
+    return snapshotOf(state, payload.include || ["groups", "paths", "notes", "projects"]);
+  }
+
+  async groupUpsert(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = upsertGroup(current, payload, { now: this.clock.now(), idFactory: this.idFactory });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, item: result.item };
+    });
+  }
+
+  async groupDelete(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = deleteGroup(current, payload, { now: this.clock.now() });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, deletedId: result.deletedId };
+    });
   }
 
   async pathUpsert(payload) {
@@ -127,6 +147,8 @@ export class DashboardApplication {
   handlers() {
     return new Map([
       ["dashboard.snapshot.get", (payload) => this.snapshot(payload)],
+      ["dashboard.group.upsert", (payload) => this.groupUpsert(payload)],
+      ["dashboard.group.delete", (payload) => this.groupDelete(payload)],
       ["dashboard.path.upsert", (payload) => this.pathUpsert(payload)],
       ["dashboard.path.delete", (payload) => this.pathDelete(payload)],
       ["dashboard.note.upsert", (payload) => this.noteUpsert(payload)],

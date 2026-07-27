@@ -1,12 +1,14 @@
 import { dashboardError } from "./errors.mjs";
 
 export const LIMITS = Object.freeze({
+  groups: 500,
   paths: 5000,
   notes: 5000,
   projects: 2000
 });
 
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,95}$/;
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 const PROJECT_TYPES = new Set(["engine", "candidate", "tool", "application", "workspace", "archive", "other"]);
 
 function invalid(message, code = "INVALID_PAYLOAD") {
@@ -41,6 +43,10 @@ export function comparablePath(value) {
   return result.normalize("NFC").toLocaleLowerCase("zh-CN");
 }
 
+export function comparableGroupName(value) {
+  return boundedString(value, "group.name", { min: 1, max: 80, trim: true }).normalize("NFC").toLocaleLowerCase("zh-CN");
+}
+
 export function booleanValue(value, name, code = "INVALID_PAYLOAD") {
   if (typeof value !== "boolean") invalid(`${name} 必须是布尔值。`, code);
   return value;
@@ -67,6 +73,16 @@ export function stringArray(value, name, { maxItems = 30, itemMax = 50, code = "
 export function projectType(value, code = "INVALID_PAYLOAD") {
   if (!PROJECT_TYPES.has(value)) invalid("project.type 不受支持。", code);
   return value;
+}
+
+export function isGroupColor(value) {
+  return typeof value === "string" && HEX_COLOR_PATTERN.test(value);
+}
+
+export function groupColor(value, code = "INVALID_PAYLOAD") {
+  const result = boundedString(value, "path.groupColor", { min: 7, max: 7, trim: true, code });
+  if (!HEX_COLOR_PATTERN.test(result)) invalid("path.groupColor 必须是 #RRGGBB 六位十六进制颜色。", code);
+  return result.toUpperCase();
 }
 
 export function projectUrl(value, code = "INVALID_PAYLOAD") {

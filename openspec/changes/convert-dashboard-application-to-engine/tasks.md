@@ -51,3 +51,25 @@
 - [x] 6.6 Update README and AGENT with Engine responsibility, architecture, state modes, migration and operations
 - [x] 6.7 Update the root dashboard registry record and only promote status using real conformance evidence
 - [x] 6.8 Run Dashboard check/test suites, OpenSpec validation and required root static/black-box conformance commands
+
+## 7. Custom Path Group Tags
+
+- [x] 7.1 Extend Path request/success/state/backup Contracts with backward-compatible optional groupColor
+- [x] 7.2 Validate and persist groupColor in Domain while mapping valid legacy color values
+- [x] 7.3 Add larger bright GROUP tags, preset palette and custom color picker to the compact path UI
+- [x] 7.4 Add regression coverage and run Dashboard/OpenSpec verification
+
+## 8. Shared Group Registry
+
+- [x] 8.1 Add Group Action Catalog entries and request/success Contracts plus groups/groupId snapshot/state Contracts
+- [x] 8.2 Implement Group entity invariants, shared color updates, path group resolution and unused-group deletion
+- [x] 8.3 Implement atomic legacy state upgrade from path group strings/per-path colors to groups Registry references
+- [x] 8.4 Add Group Registry UI, shared group editing and groupId-aware filtering/rendering
+- [x] 8.5 Add migration, Domain, Contract and E2E regression coverage and run full verification
+
+## 9. Electron Desktop Shell
+
+- [x] 9.1 Add Electron development entrypoint that reuses or owns the loopback Dashboard Server without violating single-writer state ownership
+- [x] 9.2 Add context-isolated preload bridge exposing only supported dropped-File absolute path resolution
+- [x] 9.3 Use the Desktop bridge in path drag/drop while preserving explicit normal-browser fallback and documentation
+- [ ] 9.4 Add Desktop shell regression coverage, run full verification and launch the shell against the real Dashboard Server

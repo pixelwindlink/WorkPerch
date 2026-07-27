@@ -49,6 +49,24 @@ Web UI SHALL use snapshot and write Actions for business state, SHALL keep only 
 - **WHEN** UI initialization fails
 - **THEN** UI SHALL show an explicit disconnected read-only state and SHALL NOT fall back to localStorage writes
 
+### Requirement: Path groups are compact customizable visual tags
+Web UI SHALL render path NAME, GROUP and NOTE in one compact identity area, SHALL make GROUP visually prominent, and SHALL allow selecting a bright preset or custom color that is persisted through `dashboard.path.upsert`.
+
+#### Scenario: Existing path has no stored groupColor
+- **WHEN** snapshot returns a path without groupColor
+- **THEN** UI SHALL derive a stable bright presentation color from the group name without writing state implicitly
+
+#### Scenario: User changes the group color
+- **WHEN** the edit dialog saves a preset or custom color
+- **THEN** UI SHALL include groupColor with expectedRevision and SHALL render the returned color after snapshot refresh
+
+### Requirement: Web UI exposes one Group Registry editor
+Web UI SHALL provide a Group Registry view that lists each shared Group Item once with its name, color and Path reference count, and SHALL route Group changes through Group Actions.
+
+#### Scenario: User edits Engineering color from filtered paths
+- **WHEN** the Group Registry updates the `工程` Group color
+- **THEN** every path with that groupId SHALL display the same updated color regardless of the active filter
+
 ### Requirement: UI handles revision conflicts by reloading
 Web UI SHALL include its latest aggregateRevision in writes and, on `DASHBOARD_REVISION_CONFLICT`, SHALL inform the user and fetch a new snapshot instead of silently merging.
 
@@ -62,3 +80,21 @@ Server and CLI diagnostics SHALL log only bounded operational metadata such as m
 #### Scenario: Import validation fails
 - **WHEN** the failure is written to stderr or Server logs
 - **THEN** diagnostic output SHALL omit the imported backup body
+
+### Requirement: Electron Desktop Shell exposes a narrow local-path capability
+Dashboard MAY provide an Electron Desktop Shell that loads the same Web UI and EngineMessage HTTP boundary, SHALL keep Node integration disabled and context isolation enabled, and SHALL expose only a preload capability that resolves the real path of a user-dropped File.
+
+#### Scenario: User drops a Finder folder into Desktop Shell
+- **WHEN** Electron can resolve the dropped File through its supported webUtils API
+- **THEN** UI SHALL prefill both the folder name and absolute path in the existing Path editor, and final persistence SHALL still use `dashboard.path.upsert`
+
+#### Scenario: Same UI runs in a normal browser
+- **WHEN** no Desktop preload bridge or URI path is available
+- **THEN** UI SHALL leave the absolute path empty, explain the browser limitation and SHALL NOT fabricate a local path
+
+### Requirement: Desktop Shell preserves one Dashboard state owner
+Desktop startup SHALL reuse a healthy Dashboard Server already listening at its configured loopback URL, SHALL create a Server only when none is available, and SHALL stop only the Server instance it owns.
+
+#### Scenario: Dashboard Server already owns runtime state
+- **WHEN** Desktop Shell starts while the configured Dashboard Server is healthy
+- **THEN** Desktop SHALL connect to it without acquiring another state lock or starting another writer

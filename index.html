@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#101214" />
+    <title>Path List · 快速路径看板</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <a class="brand" href="#paths" aria-label="返回文件路径">
+          <span class="brand-symbol">KV</span>
+          <span>
+            <strong>Path List</strong>
+            <small>LOCAL QUICK BOARD</small>
+          </span>
+        </a>
+
+        <nav class="tabs" aria-label="看板导航">
+          <button class="tab is-active" data-tab="paths" type="button">文件路径 <span id="pathCount">0</span></button>
+          <button class="tab" data-tab="launcher" type="button">项目入口 <span id="projectCount">0</span></button>
+          <button class="tab" data-tab="notes" type="button">速记 <span id="noteCount">0</span></button>
+        </nav>
+
+        <div class="header-actions">
+          <button class="quiet-button" id="legacyButton" type="button" hidden>旧数据</button>
+          <button class="quiet-button" id="exportButton" type="button">导出</button>
+          <label class="quiet-button file-button" for="importInput">导入</label>
+          <input id="importInput" type="file" accept="application/json,.json" hidden />
+          <button class="icon-button" id="themeButton" type="button" aria-label="切换主题" title="切换主题"></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="connection-banner" id="connectionBanner" data-state="connecting">
+      <strong id="connectionTitle">正在连接 Dashboard Engine…</strong>
+      <span id="connectionMessage">业务数据由 Engine Server 单一持有。</span>
+      <button class="quiet-button" id="retryConnectionButton" type="button">重试</button>
+    </div>
+
+    <main class="workspace" data-readonly="true">
+      <section class="panel is-active" data-panel="paths">
+        <div class="tab-sticky-bar">
+          <div class="sticky-title">
+            <strong>文件路径</strong>
+            <span><b id="visiblePathCount">0</b> / <i id="totalPathCount">0</i></span>
+          </div>
+          <label class="search-control path-search-control">
+            <span class="search-icon"></span>
+            <input id="pathSearch" type="search" placeholder="搜索 key、路径、分组或备注…" />
+            <kbd>/</kbd>
+          </label>
+          <button class="add-icon-button" id="addPathButton" type="button" aria-label="添加文件路径" title="添加文件路径">＋</button>
+          <select id="pathCategory" aria-label="按分组筛选">
+            <option value="all">全部分组</option>
+          </select>
+          <button class="quiet-button clear-filter" id="clearPathFilter" type="button">清除</button>
+        </div>
+
+        <datalist id="pathGroups"></datalist>
+
+        <div class="kv-list path-list">
+          <div class="kv-head path-columns" aria-hidden="true">
+            <span>KEY</span><span>VALUE</span><span>GROUP / NOTE</span><span>ACTIONS</span>
+          </div>
+          <div id="pathList"></div>
+        </div>
+
+        <div class="empty-state" id="pathEmpty" hidden>
+          <strong>没有匹配的路径</strong>
+          <p>直接在上方填写名称和路径，按 Enter 保存。</p>
+        </div>
+      </section>
+
+      <section class="panel" data-panel="launcher">
+        <div class="tab-sticky-bar project-sticky-bar">
+          <div class="sticky-title">
+            <strong>项目入口</strong>
+            <span><b id="visibleProjectCount">0</b> / <i id="totalProjectCount">0</i></span>
+          </div>
+          <label class="search-control project-search-control">
+            <span class="search-icon"></span>
+            <input id="projectSearch" type="search" placeholder="搜索项目、类型、标签或端口…" />
+          </label>
+          <button class="add-icon-button" id="addProjectButton" type="button" aria-label="添加项目入口" title="添加项目入口">＋</button>
+          <div class="segmented" id="projectFilters">
+            <button class="is-active" data-filter="all" type="button">全部</button>
+            <button data-filter="engine" type="button">Engine</button>
+            <button data-filter="candidate" type="button">Candidate</button>
+            <button data-filter="tool" type="button">Tool</button>
+            <button data-filter="workspace" type="button">Workspace</button>
+          </div>
+        </div>
+
+        <div class="kv-list project-list">
+          <div class="kv-head project-columns" aria-hidden="true">
+            <span>PROJECT</span><span>PATH</span><span>STATUS</span><span>ACTIONS</span>
+          </div>
+          <div id="projectList"></div>
+        </div>
+
+        <div class="empty-state" id="projectEmpty" hidden>
+          <strong>没有匹配的项目</strong>
+          <p>换一个关键词或类型试试。</p>
+        </div>
+      </section>
+
+      <section class="panel" data-panel="notes">
+        <div class="tab-sticky-bar notes-sticky-bar">
+          <div class="sticky-title">
+            <strong>速记</strong>
+            <span><b id="visibleNoteCount">0</b> / <i id="totalNoteCount">0</i></span>
+          </div>
+          <label class="search-control note-search-control">
+            <span class="search-icon"></span>
+            <input id="noteSearch" type="search" placeholder="搜索速记 key 或内容…" />
+            <kbd>/</kbd>
+          </label>
+          <button class="add-icon-button" id="addNoteButton" type="button" aria-label="添加速记" title="添加速记">＋</button>
+          <button class="quiet-button clear-filter" id="clearNoteFilter" type="button">清除</button>
+        </div>
+
+        <div class="kv-list note-list">
+          <div class="kv-head note-columns" aria-hidden="true">
+            <span>KEY</span><span>VALUE</span><span>UPDATED</span><span>ACTIONS</span>
+          </div>
+          <div id="noteList"></div>
+        </div>
+
+        <div class="empty-state" id="noteEmpty" hidden>
+          <strong>没有匹配的速记</strong>
+          <p>在上方输入 key 和内容即可添加。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span><i></i> Dashboard Engine · single-writer</span>
+      <span>Enter 添加 · 点击 VALUE 复制 · <b>⌘/Ctrl + K</b> 搜索</span>
+    </footer>
+
+    <dialog class="edit-dialog" id="editPathDialog">
+      <form method="dialog" id="editPathForm">
+        <div class="dialog-heading">
+          <div><small id="pathDialogKicker">EDIT PAIR</small><h2 id="pathDialogTitle">编辑文件路径</h2></div>
+          <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <div class="dialog-notice" id="pathDialogNotice" hidden></div>
+        <input id="editPathId" type="hidden" />
+        <label><span>KEY</span><input id="editPathKey" required maxlength="60" /></label>
+        <label><span>VALUE / FILE PATH</span><input id="editPathValue" required /></label>
+        <div class="dialog-row">
+          <label><span>GROUP</span><input id="editPathGroup" maxlength="24" list="pathGroups" /></label>
+          <label><span>NOTE</span><input id="editPathNote" maxlength="120" /></label>
+        </div>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
+          <button class="add-button" id="pathDialogSubmit" value="save" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="edit-dialog" id="editNoteDialog">
+      <form method="dialog" id="editNoteForm">
+        <div class="dialog-heading">
+          <div><small id="noteDialogKicker">EDIT PAIR</small><h2 id="noteDialogTitle">编辑速记</h2></div>
+          <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <input id="editNoteId" type="hidden" />
+        <label><span>KEY</span><input id="editNoteKey" required maxlength="60" /></label>
+        <label><span>VALUE / NOTE</span><textarea id="editNoteValue" required rows="6" maxlength="2000"></textarea></label>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
+          <button class="add-button" id="noteDialogSubmit" value="save" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="edit-dialog project-dialog" id="editProjectDialog">
+      <form method="dialog" id="editProjectForm">
+        <div class="dialog-heading">
+          <div><small id="projectDialogKicker">EDIT ENTRY</small><h2 id="projectDialogTitle">编辑项目入口</h2></div>
+          <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <input id="editProjectId" type="hidden" />
+        <div class="dialog-row">
+          <label><span>NAME</span><input id="editProjectName" required maxlength="120" /></label>
+          <label><span>TYPE</span><select id="editProjectType"><option value="engine">Engine</option><option value="candidate">Candidate</option><option value="tool">Tool</option><option value="application">Application</option><option value="workspace">Workspace</option><option value="archive">Archive</option><option value="other">Other</option></select></label>
+        </div>
+        <label><span>PATH</span><input id="editProjectPath" required maxlength="4096" /></label>
+        <div class="dialog-row">
+          <label><span>URL</span><input id="editProjectUrl" maxlength="2048" placeholder="http://127.0.0.1:4173" /></label>
+          <label><span>PORT</span><input id="editProjectPort" type="number" min="0" max="65535" value="0" /></label>
+        </div>
+        <label><span>COMMAND（仅保存/复制，不执行）</span><input id="editProjectCommand" maxlength="2000" /></label>
+        <div class="dialog-row">
+          <label><span>LABEL</span><input id="editProjectLabel" required maxlength="80" /></label>
+          <label><span>TAGS（逗号分隔）</span><input id="editProjectTags" maxlength="500" /></label>
+        </div>
+        <label><span>DESCRIPTION</span><input id="editProjectDescription" maxlength="500" /></label>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
+          <button class="add-button" id="projectDialogSubmit" value="save" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="edit-dialog migration-dialog" id="legacyMigrationDialog">
+      <form method="dialog" id="legacyMigrationForm">
+        <div class="dialog-heading">
+          <div><small>LEGACY DATA</small><h2>浏览器旧数据</h2></div>
+          <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <div class="dialog-notice" id="legacyMigrationSummary"></div>
+        <p class="dialog-copy">迁移会先通过 <code>dashboard.backup.import</code> dry-run 完整校验，再经确认合并到 Engine。旧数据不会被自动删除。</p>
+        <div class="dialog-actions">
+          <button class="quiet-button danger-text" id="cleanupLegacyButton" value="cleanup" type="submit" formnovalidate hidden>手动清理旧 paths / notes</button>
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>稍后</button>
+          <button class="add-button" id="migrateLegacyButton" value="migrate" type="submit" formnovalidate>校验并迁移</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+      <div class="drop-card">
+        <span class="drop-symbol">↓</span>
+        <strong>松开以收录路径</strong>
+        <p>自动识别文件或文件夹，并检查是否已经收录</p>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+*.log
+.env
+.env.*
+!.env.example
+coverage/
+exports/*.json
+runtime_data/*
+!runtime_data/.gitignore
+!runtime_data/README.md

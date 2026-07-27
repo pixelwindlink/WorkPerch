@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dashboard.local/schemas/actions/dashboard.path.upsert/1.0/success-payload.json",
+  "title": "dashboard.path.upsert success payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["aggregateRevision", "item"],
+  "properties": {
+    "aggregateRevision": { "type": "integer", "minimum": 1 },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "path", "group", "description", "pinned", "createdAt", "updatedAt"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/" },
+        "group": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 500 },
+        "pinned": { "type": "boolean" },
+        "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
+        "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "dashboard",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "通过 EngineMessage 管理本地开发路径、速记与项目入口目录的 Dashboard Engine。",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "check": "node --check server.mjs && node --check cli.mjs && node --check app.js && node --check src/composition/create-dashboard-engine.mjs && node --check src/inbound/dispatcher.mjs && node --check src/application/dashboard-application.mjs && node --check src/domain/dashboard-aggregate.mjs",
+    "test": "node --test tests/**/*.test.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:contract": "node --test tests/contract/*.test.mjs",
+    "test:integration": "node --test tests/integration/*.test.mjs",
+    "test:e2e": "node --test tests/e2e/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

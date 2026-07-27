@@ -1,0 +1,63 @@
+{
+  "$schema": "https://generic-engines.local/schemas/governance/engine-manifest-1.1.json",
+  "schemaVersion": "1.1",
+  "id": "dashboard",
+  "name": "Dashboard Engine",
+  "version": "1.1.0",
+  "classification": "engine",
+  "description": "管理本地开发工作区的路径、速记和项目入口目录，并提供查询、修改、备份、恢复和受限本地 endpoint liveness 探测。",
+  "architecture": {
+    "authority": "openspec/changes/define-generic-engine-runtime-architecture/design.md"
+  },
+  "protocol": {
+    "name": "generic-engines/engine-message",
+    "supportedVersions": ["1.0"],
+    "preferredVersion": "1.0",
+    "envelopeSchema": "https://generic-engines.local/schemas/engine-message/1.0/envelope.json"
+  },
+  "actions": {
+    "catalog": "contracts/action-catalog.json",
+    "describe": "engine.describe",
+    "health": "system.health"
+  },
+  "provider": {
+    "spiVersion": "1.0",
+    "entrypoint": "src/engine/provider.mjs",
+    "capabilities": ["manifest", "action-catalog", "create-engine"],
+    "lifecycle": ["start", "readiness", "health", "quiesce", "shutdown"]
+  },
+  "runtime": {
+    "hostModes": ["standalone", "in-process", "local-process"],
+    "engineClient": {
+      "mode": "not-required",
+      "dependencies": []
+    },
+    "planes": {
+      "control": {
+        "providerLifecycle": true
+      },
+      "data": {
+        "dispatcher": "src/inbound/dispatcher.mjs",
+        "routerBoundary": true
+      },
+      "observability": {
+        "lifecycleEvents": "runtime-derived",
+        "payloadPolicy": "metadata-only"
+      }
+    }
+  },
+  "transports": ["cli", "http", "in-process"],
+  "cli": {
+    "command": ["node", "cli.mjs"],
+    "acceptsStdin": true,
+    "messageFileFlag": "--message-file"
+  },
+  "state": {
+    "mode": "single-writer",
+    "owner": "Dashboard Engine Server or an explicitly isolated Standalone Exclusive CLI process",
+    "runtimeData": "DASHBOARD_RUNTIME_DIR",
+    "conformance": {
+      "temporaryRuntimeEnv": "DASHBOARD_RUNTIME_DIR"
+    }
+  }
+}

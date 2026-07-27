@@ -5,6 +5,8 @@ node_modules/
 .env.*
 !.env.example
 coverage/
+dist/
+release/*.dmg
 exports/*.json
 runtime_data/*
 !runtime_data/.gitignore

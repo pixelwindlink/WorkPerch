@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+
 const PROTOCOL = "generic-engines/engine-message";
 const VERSION = "1.0";
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
@@ -24,6 +27,27 @@ export function resolveDesktopServerUrl(environment = process.env) {
   const port = Number(url.port || 80);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Dashboard Desktop Server 端口不合法。");
   return { baseUrl: url.origin, host, port };
+}
+
+export function resolveDesktopGenericEnginesRoot({
+  environment = process.env,
+  homeDir,
+  resourcesPath,
+  developmentRoot,
+  isPackaged = false,
+  exists = existsSync
+}) {
+  const candidates = [
+    environment.GENERIC_ENGINES_ROOT,
+    homeDir ? path.join(homeDir, "workspace", "generic_engines") : "",
+    isPackaged ? resourcesPath : developmentRoot
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    const root = path.resolve(candidate);
+    const envelope = path.join(root, "governance", "protocol", "engine-message", "v1.0", "envelope.schema.json");
+    if (exists(envelope)) return root;
+  }
+  throw new Error("Dashboard Desktop 找不到 Generic Engines governance Contract 根目录。");
 }
 
 export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeoutMs = 900 } = {}) {

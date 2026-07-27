@@ -75,6 +75,14 @@ UI 保留紧凑 key-value 路径/速记列表、项目入口、搜索、过滤�
 
 ## Electron Desktop Shell
 
+已安装的日常入口：
+
+```text
+/Applications/Dashboard.app
+```
+
+可从 Finder“应用程序”、Spotlight 或 Launchpad 打开，也可以把 `Dashboard.app` 拖到 Dock。它不需要先运行 npm；没有现有 Server 时会自行启动 Dashboard Engine。
+
 开发模式启动桌面窗口：
 
 ```bash
@@ -84,9 +92,22 @@ npm run desktop
 
 Desktop Shell 复用同一套 UI 和 `POST /engine-message`。如果 `127.0.0.1:4173` 已经运行 Dashboard Server，它只连接现有 Server；否则由 Desktop 进程启动并拥有 Server，退出时仅停止自己创建的实例。
 
+窗口现在可以缩小到 `360 × 320`。Header 中的图钉按钮仅在 Desktop App 显示：点击后窗口进入全局置顶，使用 macOS floating 层级跨应用、Spaces 和全屏空间保持在最上方；再次点击立即取消。这个开关属于本地界面偏好，不会写入 Dashboard Engine 业务状态。
+
 在 Electron 窗口中从 Finder 拖入文件或文件夹时，受限 preload bridge 使用 Electron `webUtils.getPathForFile` 取得真实绝对路径，因此 KEY 和 VALUE 都会自动填入。普通浏览器仍受浏览器安全限制：无法取得路径时只预填名称，并提示使用 Finder `⌥⌘C` 复制路径。
 
 Desktop Renderer 保持 `nodeIntegration: false`、`contextIsolation: true`；preload 只暴露拖入 File 的路径解析，不开放文件系统、命令执行或任意 IPC。
+
+重新构建本机 arm64 App：
+
+```bash
+npm run desktop:pack
+ditto dist/desktop/Dashboard-darwin-arm64/Dashboard.app /Applications/Dashboard.app
+```
+
+构建使用 ASAR，排除 Git、测试、OpenSpec、runtime data、导出和 Agent Skill，并把正式 `governance/` Contract 作为只读资源放入 App。生成物采用本机 ad-hoc 签名，适用于当前 Mac；跨机器公开分发需要 Developer ID 和 notarization。
+
+工程内的本机安装镜像位于 `release/Dashboard-1.2.0-arm64.dmg`。打开 DMG 后，把 `Dashboard.app` 拖到其中的 `Applications` 快捷方式即可安装。该镜像不包含 Dashboard runtime state、锁、备份或用户数据。
 
 ## CLI
 

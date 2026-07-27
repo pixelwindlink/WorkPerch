@@ -3,7 +3,7 @@
   "schemaVersion": "1.1",
   "id": "dashboard",
   "name": "Dashboard Engine",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "classification": "engine",
   "description": "管理本地开发工作区的路径、速记和项目入口目录，并提供查询、修改、备份、恢复和受限本地 endpoint liveness 探测。",
   "architecture": {

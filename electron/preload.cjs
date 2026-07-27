@@ -1,4 +1,11 @@
-const { contextBridge, webUtils } = require("electron");
+const { contextBridge, ipcRenderer, webUtils } = require("electron");
+
+const WINDOW_GET_ALWAYS_ON_TOP = "dashboard:window:get-always-on-top";
+const WINDOW_SET_ALWAYS_ON_TOP = "dashboard:window:set-always-on-top";
+
+if (typeof webUtils?.getPathForFile !== "function") {
+  throw new Error("Electron webUtils.getPathForFile is unavailable.");
+}
 
 contextBridge.exposeInMainWorld("dashboardDesktop", Object.freeze({
   getPathForFile(file) {
@@ -8,5 +15,12 @@ contextBridge.exposeInMainWorld("dashboardDesktop", Object.freeze({
     } catch {
       return "";
     }
+  },
+  getAlwaysOnTop() {
+    return ipcRenderer.invoke(WINDOW_GET_ALWAYS_ON_TOP);
+  },
+  setAlwaysOnTop(enabled) {
+    if (typeof enabled !== "boolean") return Promise.reject(new TypeError("always-on-top preference must be boolean."));
+    return ipcRenderer.invoke(WINDOW_SET_ALWAYS_ON_TOP, enabled);
   }
 }));

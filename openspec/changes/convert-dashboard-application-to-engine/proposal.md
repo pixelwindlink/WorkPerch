@@ -16,6 +16,9 @@ Dashboard 当前只是由浏览器 `localStorage` 持有业务状态的静态 Ap
 - 保持 `dashboard-key-value-list` version 1 备份读取兼容，并提供 `merge`、`replace`、`dryRun` 的正式导入 Action。
 - 为路径分组增加可选 `groupColor`，让 GROUP 作为更醒目的自定义彩色标签展示，同时保持现有无颜色状态和 legacy `color` 字段可读。
 - 新增可选 Electron Desktop Shell，复用同一 Web UI 和 Engine Server，并通过最小 preload bridge 获取用户主动拖入文件/文件夹的真实本机绝对路径；普通浏览器继续保留安全降级行为。
+- 提供本机 arm64 macOS `Dashboard.app` 打包与安装入口，将运行所需正式治理 Contract 作为只读构建资源携带，使 App 可从 `/Applications` 双击启动而无需 npm 命令。
+- 在工程 `release/` 下提供版本化 arm64 DMG，包含 `Dashboard.app` 与 `Applications` 快捷方式，作为当前 Mac 的便捷拖拽安装入口且不携带 runtime state。
+- 将 Desktop 窗口最小尺寸降至紧凑看板可用的 `360 × 320`，并提供显式的全局置顶开关，使窗口可使用 macOS floating 层级跨应用、Spaces 和全屏保持可见。
 - **BREAKING**：浏览器 `localStorage` 不再是 paths/notes 的业务真相；直接打开 `index.html` 不再提供完整可写模式，只显示需要连接 Dashboard Engine Server 的只读/迁移提示。
 - **BREAKING**：CLI 与 Server 不再能无协调地打开同一状态根；冲突返回 `STATE_OWNERSHIP_CONFLICT`，不会静默 fallback 为第二写入者。
 - 更新根注册表中的 dashboard 分类、manifest、状态所有权与真实证据；只有全部黑盒验证通过后才晋级 `engine/conformant`。

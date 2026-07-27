@@ -158,11 +158,14 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="manageGroupsButton"/);
   assert.match(html, /id="groupRegistryDialog"/);
   assert.match(html, /id="groupRegistryList"/);
+  assert.match(html, /id="alwaysOnTopButton"/);
   assert.match(app, /state\.groups = snapshot\.groups/);
   assert.match(app, /group\.id === state\.pathCategory/);
   assert.match(app, /groupReferenceCount/);
   assert.match(css, /\.group-registry-row/);
   assert.match(css, /\.path-name[\s\S]*font-size:\s*13px/);
+  assert.match(css, /\.desktop-window-button:hover[\s\S]*transition-delay:\s*\.2s/);
+  assert.match(css, /\.edit-dialog[\s\S]*max-height:\s*calc\(100vh - 20px\)/);
   assert.match(css, /\.path-group[\s\S]*font-size:\s*10px/);
   assert.match(css, /position:\s*sticky/);
   assert.match(css, /transition-delay:\s*\.2s/);

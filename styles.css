@@ -95,6 +95,37 @@ button, label { -webkit-tap-highlight-color: transparent; }
 .file-button { cursor: pointer; }
 .icon-button { width: 32px; height: 32px; padding: 0; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
 .icon-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.desktop-window-button {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  transition: width .16s cubic-bezier(.2,.8,.2,1) 0s, border-color .12s ease, background-color .12s ease, color .12s ease;
+}
+.desktop-window-button[hidden] { display: none; }
+.desktop-window-button::after {
+  content: attr(data-label);
+  opacity: 0;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translateY(5px);
+  transition: opacity .1s ease 0s, transform .16s ease 0s;
+}
+.desktop-window-button svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity .1s ease 0s, transform .16s ease 0s;
+}
+.desktop-window-button:hover { width: 72px; transition-delay: .2s, 0s, 0s, 0s; }
+.desktop-window-button:hover::after { opacity: 1; transform: translateY(0); transition-delay: .2s, .2s; }
+.desktop-window-button:hover svg { opacity: 0; transform: translate(-50%, -75%) scale(.75); transition-delay: .2s, .2s; }
+.desktop-window-button.is-active {
+  border-color: color-mix(in srgb, var(--amber), transparent 45%);
+  background: color-mix(in srgb, var(--amber), transparent 88%);
+  color: var(--amber);
+}
 
 .connection-banner {
   width: min(1360px, calc(100% - 40px)); min-height: 38px; display: flex; align-items: center; gap: 9px; margin: 8px auto 0; padding: 7px 9px;
@@ -339,7 +370,7 @@ kbd { padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; col
 .app-footer i { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
 .app-footer b { color: var(--muted); }
 
-.edit-dialog { width: min(520px, calc(100% - 28px)); padding: 0; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-2); color: var(--text); box-shadow: 0 30px 90px rgba(0,0,0,.45); }
+.edit-dialog { width: min(520px, calc(100% - 28px)); max-height: calc(100vh - 20px); overflow: auto; padding: 0; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-2); color: var(--text); box-shadow: 0 30px 90px rgba(0,0,0,.45); }
 .edit-dialog::backdrop { background: rgba(0,0,0,.7); backdrop-filter: blur(4px); }
 .edit-dialog form { display: grid; gap: 12px; padding: 18px; }
 .dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 3px; }
@@ -494,6 +525,9 @@ body.is-dragging .drop-card { transform: translateY(0) scale(1); }
   .row-button:hover, .row-link:hover, .row-button[data-long="true"]:hover { width: 25px; }
   .row-button:hover::after, .row-link:hover::after { display: none; }
   .row-button:hover svg, .row-link:hover svg { opacity: 1; transform: translate(-50%, -50%); }
+  .desktop-window-button:hover { width: 32px; }
+  .desktop-window-button:hover::after { display: none; }
+  .desktop-window-button:hover svg { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,7 @@ const STORAGE_KEYS = {
   paths: "local-dashboard.paths.v1",
   notes: "local-dashboard.notes.v1",
   theme: "local-dashboard.theme.v1",
+  alwaysOnTop: "local-dashboard.window-always-on-top.v1",
   migration: "local-dashboard.engine-migration.v1",
 };
 
@@ -47,6 +48,7 @@ const state = {
   projects: [],
   probeResults: new Map(),
   legacyChecked: false,
+  alwaysOnTop: false,
 };
 
 const elements = {
@@ -68,6 +70,7 @@ const elements = {
   dropOverlay: document.querySelector("#dropOverlay"),
   toast: document.querySelector("#toast"),
   connectionBanner: document.querySelector("#connectionBanner"),
+  alwaysOnTopButton: document.querySelector("#alwaysOnTopButton"),
 };
 
 function storageGet(key) {
@@ -975,6 +978,46 @@ function applyTheme(theme) {
   document.querySelector("#themeButton").innerHTML = icon(theme === "light" ? "moon" : "sun");
 }
 
+function renderAlwaysOnTopButton(active) {
+  const button = elements.alwaysOnTopButton;
+  state.alwaysOnTop = Boolean(active);
+  button.hidden = false;
+  button.classList.toggle("is-active", state.alwaysOnTop);
+  button.setAttribute("aria-pressed", String(state.alwaysOnTop));
+  button.setAttribute("aria-label", state.alwaysOnTop ? "取消全局置顶" : "全局置顶");
+  button.dataset.label = state.alwaysOnTop ? "取消置顶" : "全局置顶";
+  button.title = state.alwaysOnTop ? "取消全局置顶" : "全局置顶";
+  button.innerHTML = icon("pin");
+}
+
+async function setAlwaysOnTopPreference(enabled, { persist = true, notify = true } = {}) {
+  try {
+    const active = await window.dashboardDesktop.setAlwaysOnTop(Boolean(enabled));
+    renderAlwaysOnTopButton(active);
+    if (persist) storageSet(STORAGE_KEYS.alwaysOnTop, String(active));
+    if (notify) showToast(active ? "窗口已全局置顶" : "窗口已取消全局置顶");
+    return active;
+  } catch {
+    showToast("无法切换窗口置顶状态");
+    return state.alwaysOnTop;
+  }
+}
+
+async function initializeDesktopWindowControls() {
+  const bridge = window.dashboardDesktop;
+  if (typeof bridge?.getAlwaysOnTop !== "function" || typeof bridge?.setAlwaysOnTop !== "function") return;
+  document.documentElement.dataset.desktop = "true";
+  try {
+    let active = Boolean(await bridge.getAlwaysOnTop());
+    const preferred = storageGet(STORAGE_KEYS.alwaysOnTop);
+    if (preferred === "true" && !active) active = await setAlwaysOnTopPreference(true, { persist: false, notify: false });
+    if (preferred === "false" && active) active = await setAlwaysOnTopPreference(false, { persist: false, notify: false });
+    renderAlwaysOnTopButton(active);
+  } catch {
+    elements.alwaysOnTopButton.hidden = true;
+  }
+}
+
 function focusActiveSearch() {
   const selector = state.activeTab === "paths" ? "#pathSearch" : state.activeTab === "launcher" ? "#projectSearch" : "#noteSearch";
   document.querySelector(selector).focus();
@@ -1078,6 +1121,10 @@ function bindEvents() {
     }
   });
   document.querySelector("#themeButton").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
+  elements.alwaysOnTopButton.addEventListener("click", async () => {
+    elements.alwaysOnTopButton.disabled = true;
+    try { await setAlwaysOnTopPreference(!state.alwaysOnTop); } finally { elements.alwaysOnTopButton.disabled = false; }
+  });
 
   let dragDepth = 0;
   const hasDropData = (event) => {
@@ -1123,4 +1170,5 @@ setConnectionStatus("connecting", "正在连接 Dashboard Engine…", "业务数
 renderAll();
 bindEvents();
 switchTab(location.hash.slice(1) || "paths", false);
+initializeDesktopWindowControls();
 loadSnapshot();

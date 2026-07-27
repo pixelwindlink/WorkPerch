@@ -81,8 +81,8 @@ Server and CLI diagnostics SHALL log only bounded operational metadata such as m
 - **WHEN** the failure is written to stderr or Server logs
 - **THEN** diagnostic output SHALL omit the imported backup body
 
-### Requirement: Electron Desktop Shell exposes a narrow local-path capability
-Dashboard MAY provide an Electron Desktop Shell that loads the same Web UI and EngineMessage HTTP boundary, SHALL keep Node integration disabled and context isolation enabled, and SHALL expose only a preload capability that resolves the real path of a user-dropped File.
+### Requirement: Electron Desktop Shell exposes narrow allowlisted capabilities
+Dashboard MAY provide an Electron Desktop Shell that loads the same Web UI and EngineMessage HTTP boundary, SHALL keep Node integration disabled and context isolation enabled, and SHALL expose only fixed preload capabilities for resolving a user-dropped File path and reading or changing the current Dashboard window always-on-top preference. It SHALL NOT expose arbitrary IPC, file-system, process, shell or command capabilities.
 
 #### Scenario: User drops a Finder folder into Desktop Shell
 - **WHEN** Electron can resolve the dropped File through its supported webUtils API
@@ -92,9 +92,46 @@ Dashboard MAY provide an Electron Desktop Shell that loads the same Web UI and E
 - **WHEN** no Desktop preload bridge or URI path is available
 - **THEN** UI SHALL leave the absolute path empty, explain the browser limitation and SHALL NOT fabricate a local path
 
+### Requirement: Desktop window supports compact global floating mode
+Dashboard Desktop SHALL permit resizing the main window down to `360 × 320`, SHALL keep dialogs and navigation usable through responsive layout and scrolling, and SHALL provide an explicit reversible global always-on-top control.
+
+#### Scenario: User enables global floating
+- **WHEN** the Desktop window pin control is enabled
+- **THEN** macOS SHALL place the Dashboard window at the floating always-on-top level and make it visible across workspaces including full-screen spaces
+
+#### Scenario: User disables global floating
+- **WHEN** the active pin control is disabled
+- **THEN** Dashboard SHALL immediately return the window to normal Z ordering and ordinary workspace visibility
+
+#### Scenario: Dashboard runs in a normal browser
+- **WHEN** the fixed Desktop window bridge is unavailable
+- **THEN** the global floating control SHALL remain hidden and Web business behavior SHALL remain unchanged
+
 ### Requirement: Desktop Shell preserves one Dashboard state owner
 Desktop startup SHALL reuse a healthy Dashboard Server already listening at its configured loopback URL, SHALL create a Server only when none is available, and SHALL stop only the Server instance it owns.
 
 #### Scenario: Dashboard Server already owns runtime state
 - **WHEN** Desktop Shell starts while the configured Dashboard Server is healthy
 - **THEN** Desktop SHALL connect to it without acquiring another state lock or starting another writer
+
+### Requirement: Installable macOS App remains self-contained for public Contracts
+Dashboard SHALL support building a local macOS App bundle that includes the Dashboard source assets and read-only Generic Engines governance Contract resources required to start the embedded Server, while keeping mutable runtime state outside the App bundle.
+
+#### Scenario: User launches Dashboard from Applications without a running Server
+- **WHEN** `/Applications/Dashboard.app` starts and no healthy Dashboard Server owns the configured loopback endpoint
+- **THEN** the App SHALL load bundled formal Contract resources, start one Server against the normal user runtime directory and display the same Web UI
+
+#### Scenario: App bundle is rebuilt
+- **WHEN** the packaging command runs
+- **THEN** build output SHALL exclude runtime state, locks, backups, exports, tests, Git metadata and planning artifacts
+
+### Requirement: Local release DMG provides drag-to-install layout
+Dashboard SHALL allow the verified arm64 App Bundle to be placed in a versioned local DMG containing an `Applications` shortcut, and the release image SHALL contain no runtime state, locks, backups or user data.
+
+#### Scenario: User opens the local Dashboard DMG
+- **WHEN** Finder mounts the release image
+- **THEN** its root SHALL contain `Dashboard.app` and an `Applications` link suitable for drag-to-install
+
+#### Scenario: Local release integrity is verified
+- **WHEN** the release image is produced
+- **THEN** the image SHALL pass disk-image verification, the mounted App SHALL pass deep strict signature verification, and a SHA-256 checksum SHALL be recorded

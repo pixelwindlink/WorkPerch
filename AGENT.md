@@ -9,7 +9,7 @@
 - 保持 Inbound Boundary → Business Core → Outbound Boundary：Domain/Application 不得依赖 HTTP、DOM、CLI、文件系统、数据库、浏览器 `localStorage` 或具体 Probe Client。
 - 只有 Composition Root 可以认识具体 Adapter；Port 必须窄且由 Business Core 声明。
 - CLI、HTTP、Provider 和 Web UI 必须复用同一 validator、dispatcher、Application 和 Domain，不建立 UI 私有业务 API。
-- Electron Desktop Shell 只能作为可选 Inbound Host 复用现有 Web/HTTP 边界；必须保持 `nodeIntegration: false`、`contextIsolation: true`，preload 仅允许解析用户主动拖入 File 的绝对路径。
+- Electron Desktop Shell 只能作为可选 Inbound Host 复用现有 Web/HTTP 边界；必须保持 `nodeIntegration: false`、`contextIsolation: true`，preload 仅允许解析用户主动拖入 File 的绝对路径，以及通过固定 allowlisted channel 读取/切换当前主窗口 always-on-top；禁止任意 IPC。
 - Action Catalog 与 `contracts/actions/*.schema.json` 是公开 payload Contract 的唯一事实来源；运行时和测试必须读取这些文件。
 
 ## 状态与运行
@@ -39,6 +39,8 @@
 - 迁移成功前后都不得自动删除旧 localStorage；仅允许独立确认的手动清理，theme 保留。
 - 保持高密度 key-value UI、吸顶搜索、复制、置顶、拖放和 200ms 图标展开交互。
 - Desktop 启动时优先复用健康的现有 Dashboard Server；仅在 Server 不存在时创建并拥有它，退出时不得停止非自身拥有的 Server。
+- Desktop 窗口最小尺寸保持 `360 × 320` 可用；全局置顶必须显式、可撤销，macOS 使用 floating 层级并跨 Spaces/全屏可见，普通浏览器不得显示伪置顶控制。
+- macOS 打包必须将 mutable runtime 排除在 App 外，只能携带只读 governance Contract；构建输出进入被忽略的 `dist/desktop/`，本机安装入口为 `/Applications/Dashboard.app`。
 
 ## 修改与验证
 

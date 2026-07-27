@@ -193,9 +193,29 @@ Web UI 提供独立 Group Registry 弹窗，显示共享颜色、名称和引用
 
 Electron 作为可选 Inbound Host 复用现有 `index.html`、`app.js` 和 loopback `POST /engine-message`，不创建桌面专用业务 API。Desktop Main Process 启动时先验证 `http://127.0.0.1:4173` 是否为可用 Dashboard Server；已有 Server 时只连接，未运行时才创建并拥有 Server，退出时仅停止自己创建的实例，因此不会产生第二个状态写入者。
 
-Renderer 保持 `nodeIntegration: false` 和 `contextIsolation: true`。Preload 只暴露 `getPathForFile(file)`，内部调用 Electron `webUtils.getPathForFile`；不暴露 `fs`、shell、任意 IPC、进程环境或命令执行能力。拖入对象的绝对路径只用于预填现有 Path 编辑弹窗，最终仍由 `dashboard.path.upsert` 和 Domain 校验后写入。
+Renderer 保持 `nodeIntegration: false` 和 `contextIsolation: true`。Preload 暴露 `getPathForFile(file)`，以及固定 channel 的 `getAlwaysOnTop()` / `setAlwaysOnTop(boolean)` 窗口偏好方法；内部分别调用 Electron `webUtils.getPathForFile` 和受 Main Process 校验的 `ipcRenderer.invoke`。它不暴露 `fs`、shell、任意 channel、进程环境或命令执行能力。拖入对象的绝对路径只用于预填现有 Path 编辑弹窗，最终仍由 `dashboard.path.upsert` 和 Domain 校验后写入。
 
 普通浏览器继续尝试标准 `text/uri-list`、`text/plain` 和可用的非标准 File path；若浏览器未暴露绝对路径，则保留文件名、空 VALUE 和明确提示。Desktop 能力缺失不得伪造路径或改变 Web UI 的 EngineMessage-only 写入边界。
+
+### 16. macOS App Bundle 携带只读 Contract 资源
+
+本机打包使用 Electron Packager 生成 arm64 `Dashboard.app`。应用源码封装进 ASAR，测试、OpenSpec、运行数据、Git、导出和 Agent Skill 不进入 App；Generic Engines 根 `governance/` 目录作为只读 `Resources/governance` 构建资源携带，仅用于读取正式 EngineMessage 和标准 Action Schema，不作为新的协议权威或可变状态。
+
+Desktop Main Process 优先使用显式 `GENERIC_ENGINES_ROOT`，其次发现用户主目录下可用的 `workspace/generic_engines`，打包运行且外部根不可用时才使用 `process.resourcesPath` 中的治理资源。所有 mutable aggregate、lock 和 backups 继续写入 `DASHBOARD_RUNTIME_DIR` 或默认用户数据目录，绝不写入 `.app`。
+
+构建输出位于被 Git 忽略的 `dist/desktop/`，随后可复制到 `/Applications/Dashboard.app`。本地构建允许 ad-hoc 签名供当前机器使用；面向其他机器分发、Developer ID、公证和自动更新不在本轮范围内。
+
+### 17. 本机 Release DMG 是便捷安装载体
+
+工程 `release/` 可保存版本化 arm64 DMG，镜像根目录只放置已构建的 `Dashboard.app` 和指向 `/Applications` 的快捷方式，让用户通过 Finder 拖拽安装。DMG 直接取用经过验证的 App Bundle，不重新定义运行边界；App 启动后的 mutable aggregate、lock、backups 和用户数据仍只进入外部 runtime directory，绝不写入或打包进镜像。
+
+DMG 与其中 App 继续采用本机 ad-hoc 签名定位，只作为当前 Mac 的本地发行物。镜像文件进入 `release/` 并被 Git 忽略；校验时必须验证磁盘镜像结构、App 深度签名并生成 SHA-256。Developer ID 签名、公证与面向其他机器的公开分发仍不在本轮范围内。
+
+### 18. Desktop 窗口支持紧凑全局悬浮
+
+BrowserWindow 的最小尺寸从 `900 × 620` 降为 `360 × 320`，Web UI 在窄窗口继续采用现有移动断点，把 Tab 固定到底部、列表改为纵向信息块，并为 Dialog 增加 viewport 内最大高度与滚动，因此缩小不会裁掉编辑操作。默认窗口尺寸不强制改变，用户可自行选择普通大看板或小型悬浮看板。
+
+Header 增加仅 Desktop 可见的窗口置顶按钮。Renderer 只能通过 allowlisted preload 方法请求布尔状态；Main Process 校验 IPC sender 必须是当前主窗口。启用时 macOS 使用 `BrowserWindow.setAlwaysOnTop(true, "floating")`，并用 `setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })` 跨 Spaces/全屏显示；关闭时撤销两项状态。偏好可作为非业务 UI 状态保存在 localStorage，paths/notes/projects 等 Engine 状态边界不变。
 
 ## Risks / Trade-offs
 
@@ -207,6 +227,9 @@ Renderer 保持 `nodeIntegration: false` 和 `contextIsolation: true`。Preload 
 - [legacy merge 产生语义冲突] → dry-run 返回新增/更新/跳过数量，用户确认后一次提交；replace 必须显式选择。
 - [项目 endpoint 探测可能触发本地服务副作用] → 使用 HEAD，必要时回退 GET 只读取少量响应并立即销毁；仅 loopback、短超时、无重试、无 redirect。
 - [直接打开 HTML 行为变化] → 保留 UI shell 和 legacy 检测但禁止写入；README 给出 Server 启动与回滚说明。
+- [未公证 App 在其他机器触发 Gatekeeper] → 当前只生成并安装本机 App；跨机器分发另行增加 Developer ID 签名和 notarization。
+- [DMG 被误认为公开发行包] → release 文档明确其为 arm64、本机 ad-hoc 签名安装镜像，并提供 SHA-256 供本地完整性核对。
+- [全局置顶遮挡其他应用] → 必须由用户显式开启，Header 按钮持续显示 active 状态并可一键撤销；不默认强制置顶。
 
 ## Migration Plan
 

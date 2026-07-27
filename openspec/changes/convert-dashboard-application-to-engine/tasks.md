@@ -72,4 +72,23 @@
 - [x] 9.1 Add Electron development entrypoint that reuses or owns the loopback Dashboard Server without violating single-writer state ownership
 - [x] 9.2 Add context-isolated preload bridge exposing only supported dropped-File absolute path resolution
 - [x] 9.3 Use the Desktop bridge in path drag/drop while preserving explicit normal-browser fallback and documentation
-- [ ] 9.4 Add Desktop shell regression coverage, run full verification and launch the shell against the real Dashboard Server
+- [x] 9.4 Add Desktop shell regression coverage, run full verification and launch the shell against the real Dashboard Server
+
+## 10. Installable macOS App
+
+- [x] 10.1 Resolve external or bundled Generic Engines governance Contracts for packaged Desktop startup
+- [x] 10.2 Add reproducible arm64 Dashboard.app packaging with ASAR, resource inclusion and build-output exclusions
+- [x] 10.3 Install Dashboard.app into /Applications and verify launch without npm while preserving one Server owner
+- [x] 10.4 Add packaging regression coverage, documentation and run full Dashboard/OpenSpec verification
+
+## 11. macOS Release DMG
+
+- [x] 11.1 Generate versioned arm64 DMG with Dashboard.app and Applications shortcut
+- [x] 11.2 Verify mount contents, App signature and checksum
+
+## 12. Compact Floating Desktop Window
+
+- [x] 12.1 Specify compact minimum size, reversible floating semantics and allowlisted preload boundary
+- [x] 12.2 Implement 360 × 320 window minimum plus validated macOS always-on-top IPC
+- [x] 12.3 Add responsive Desktop-only pin UI, preference restore and small-viewport dialog scrolling
+- [x] 12.4 Add regression coverage, run full verification, reinstall App and refresh the release DMG

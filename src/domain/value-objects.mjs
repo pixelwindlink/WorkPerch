@@ -2,9 +2,11 @@ import { dashboardError } from "./errors.mjs";
 
 export const LIMITS = Object.freeze({
   groups: 500,
+  tags: 500,
   paths: 5000,
   notes: 5000,
-  projects: 2000
+  projects: 2000,
+  savedViews: 200
 });
 
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,95}$/;
@@ -47,6 +49,10 @@ export function comparableGroupName(value) {
   return boundedString(value, "group.name", { min: 1, max: 80, trim: true }).normalize("NFC").toLocaleLowerCase("zh-CN");
 }
 
+export function comparableTagName(value) {
+  return boundedString(value, "tag.name", { min: 1, max: 80, trim: true }).normalize("NFC").toLocaleLowerCase("zh-CN");
+}
+
 export function booleanValue(value, name, code = "INVALID_PAYLOAD") {
   if (typeof value !== "boolean") invalid(`${name} 必须是布尔值。`, code);
   return value;
@@ -82,6 +88,12 @@ export function isGroupColor(value) {
 export function groupColor(value, code = "INVALID_PAYLOAD") {
   const result = boundedString(value, "path.groupColor", { min: 7, max: 7, trim: true, code });
   if (!HEX_COLOR_PATTERN.test(result)) invalid("path.groupColor 必须是 #RRGGBB 六位十六进制颜色。", code);
+  return result.toUpperCase();
+}
+
+export function tagColor(value, code = "INVALID_PAYLOAD") {
+  const result = boundedString(value, "tag.color", { min: 7, max: 7, trim: true, code });
+  if (!HEX_COLOR_PATTERN.test(result)) invalid("tag.color 必须是 #RRGGBB 六位十六进制颜色。", code);
   return result.toUpperCase();
 }
 

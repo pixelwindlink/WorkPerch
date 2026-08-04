@@ -3,21 +3,33 @@ import {
   deleteNote,
   deletePath,
   deleteProject,
+  deleteSavedView,
+  deleteTag,
+  batchUpsertEntries,
+  planPathCandidates,
+  recordEntryUsage,
+  repairPath,
+  refreshAllPathInspections,
+  setEntryInspection,
   snapshotOf,
   upsertGroup,
   upsertNote,
   upsertPath,
-  upsertProject
+  upsertProject,
+  upsertSavedView,
+  upsertTag
 } from "../domain/dashboard-aggregate.mjs";
 import { exportBackup, planBackupImport } from "../domain/backup.mjs";
 import { dashboardError } from "../domain/errors.mjs";
 
 export class DashboardApplication {
-  constructor({ repository, clock, idGenerator, endpointProbe }) {
+  constructor({ repository, clock, idGenerator, endpointProbe, pathInspector, engineClient = null }) {
     this.repository = repository;
     this.clock = clock;
     this.idGenerator = idGenerator;
     this.endpointProbe = endpointProbe;
+    this.pathInspector = pathInspector;
+    this.engineClient = engineClient;
     this.writeTail = Promise.resolve();
   }
 
@@ -37,7 +49,7 @@ export class DashboardApplication {
 
   async snapshot(payload) {
     const state = await this.repository.load();
-    return snapshotOf(state, payload.include || ["groups", "paths", "notes", "projects"]);
+    return snapshotOf(state);
   }
 
   async groupUpsert(payload) {
@@ -58,6 +70,24 @@ export class DashboardApplication {
     });
   }
 
+  async tagUpsert(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = upsertTag(current, payload, { now: this.clock.now(), idFactory: this.idFactory });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, item: result.item };
+    });
+  }
+
+  async tagDelete(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = deleteTag(current, payload, { now: this.clock.now() });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, deletedId: result.deletedId };
+    });
+  }
+
   async pathUpsert(payload) {
     return this.#write(async () => {
       const current = await this.repository.load();
@@ -73,6 +103,85 @@ export class DashboardApplication {
       const result = deletePath(current, payload, { now: this.clock.now() });
       await this.repository.save(result.state);
       return { aggregateRevision: result.state.aggregateRevision, deletedId: result.deletedId };
+    });
+  }
+
+  async pathInspect(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const collection = payload.kind === "project" ? current.projects : current.paths;
+      const item = collection.find((candidate) => candidate.id === payload.id);
+      if (!item) throw dashboardError("DASHBOARD_ITEM_NOT_FOUND", `${payload.kind} ${payload.id} 不存在。`);
+      const { path: _path, ...inspection } = await this.pathInspector.inspect(item.path);
+      const result = setEntryInspection(current, { ...payload, inspection }, { now: this.clock.now() });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, kind: payload.kind, id: payload.id, inspection: result.item.inspection };
+    });
+  }
+
+  async pathRefreshAll(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const now = this.clock.now();
+      if (current.paths.length === 0) {
+        const empty = refreshAllPathInspections(current, { expectedRevision: payload.expectedRevision, inspections: [] }, { now });
+        await this.repository.save(empty.state);
+        return {
+          aggregateRevision: empty.state.aggregateRevision,
+          checkedAt: now,
+          summary: { total: 0, available: 0, missing: 0, denied: 0, invalid: 0 },
+          items: [],
+        };
+      }
+      const inspected = [];
+      const batchSize = 50;
+      for (let offset = 0; offset < current.paths.length; offset += batchSize) {
+        const slice = current.paths.slice(offset, offset + batchSize);
+        const batch = await this.pathInspector.inspectMany(slice.map((item) => item.path));
+        for (let index = 0; index < slice.length; index += 1) {
+          const { path: _path, ...inspection } = batch[index];
+          inspected.push({ id: slice[index].id, inspection });
+        }
+      }
+      const result = refreshAllPathInspections(current, { expectedRevision: payload.expectedRevision, inspections: inspected }, { now });
+      await this.repository.save(result.state);
+      const summary = { total: result.items.length, available: 0, missing: 0, denied: 0, invalid: 0 };
+      for (const item of result.items) {
+        if (summary[item.inspection.status] !== undefined) summary[item.inspection.status] += 1;
+      }
+      return {
+        aggregateRevision: result.state.aggregateRevision,
+        checkedAt: now,
+        summary,
+        items: result.items,
+      };
+    });
+  }
+
+  async pathPreflight(payload) {
+    const current = await this.repository.load();
+    const inspections = await this.pathInspector.inspectMany(payload.paths);
+    return { checkedAt: this.clock.now(), candidates: planPathCandidates(current, inspections) };
+  }
+
+  async pathBatchCommit(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = batchUpsertEntries(current, payload, { now: this.clock.now(), idFactory: this.idFactory });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, items: result.items };
+    });
+  }
+
+  async pathRepair(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const inspected = await this.pathInspector.inspect(payload.path);
+      if (inspected.status !== "available") throw dashboardError("DASHBOARD_PATH_UNAVAILABLE", `新路径当前状态为 ${inspected.status}。`);
+      const { path: _path, ...inspection } = inspected;
+      const result = repairPath(current, { ...payload, inspection }, { now: this.clock.now() });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, item: result.item };
     });
   }
 
@@ -125,6 +234,107 @@ export class DashboardApplication {
     return { checkedAt: this.clock.now(), results };
   }
 
+  #projectById(state, projectId) {
+    const project = state.projects.find((item) => item.id === projectId);
+    if (!project) throw dashboardError("DASHBOARD_ITEM_NOT_FOUND", `项目 ${projectId} 不存在。`);
+    return project;
+  }
+
+  async #sendToLauncher(action, payload) {
+    if (!this.engineClient || typeof this.engineClient.send !== "function") {
+      throw dashboardError("DEPENDENCY_UNAVAILABLE", "Project Launcher 当前未接入 Dashboard。");
+    }
+    const message = {
+      protocol: "generic-engines/engine-message",
+      version: "1.0",
+      kind: "request",
+      id: this.idGenerator.next("launcher-message"),
+      engine: "project-launcher",
+      action,
+      payload
+    };
+    let response;
+    try {
+      response = await this.engineClient.send(message);
+    } catch (error) {
+      throw dashboardError("DEPENDENCY_UNAVAILABLE", `Project Launcher 调用失败：${String(error?.message || error).slice(0, 300)}`);
+    }
+    if (!response || response.kind !== "response" || response.id !== message.id || response.engine !== message.engine || response.action !== message.action) {
+      throw dashboardError("DEPENDENCY_UNAVAILABLE", "Project Launcher 返回了无法关联的响应。");
+    }
+    if (response.status === "error") {
+      throw dashboardError(response.error?.code || "DEPENDENCY_UNAVAILABLE", response.error?.message || "Project Launcher 请求失败。");
+    }
+    if (response.status !== "ok" || !response.payload || typeof response.payload !== "object") {
+      throw dashboardError("DEPENDENCY_UNAVAILABLE", "Project Launcher 返回了无效响应。");
+    }
+    return response.payload;
+  }
+
+  async projectLaunchConfigure(payload) {
+    const state = await this.repository.load();
+    const project = this.#projectById(state, payload.projectId);
+    const result = await this.#sendToLauncher("launcher.definition.upsert", {
+      expectedRevision: payload.expectedLauncherRevision,
+      item: {
+        projectId: project.id,
+        cwd: project.path,
+        executable: payload.executable,
+        args: payload.args
+      }
+    });
+    return { projectId: project.id, launcherRevision: result.aggregateRevision, definition: result.item };
+  }
+
+  async projectLaunchStart(payload) {
+    const state = await this.repository.load();
+    const project = this.#projectById(state, payload.projectId);
+    const result = await this.#sendToLauncher("launcher.project.start", { projectId: project.id });
+    return { projectId: project.id, run: result.run };
+  }
+
+  async projectLaunchStop(payload) {
+    const state = await this.repository.load();
+    const project = this.#projectById(state, payload.projectId);
+    const result = await this.#sendToLauncher("launcher.project.stop", { projectId: project.id });
+    return { projectId: project.id, run: result.run };
+  }
+
+  async projectLaunchStatus(payload) {
+    const state = await this.repository.load();
+    const projectIds = payload.projectIds || state.projects.map((item) => item.id);
+    projectIds.forEach((projectId) => this.#projectById(state, projectId));
+    const result = await this.#sendToLauncher("launcher.runtime.get", { projectIds });
+    return { launcherRevision: result.aggregateRevision, definitions: result.definitions, runs: result.runs };
+  }
+
+  async usageRecord(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = recordEntryUsage(current, payload, { now: this.clock.now() });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, kind: payload.kind, id: payload.id, usage: result.item.usage };
+    });
+  }
+
+  async savedViewUpsert(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = upsertSavedView(current, payload, { now: this.clock.now(), idFactory: this.idFactory });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, item: result.item };
+    });
+  }
+
+  async savedViewDelete(payload) {
+    return this.#write(async () => {
+      const current = await this.repository.load();
+      const result = deleteSavedView(current, payload, { now: this.clock.now() });
+      await this.repository.save(result.state);
+      return { aggregateRevision: result.state.aggregateRevision, deletedId: result.deletedId };
+    });
+  }
+
   async backupExport() {
     const state = await this.repository.load();
     return { backup: exportBackup(state, this.clock.now()) };
@@ -149,13 +359,27 @@ export class DashboardApplication {
       ["dashboard.snapshot.get", (payload) => this.snapshot(payload)],
       ["dashboard.group.upsert", (payload) => this.groupUpsert(payload)],
       ["dashboard.group.delete", (payload) => this.groupDelete(payload)],
+      ["dashboard.tag.upsert", (payload) => this.tagUpsert(payload)],
+      ["dashboard.tag.delete", (payload) => this.tagDelete(payload)],
       ["dashboard.path.upsert", (payload) => this.pathUpsert(payload)],
       ["dashboard.path.delete", (payload) => this.pathDelete(payload)],
+      ["dashboard.path.inspect", (payload) => this.pathInspect(payload)],
+      ["dashboard.path.refresh-all", (payload) => this.pathRefreshAll(payload)],
+      ["dashboard.path.preflight", (payload) => this.pathPreflight(payload)],
+      ["dashboard.path.batch-upsert", (payload) => this.pathBatchCommit(payload)],
+      ["dashboard.path.repair", (payload) => this.pathRepair(payload)],
       ["dashboard.note.upsert", (payload) => this.noteUpsert(payload)],
       ["dashboard.note.delete", (payload) => this.noteDelete(payload)],
       ["dashboard.project.upsert", (payload) => this.projectUpsert(payload)],
       ["dashboard.project.delete", (payload) => this.projectDelete(payload)],
       ["dashboard.project.probe", (payload) => this.projectProbe(payload)],
+      ["dashboard.project.launch.configure", (payload) => this.projectLaunchConfigure(payload)],
+      ["dashboard.project.launch.start", (payload) => this.projectLaunchStart(payload)],
+      ["dashboard.project.launch.stop", (payload) => this.projectLaunchStop(payload)],
+      ["dashboard.project.launch.status", (payload) => this.projectLaunchStatus(payload)],
+      ["dashboard.entry.usage.record", (payload) => this.usageRecord(payload)],
+      ["dashboard.view.upsert", (payload) => this.savedViewUpsert(payload)],
+      ["dashboard.view.delete", (payload) => this.savedViewDelete(payload)],
       ["dashboard.backup.export", () => this.backupExport()],
       ["dashboard.backup.import", (payload) => this.backupImport(payload)]
     ]);

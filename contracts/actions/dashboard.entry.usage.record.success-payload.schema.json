@@ -1,0 +1,4 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://dashboard.local/schemas/actions/dashboard.entry.usage.record/2.0/success-payload.json", "title": "dashboard.entry.usage.record success payload", "type": "object", "additionalProperties": false, "required": ["aggregateRevision", "kind", "id", "usage"], "properties": { "aggregateRevision": { "type": "integer", "minimum": 1 }, "kind": { "enum": ["path", "note", "project"] }, "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" }, "usage": { "type": "object", "additionalProperties": false, "required": ["count", "lastUsedAt"], "properties": { "count": { "type": "integer", "minimum": 1 }, "lastUsedAt": { "type": "string", "minLength": 20, "maxLength": 40 } } }
+  }
+}

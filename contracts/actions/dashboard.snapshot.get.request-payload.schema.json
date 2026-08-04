@@ -1,16 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dashboard.local/schemas/actions/dashboard.snapshot.get/1.0/request-payload.json",
+  "$id": "https://dashboard.local/schemas/actions/dashboard.snapshot.get/2.0/request-payload.json",
   "title": "dashboard.snapshot.get request payload",
   "type": "object",
   "additionalProperties": false,
-  "properties": {
-    "include": {
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 4,
-      "uniqueItems": true,
-      "items": { "enum": ["groups", "paths", "notes", "projects"] }
-    }
-  }
+  "properties": {}
 }

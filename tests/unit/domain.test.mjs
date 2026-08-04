@@ -7,6 +7,11 @@ import {
   deleteNote,
   deletePath,
   deleteProject,
+  deleteSavedView,
+  deleteTag,
+  recordEntryUsage,
+  upsertSavedView,
+  upsertTag,
   upsertNote,
   upsertPath,
   upsertProject,
@@ -40,9 +45,9 @@ test("path, note and project CRUD increments exactly one aggregate revision", ()
   state = pathResult.state;
   assert.equal(state.aggregateRevision, 1);
   assert.equal(pathResult.item.name, "Workspace");
-  assert.equal(pathResult.item.group, "Dev");
-  assert.equal(pathResult.item.groupColor, undefined);
-  assert.equal(state.groups.find((group) => group.id === pathResult.item.groupId)?.color, "#38BDF8");
+  assert.equal(pathResult.item.tagIds.length, 1);
+  assert.equal(state.tags.find((tag) => tag.id === pathResult.item.tagIds[0])?.name, "Dev");
+  assert.equal(state.tags.find((tag) => tag.id === pathResult.item.tagIds[0])?.color, "#38BDF8");
 
   const noteResult = upsertNote(state, {
     expectedRevision: 1,
@@ -69,6 +74,7 @@ test("path, note and project CRUD increments exactly one aggregate revision", ()
   state = projectResult.state;
   assert.equal(state.aggregateRevision, 3);
   assert.equal(projectResult.item.command, "npm start");
+  assert.equal(projectResult.item.tagIds.length, 1);
 
   state = deletePath(state, { id: pathResult.item.id, expectedRevision: 3 }, { now: times[4] }).state;
   state = deleteNote(state, { id: noteResult.item.id, expectedRevision: 4 }, { now: times[5] }).state;
@@ -106,8 +112,8 @@ test("stored aggregate validation rejects missing, noncanonical and time-reverse
 
   const noncanonical = structuredClone(state);
   noncanonical.paths = [{
-    id: "path-one", name: " A ", path: "/tmp/a", group: "G", description: "", pinned: false,
-    createdAt: times[0], updatedAt: times[0],
+    id: "path-one", name: " A ", path: "/tmp/a", tagIds: [], description: "", pinned: false,
+    usage: { count: 0, lastUsedAt: null }, inspection: null, createdAt: times[0], updatedAt: times[0],
   }];
   assert.throws(() => assertAggregate(noncanonical), (error) => error.code === "DASHBOARD_STATE_CORRUPT");
 
@@ -136,7 +142,7 @@ test("path group color rejects non-hex values without changing state", () => {
   assert.equal(state.aggregateRevision, 0);
 });
 
-test("shared Group Registry owns color and name for every referencing path", () => {
+test("shared Tag Registry owns color and name for every referencing record", () => {
   const idFactory = ids();
   let state = createInitialAggregate({ now: times[0], projects: [], idFactory });
   const first = upsertPath(state, {
@@ -150,28 +156,45 @@ test("shared Group Registry owns color and name for every referencing path", () 
   }, { now: times[2], idFactory });
   state = second.state;
 
-  assert.equal(state.groups.length, 1);
-  assert.equal(first.item.groupId, second.item.groupId);
-  assert.equal(state.paths.every((item) => item.groupId === state.groups[0].id), true);
+  assert.equal(state.tags.length, 1);
+  assert.equal(first.item.tagIds[0], second.item.tagIds[0]);
+  assert.equal(state.paths.every((item) => item.tagIds[0] === state.tags[0].id), true);
 
-  const recolored = upsertGroup(state, {
+  const recolored = upsertTag(state, {
     expectedRevision: 2,
-    item: { id: state.groups[0].id, name: "工程", color: "#EC4899" },
+    item: { id: state.tags[0].id, name: "工程", color: "#EC4899" },
   }, { now: times[3], idFactory });
   state = recolored.state;
-  assert.equal(state.groups[0].color, "#EC4899");
-  assert.equal(state.paths.every((item) => item.groupColor === undefined), true);
+  assert.equal(state.tags[0].color, "#EC4899");
 
-  state = upsertGroup(state, {
+  state = upsertTag(state, {
     expectedRevision: 3,
-    item: { id: state.groups[0].id, name: "核心工程", color: "#EC4899" },
+    item: { id: state.tags[0].id, name: "核心工程", color: "#EC4899" },
   }, { now: times[4], idFactory }).state;
-  assert.equal(state.paths.every((item) => item.group === "核心工程"), true);
-  assert.throws(() => deleteGroup(state, { id: state.groups[0].id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "DASHBOARD_GROUP_IN_USE");
+  assert.equal(state.tags[0].name, "核心工程");
+  assert.throws(() => deleteTag(state, { id: state.tags[0].id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "DASHBOARD_TAG_IN_USE");
   assert.equal(state.aggregateRevision, 4);
 
   state = deletePath(state, { id: first.item.id, expectedRevision: 4 }, { now: times[5] }).state;
   state = deletePath(state, { id: second.item.id, expectedRevision: 5 }, { now: times[6] }).state;
-  state = deleteGroup(state, { id: state.groups[0].id, expectedRevision: 6 }, { now: times[7] }).state;
-  assert.deepEqual(state.groups, []);
+  state = deleteTag(state, { id: state.tags[0].id, expectedRevision: 6 }, { now: times[7] }).state;
+  assert.deepEqual(state.tags, []);
+});
+
+test("usage and saved views are persisted with deterministic tag references", () => {
+  const idFactory = ids();
+  let state = createInitialAggregate({ now: times[0], projects: [], idFactory });
+  const tag = upsertTag(state, { expectedRevision: 0, item: { name: "常用", color: "#FF8A00" } }, { now: times[1], idFactory });
+  state = tag.state;
+  const note = upsertNote(state, { expectedRevision: 1, item: { title: "N", content: "C", tagIds: [tag.item.id], pinned: false } }, { now: times[2], idFactory });
+  state = note.state;
+  const used = recordEntryUsage(state, { kind: "note", id: note.item.id }, { now: times[3] });
+  state = used.state;
+  assert.deepEqual(used.item.usage, { count: 1, lastUsedAt: times[3] });
+  const view = upsertSavedView(state, { expectedRevision: 3, item: { name: "常用速记", scope: "notes", query: "", tagIds: [tag.item.id], pathStatus: "any", sort: "smart" } }, { now: times[4], idFactory });
+  state = view.state;
+  assert.equal(state.savedViews[0].tagIds[0], tag.item.id);
+  assert.throws(() => deleteTag(state, { id: tag.item.id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "DASHBOARD_TAG_IN_USE");
+  state = deleteSavedView(state, { id: view.item.id, expectedRevision: 4 }, { now: times[5] }).state;
+  assert.equal(state.savedViews.length, 0);
 });

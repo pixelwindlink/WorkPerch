@@ -100,7 +100,7 @@ test("invalid legacy import produces no partial state write", async () => {
       },
     }, { id: "invalid-import" }));
     assert.equal(invalid.status, "error");
-    assert.equal(invalid.error.code, "INVALID_PAYLOAD");
+    assert.equal(invalid.error.code, "DASHBOARD_IMPORT_INVALID");
     const after = await engine.handle(request("dashboard.snapshot.get", {}, { id: "after" }));
     assert.equal(after.payload.aggregateRevision, before.payload.aggregateRevision);
     assert.deepEqual(after.payload.paths, before.payload.paths);
@@ -110,7 +110,7 @@ test("invalid legacy import produces no partial state write", async () => {
   }
 });
 
-test("legacy path group strings migrate atomically once into a shared Registry", async () => {
+test("legacy 1.x state migrates atomically once into the shared Tag Registry", async () => {
   const runtimeDir = await tempRuntime("dashboard-group-migration-");
   const statePath = path.join(runtimeDir, "dashboard-state.json");
   const createdAt = "2026-07-27T00:00:00.000Z";
@@ -133,11 +133,13 @@ test("legacy path group strings migrate atomically once into a shared Registry",
     await first.start();
     const snapshot = await first.handle(request("dashboard.snapshot.get", {}, { id: "migrated" }));
     assert.equal(snapshot.payload.aggregateRevision, 39);
-    assert.equal(snapshot.payload.groups.length, 1);
-    assert.equal(snapshot.payload.groups[0].name, "工程");
-    assert.equal(snapshot.payload.groups[0].color, "#EC4899");
-    assert.equal(snapshot.payload.paths.every((item) => item.groupId === snapshot.payload.groups[0].id), true);
-    assert.equal(snapshot.payload.paths.every((item) => item.groupColor === undefined), true);
+    assert.equal(snapshot.payload.schemaVersion, "2.0");
+    assert.equal(snapshot.payload.tags.length, 1);
+    assert.equal(snapshot.payload.tags[0].name, "工程");
+    assert.equal(snapshot.payload.tags[0].color, "#EC4899");
+    assert.equal(snapshot.payload.paths.every((item) => item.tagIds[0] === snapshot.payload.tags[0].id), true);
+    assert.equal(snapshot.payload.paths.every((item) => item.usage.count === 0 && item.inspection === null), true);
+    assert.deepEqual(snapshot.payload.savedViews, []);
   } finally {
     await first.shutdown();
   }

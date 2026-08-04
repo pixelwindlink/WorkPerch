@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dashboard.local/schemas/actions/dashboard.backup.import/1.0/request-payload.json",
+  "$id": "https://dashboard.local/schemas/actions/dashboard.backup.import/2.0/request-payload.json",
   "title": "dashboard.backup.import request payload",
   "type": "object",
   "additionalProperties": false,
@@ -12,142 +12,16 @@
     "backup": {
       "oneOf": [
         {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["format", "version", "paths", "notes"],
-          "properties": {
-            "format": { "const": "dashboard-key-value-list" },
-            "version": { "const": 1 },
-            "exportedAt": { "type": "string", "minLength": 10, "maxLength": 40 },
-            "paths": {
-              "type": "array",
-              "maxItems": 5000,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["name", "path"],
-                "properties": {
-                  "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "name": { "type": "string", "minLength": 1, "maxLength": 120 },
-                  "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/" },
-                  "group": { "type": "string", "minLength": 1, "maxLength": 80 },
-                  "groupColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-                  "description": { "type": "string", "maxLength": 500 },
-                  "pinned": { "type": "boolean" },
-                  "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "color": { "type": "string", "maxLength": 80 }
-                }
-              }
-            },
-            "notes": {
-              "type": "array",
-              "maxItems": 5000,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["title", "content"],
-                "properties": {
-                  "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "title": { "type": "string", "minLength": 1, "maxLength": 120 },
-                  "content": { "type": "string", "minLength": 1, "maxLength": 10000 },
-                  "pinned": { "type": "boolean" },
-                  "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "color": { "type": "string", "maxLength": 80 }
-                }
-              }
-            }
-          }
+          "type": "object", "additionalProperties": false, "required": ["format", "version", "paths", "notes"],
+          "properties": { "format": { "const": "dashboard-key-value-list" }, "version": { "const": 1 }, "exportedAt": { "type": "string", "minLength": 10, "maxLength": 40 }, "paths": { "type": "array", "maxItems": 5000 }, "notes": { "type": "array", "maxItems": 5000 } }
         },
         {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["format", "version", "aggregateRevision", "exportedAt", "paths", "notes", "projects"],
-          "properties": {
-            "format": { "const": "dashboard-engine-backup" },
-            "version": { "const": 1 },
-            "aggregateRevision": { "type": "integer", "minimum": 0 },
-            "exportedAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-            "groups": {
-              "type": "array",
-              "maxItems": 500,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["id", "name", "color", "createdAt", "updatedAt"],
-                "properties": {
-                  "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-                  "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-                  "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 }
-                }
-              }
-            },
-            "paths": {
-              "type": "array",
-              "maxItems": 5000,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["id", "name", "path", "group", "description", "pinned", "createdAt", "updatedAt"],
-                "properties": {
-                  "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "name": { "type": "string", "minLength": 1, "maxLength": 120 },
-                  "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/" },
-                  "groupId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "group": { "type": "string", "minLength": 1, "maxLength": 80 },
-                  "groupColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-                  "description": { "type": "string", "maxLength": 500 },
-                  "pinned": { "type": "boolean" },
-                  "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 }
-                }
-              }
-            },
-            "notes": {
-              "type": "array",
-              "maxItems": 5000,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["id", "title", "content", "pinned", "createdAt", "updatedAt"],
-                "properties": {
-                  "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "title": { "type": "string", "minLength": 1, "maxLength": 120 },
-                  "content": { "type": "string", "minLength": 1, "maxLength": 10000 },
-                  "pinned": { "type": "boolean" },
-                  "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 }
-                }
-              }
-            },
-            "projects": {
-              "type": "array",
-              "maxItems": 2000,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["id", "name", "type", "label", "description", "path", "url", "port", "command", "tags", "pinned", "createdAt", "updatedAt"],
-                "properties": {
-                  "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-                  "name": { "type": "string", "minLength": 1, "maxLength": 120 },
-                  "type": { "enum": ["engine", "candidate", "tool", "application", "workspace", "archive", "other"] },
-                  "label": { "type": "string", "minLength": 1, "maxLength": 80 },
-                  "description": { "type": "string", "maxLength": 500 },
-                  "path": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/" },
-                  "url": { "type": "string", "maxLength": 2048, "pattern": "^(?:https?://.*)?$" },
-                  "port": { "type": "integer", "minimum": 0, "maximum": 65535 },
-                  "command": { "type": "string", "maxLength": 2000 },
-                  "tags": { "type": "array", "maxItems": 30, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 50 } },
-                  "pinned": { "type": "boolean" },
-                  "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
-                  "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 }
-                }
-              }
-            }
-          }
+          "type": "object", "additionalProperties": false, "required": ["format", "version", "aggregateRevision", "exportedAt", "paths", "notes", "projects"],
+          "properties": { "format": { "const": "dashboard-engine-backup" }, "version": { "const": 1 }, "aggregateRevision": { "type": "integer", "minimum": 0 }, "exportedAt": { "type": "string", "minLength": 20, "maxLength": 40 }, "groups": { "type": "array", "maxItems": 500 }, "paths": { "type": "array", "maxItems": 5000 }, "notes": { "type": "array", "maxItems": 5000 }, "projects": { "type": "array", "maxItems": 2000 } }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["format", "version", "aggregateRevision", "exportedAt", "tags", "paths", "notes", "projects", "savedViews"],
+          "properties": { "format": { "const": "dashboard-engine-backup" }, "version": { "const": 2 }, "aggregateRevision": { "type": "integer", "minimum": 0 }, "exportedAt": { "type": "string", "minLength": 20, "maxLength": 40 }, "tags": { "type": "array", "maxItems": 500 }, "paths": { "type": "array", "maxItems": 5000 }, "notes": { "type": "array", "maxItems": 5000 }, "projects": { "type": "array", "maxItems": 2000 }, "savedViews": { "type": "array", "maxItems": 200 } }
         }
       ]
     }

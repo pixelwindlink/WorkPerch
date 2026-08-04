@@ -41,7 +41,36 @@ function errorResponse(request, code, message) {
   };
 }
 
+function describeConsumers(consumers) {
+  if (!consumers || typeof consumers !== "object") return undefined;
+  const projection = {};
+  if (consumers.human) {
+    projection.human = {
+      ...(consumers.human.readme ? { readme: consumers.human.readme } : {}),
+      ...(consumers.human.changelog ? { changelog: consumers.human.changelog } : {}),
+      ...(consumers.human.architectureDoc ? { architectureDoc: consumers.human.architectureDoc } : {})
+    };
+  }
+  if (consumers.program) {
+    projection.program = {
+      protocol: { ...consumers.program.protocol },
+      actions: [...consumers.program.actions]
+    };
+  }
+  if (consumers.agent) {
+    projection.agent = {
+      skills: consumers.agent.skills.map((skill) => ({
+        name: skill.name,
+        path: skill.path,
+        ...(skill.description ? { description: skill.description } : {})
+      }))
+    };
+  }
+  return projection;
+}
+
 function describePayload(manifest, catalog) {
+  const consumers = describeConsumers(manifest.consumers);
   return {
     id: manifest.id,
     name: manifest.name,
@@ -52,6 +81,7 @@ function describePayload(manifest, catalog) {
       preferredVersion: manifest.protocol.preferredVersion
     },
     transports: manifest.transports,
+    ...(consumers ? { consumers } : {}),
     actions: catalog.actions.map((action) => ({
       name: action.name,
       requestSchema: action.requestPayloadSchema,

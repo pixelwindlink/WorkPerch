@@ -1,22 +1,3 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dashboard.local/schemas/actions/dashboard.note.upsert/1.0/request-payload.json",
-  "title": "dashboard.note.upsert request payload",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["item", "expectedRevision"],
-  "properties": {
-    "expectedRevision": { "type": "integer", "minimum": 0 },
-    "item": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["title", "content", "pinned"],
-      "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
-        "title": { "type": "string", "minLength": 1, "maxLength": 120 },
-        "content": { "type": "string", "minLength": 1, "maxLength": 10000 },
-        "pinned": { "type": "boolean" }
-      }
-    }
-  }
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://dashboard.local/schemas/actions/dashboard.note.upsert/2.0/request-payload.json", "title": "dashboard.note.upsert request payload", "type": "object", "additionalProperties": false, "required": ["item", "expectedRevision"], "properties": { "expectedRevision": { "type": "integer", "minimum": 0 }, "item": { "type": "object", "additionalProperties": false, "required": ["title", "content", "pinned"], "properties": { "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" }, "title": { "type": "string", "minLength": 1, "maxLength": 120 }, "content": { "type": "string", "minLength": 1, "maxLength": 10000 }, "tagIds": { "type": "array", "maxItems": 30, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" } }, "tags": { "type": "array", "maxItems": 30, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 80 } }, "pinned": { "type": "boolean" } } } }
 }

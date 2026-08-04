@@ -28,8 +28,8 @@ test("legacy merge dry-run plans without changing revision or source", () => {
   assert.equal(plan.candidate.aggregateRevision, state.aggregateRevision);
   assert.equal(plan.summary.paths.updated, 1);
   assert.equal(plan.summary.notes.added, 1);
-  assert.equal(plan.candidate.paths[0].groupColor, undefined);
-  assert.equal(plan.candidate.groups.find((group) => group.id === plan.candidate.paths[0].groupId)?.color, "#EC4899");
+  assert.equal(plan.candidate.paths[0].tagIds.length, 1);
+  assert.equal(plan.candidate.tags.find((tag) => tag.id === plan.candidate.paths[0].tagIds[0])?.color, "#EC4899");
   assert.equal(state.paths[0].name, "A");
 });
 
@@ -45,24 +45,30 @@ test("replace commit increments once and Engine backup round-trips", () => {
   assert.equal(plan.candidate.aggregateRevision, state.aggregateRevision + 1);
   assert.deepEqual(plan.candidate.paths, state.paths);
   assert.deepEqual(plan.candidate.notes, state.notes);
-  assert.deepEqual(plan.candidate.groups, state.groups);
+  assert.deepEqual(plan.candidate.tags, state.tags);
+  assert.deepEqual(plan.candidate.savedViews, state.savedViews);
 });
 
-test("old Engine backups without groups materialize one shared Registry", () => {
+test("old Engine v1 backups materialize one shared Tag Registry", () => {
   const state = populatedState();
-  const backup = exportBackup(state, t2);
-  delete backup.groups;
-  backup.paths = backup.paths.map(({ groupId, ...item }) => ({ ...item, groupColor: "#FF8A00" }));
+  const backup = {
+    format: "dashboard-engine-backup",
+    version: 1,
+    aggregateRevision: 7,
+    exportedAt: t2,
+    paths: [{ id: "old-path", name: "Old", path: "/tmp/old", group: "工程", groupColor: "#FF8A00", description: "", pinned: false, createdAt: t0, updatedAt: t1 }],
+    notes: [],
+    projects: [],
+  };
   const plan = planBackupImport(state, {
     backup,
     mode: "replace",
     dryRun: false,
     expectedRevision: state.aggregateRevision,
   }, { now: t2, idFactory });
-  assert.equal(plan.candidate.groups.length, 1);
-  assert.equal(plan.candidate.groups[0].color, "#FF8A00");
-  assert.equal(plan.candidate.paths[0].groupId, plan.candidate.groups[0].id);
-  assert.equal(plan.candidate.paths[0].groupColor, undefined);
+  assert.equal(plan.candidate.tags.length, 1);
+  assert.equal(plan.candidate.tags[0].color, "#FF8A00");
+  assert.equal(plan.candidate.paths[0].tagIds[0], plan.candidate.tags[0].id);
 });
 
 test("invalid or duplicated backup items reject the complete import", () => {

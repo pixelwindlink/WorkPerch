@@ -24,7 +24,7 @@
     {
       "name": "dashboard.snapshot.get",
       "requestPayloadSchema": "contracts/actions/dashboard.snapshot.get.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.snapshot.get.success-payload.schema.json",
+      "successPayloadSchema": "contracts/state/dashboard-state.schema.json",
       "errors": ["DASHBOARD_STATE_CORRUPT"],
       "deprecated": false
     },
@@ -43,6 +43,20 @@
       "deprecated": false
     },
     {
+      "name": "dashboard.tag.upsert",
+      "requestPayloadSchema": "contracts/actions/dashboard.tag.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.tag.upsert.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_TAG_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.tag.delete",
+      "requestPayloadSchema": "contracts/actions/dashboard.tag.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.tag.delete.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_TAG_IN_USE", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
       "name": "dashboard.path.upsert",
       "requestPayloadSchema": "contracts/actions/dashboard.path.upsert.request-payload.schema.json",
       "successPayloadSchema": "contracts/actions/dashboard.path.upsert.success-payload.schema.json",
@@ -54,6 +68,41 @@
       "requestPayloadSchema": "contracts/actions/dashboard.path.delete.request-payload.schema.json",
       "successPayloadSchema": "contracts/actions/dashboard.path.delete.success-payload.schema.json",
       "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.path.inspect",
+      "requestPayloadSchema": "contracts/actions/dashboard.path.inspect.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.path.inspect.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.path.refresh-all",
+      "requestPayloadSchema": "contracts/actions/dashboard.path.refresh-all.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.path.refresh-all.success-payload.schema.json",
+      "errors": ["DASHBOARD_REVISION_CONFLICT", "INVALID_PAYLOAD", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.path.preflight",
+      "requestPayloadSchema": "contracts/actions/dashboard.path.preflight.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.path.preflight.success-payload.schema.json",
+      "errors": ["INVALID_PAYLOAD", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.path.batch-upsert",
+      "requestPayloadSchema": "contracts/actions/dashboard.path.batch-upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.path.batch-upsert.success-payload.schema.json",
+      "errors": ["DASHBOARD_PATH_ALREADY_EXISTS", "DASHBOARD_PROJECT_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "INVALID_PAYLOAD", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.path.repair",
+      "requestPayloadSchema": "contracts/actions/dashboard.path.repair.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.path.upsert.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_PATH_ALREADY_EXISTS", "DASHBOARD_PATH_UNAVAILABLE", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
       "deprecated": false
     },
     {
@@ -89,6 +138,55 @@
       "requestPayloadSchema": "contracts/actions/dashboard.project.probe.request-payload.schema.json",
       "successPayloadSchema": "contracts/actions/dashboard.project.probe.success-payload.schema.json",
       "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_PROBE_FORBIDDEN", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.project.launch.configure",
+      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.configure.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.project.launch.configure.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_REVISION_CONFLICT", "LAUNCHER_DEFINITION_INVALID", "LAUNCHER_PROJECT_RUNNING", "LAUNCHER_CWD_UNAVAILABLE"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.project.launch.start",
+      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.start.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.project.launch.start.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROJECT_RUNNING", "LAUNCHER_CWD_UNAVAILABLE", "LAUNCHER_START_FAILED"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.project.launch.stop",
+      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.stop.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.project.launch.stop.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROCESS_NOT_OWNED", "LAUNCHER_STOP_FAILED"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.project.launch.status",
+      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.status.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.project.launch.status.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.entry.usage.record",
+      "requestPayloadSchema": "contracts/actions/dashboard.entry.usage.record.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.entry.usage.record.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.view.upsert",
+      "requestPayloadSchema": "contracts/actions/dashboard.view.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.view.upsert.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_VIEW_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "deprecated": false
+    },
+    {
+      "name": "dashboard.view.delete",
+      "requestPayloadSchema": "contracts/actions/dashboard.view.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/dashboard.view.delete.success-payload.schema.json",
+      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
       "deprecated": false
     },
     {

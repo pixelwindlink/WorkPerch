@@ -1,11 +1,11 @@
 {
-  "$schema": "https://generic-engines.local/schemas/governance/engine-manifest-1.1.json",
-  "schemaVersion": "1.1",
+  "$schema": "https://generic-engines.local/schemas/governance/engine-manifest-1.2.json",
+  "schemaVersion": "1.2",
   "id": "dashboard",
   "name": "Dashboard Engine",
-  "version": "1.2.0",
+  "version": "2.2.0",
   "classification": "engine",
-  "description": "管理本地开发工作区的路径、速记和项目入口目录，并提供查询、修改、备份、恢复和受限本地 endpoint liveness 探测。",
+  "description": "管理本地开发路径、速记、项目入口、共享标签、使用视图与路径状态，并通过注入 EngineClient 委托独立 Project Launcher 安全启动项目。",
   "architecture": {
     "authority": "openspec/changes/define-generic-engine-runtime-architecture/design.md"
   },
@@ -29,8 +29,19 @@
   "runtime": {
     "hostModes": ["standalone", "in-process", "local-process"],
     "engineClient": {
-      "mode": "not-required",
-      "dependencies": []
+      "mode": "injected",
+      "dependencies": [
+        {
+          "engine": "project-launcher",
+          "actions": [
+            "launcher.definition.upsert",
+            "launcher.project.start",
+            "launcher.project.stop",
+            "launcher.runtime.get"
+          ],
+          "reason": "Dashboard Desktop delegates structured project launch configuration and owned process lifecycle to Project Launcher while standalone Dashboard CRUD remains available without injection."
+        }
+      ]
     },
     "planes": {
       "control": {
@@ -55,9 +66,66 @@
   "state": {
     "mode": "single-writer",
     "owner": "Dashboard Engine Server or an explicitly isolated Standalone Exclusive CLI process",
-    "runtimeData": "DASHBOARD_RUNTIME_DIR",
+    "runtimeData": "runtime_data",
     "conformance": {
-      "temporaryRuntimeEnv": "DASHBOARD_RUNTIME_DIR"
+      "temporaryRuntimeEnv": "RUNTIME_DATA_DIR"
+    }
+  },
+  "consumers": {
+    "human": {
+      "readme": "README.md",
+      "architectureDoc": "architecture/README.md"
+    },
+    "program": {
+      "protocol": {
+        "name": "generic-engines/engine-message",
+        "version": "1.0"
+      },
+      "actions": [
+        "engine.describe",
+        "system.health",
+        "dashboard.snapshot.get",
+        "dashboard.group.upsert",
+        "dashboard.group.delete",
+        "dashboard.tag.upsert",
+        "dashboard.tag.delete",
+        "dashboard.path.upsert",
+        "dashboard.path.delete",
+        "dashboard.path.inspect",
+        "dashboard.path.refresh-all",
+        "dashboard.path.preflight",
+        "dashboard.path.batch-upsert",
+        "dashboard.path.repair",
+        "dashboard.note.upsert",
+        "dashboard.note.delete",
+        "dashboard.project.upsert",
+        "dashboard.project.delete",
+        "dashboard.project.probe",
+        "dashboard.project.launch.configure",
+        "dashboard.project.launch.start",
+        "dashboard.project.launch.stop",
+        "dashboard.project.launch.status",
+        "dashboard.entry.usage.record",
+        "dashboard.view.upsert",
+        "dashboard.view.delete",
+        "dashboard.backup.export",
+        "dashboard.backup.import"
+      ]
+    },
+    "agent": {
+      "skills": [
+        {
+          "name": "operate-dashboard",
+          "path": ".agents/skills/operate-dashboard/SKILL.md"
+        },
+        {
+          "name": "register-project-entry",
+          "path": ".agents/skills/register-project-entry/SKILL.md",
+          "compatibilityPaths": [
+            "skills/register-project-entry/SKILL.md"
+          ]
+        }
+      ]
     }
   }
 }

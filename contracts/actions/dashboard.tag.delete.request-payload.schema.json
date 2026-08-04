@@ -1,0 +1,3 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://dashboard.local/schemas/actions/dashboard.tag.delete/2.0/request-payload.json", "title": "dashboard.tag.delete request payload", "type": "object", "additionalProperties": false, "required": ["id", "expectedRevision"], "properties": { "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" }, "expectedRevision": { "type": "integer", "minimum": 0 } }
+}

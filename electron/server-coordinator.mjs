@@ -50,6 +50,25 @@ export function resolveDesktopGenericEnginesRoot({
   throw new Error("Dashboard Desktop 找不到 Generic Engines governance Contract 根目录。");
 }
 
+export function resolveProjectLauncherRoot({
+  environment = process.env,
+  resourcesPath,
+  developmentRoot,
+  isPackaged = false,
+  exists = existsSync
+}) {
+  const candidates = [
+    environment.PROJECT_LAUNCHER_ROOT,
+    isPackaged && resourcesPath ? path.join(resourcesPath, "project-launcher") : "",
+    developmentRoot
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    const root = path.resolve(candidate);
+    if (exists(path.join(root, "engine.manifest.json")) && exists(path.join(root, "src", "composition", "create-project-launcher-engine.mjs"))) return root;
+  }
+  throw new Error("Dashboard Desktop 找不到 Project Launcher Engine 资源。");
+}
+
 export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeoutMs = 900 } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -84,8 +103,9 @@ export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeo
   }
 }
 
-export async function acquireDashboardServer({ baseUrl, createServer, fetchImpl = fetch }) {
+export async function acquireDashboardServer({ baseUrl, createServer, fetchImpl = fetch, allowReuse = true }) {
   if (await isDashboardServerReady(baseUrl, { fetchImpl })) {
+    if (!allowReuse) throw new Error(`Dashboard Desktop 需要拥有组合式 Server，但 ${baseUrl} 已被现有 Dashboard Server 占用。`);
     return { baseUrl, owned: false, server: null };
   }
   const server = await createServer();
@@ -94,6 +114,7 @@ export async function acquireDashboardServer({ baseUrl, createServer, fetchImpl 
     return { baseUrl, owned: true, server };
   } catch (error) {
     if (await isDashboardServerReady(baseUrl, { fetchImpl })) {
+      if (!allowReuse) throw new Error(`Dashboard Desktop 需要拥有组合式 Server，但 ${baseUrl} 已被并发 Dashboard Server 占用。`, { cause: error });
       return { baseUrl, owned: false, server: null };
     }
     throw error;

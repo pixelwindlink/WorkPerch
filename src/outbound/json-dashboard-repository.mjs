@@ -3,7 +3,7 @@ import { constants } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { DashboardRepositoryPort } from "../application/ports/dashboard-repository.mjs";
-import { assertAggregate, createInitialAggregate, materializeGroupRegistry } from "../domain/dashboard-aggregate.mjs";
+import { assertAggregate, createInitialAggregate, migrateAggregateToV2 } from "../domain/dashboard-aggregate.mjs";
 import { dashboardError, isDashboardError } from "../domain/errors.mjs";
 
 export class JsonDashboardRepository extends DashboardRepositoryPort {
@@ -21,13 +21,13 @@ export class JsonDashboardRepository extends DashboardRepositoryPort {
     await fs.mkdir(this.backupsDir, { recursive: true });
     try {
       await fs.access(this.statePath);
-      const current = await this.load();
-      const migration = materializeGroupRegistry(current, {
+      const current = await this.#readRaw();
+      const migration = migrateAggregateToV2(current, {
         now: this.clock.now(),
         idFactory: (prefix) => this.idGenerator.next(prefix)
       });
-      if (!migration.changed) return current;
-      await this.#writeAtomic(migration.state, { backup: true });
+      if (!migration.changed) return structuredClone(migration.state);
+      await this.#writeAtomic(migration.state, { backup: true, previous: current });
       return structuredClone(migration.state);
     } catch (error) {
       if (error?.code !== "ENOENT") throw error;
@@ -40,6 +40,17 @@ export class JsonDashboardRepository extends DashboardRepositoryPort {
   }
 
   async load() {
+    const aggregate = await this.#readRaw();
+    try {
+      assertAggregate(aggregate);
+      return structuredClone(aggregate);
+    } catch (error) {
+      if (isDashboardError(error)) throw error;
+      throw dashboardError("DASHBOARD_STATE_CORRUPT", "状态文件不是合法 Dashboard 状态。", { cause: error });
+    }
+  }
+
+  async #readRaw() {
     let text;
     try {
       text = await fs.readFile(this.statePath, "utf8");
@@ -48,11 +59,8 @@ export class JsonDashboardRepository extends DashboardRepositoryPort {
       throw error;
     }
     try {
-      const aggregate = JSON.parse(text);
-      assertAggregate(aggregate);
-      return structuredClone(aggregate);
+      return JSON.parse(text);
     } catch (error) {
-      if (isDashboardError(error)) throw error;
       throw dashboardError("DASHBOARD_STATE_CORRUPT", "状态文件不是合法 JSON。", { cause: error });
     }
   }
@@ -63,7 +71,7 @@ export class JsonDashboardRepository extends DashboardRepositoryPort {
     return structuredClone(aggregate);
   }
 
-  async #writeAtomic(aggregate, { backup }) {
+  async #writeAtomic(aggregate, { backup, previous = null }) {
     await fs.mkdir(this.backupsDir, { recursive: true });
     const tempPath = path.join(this.runtimeDir, `.dashboard-state.${process.pid}.${randomUUID()}.tmp`);
     try {
@@ -75,8 +83,8 @@ export class JsonDashboardRepository extends DashboardRepositoryPort {
         await handle.close();
       }
       if (backup) {
-        const previous = await this.load();
-        const backupPath = path.join(this.backupsDir, `revision-${String(previous.aggregateRevision).padStart(8, "0")}.json`);
+        const previousState = previous || await this.load();
+        const backupPath = path.join(this.backupsDir, `revision-${String(previousState.aggregateRevision).padStart(8, "0")}.json`);
         try {
           await fs.copyFile(this.statePath, backupPath, constants.COPYFILE_EXCL);
         } catch (error) {

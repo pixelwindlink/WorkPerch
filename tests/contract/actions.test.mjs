@@ -13,13 +13,51 @@ function assertValid(schema, value, label) {
   assert.deepEqual(errors, [], `${label}: ${errors.map((item) => `${item.path} ${item.message}`).join("; ")}`);
 }
 
+class FakeLauncherClient {
+  constructor() {
+    this.revision = 0;
+    this.definitions = [];
+    this.runs = [];
+    this.messages = [];
+  }
+
+  async send(message) {
+    this.messages.push(structuredClone(message));
+    const now = "2026-07-27T00:00:00.000Z";
+    let payload;
+    if (message.action === "launcher.definition.upsert") {
+      const definition = { ...message.payload.item, createdAt: now, updatedAt: now };
+      this.definitions = [definition];
+      this.revision += 1;
+      payload = { aggregateRevision: this.revision, item: definition };
+    } else if (message.action === "launcher.project.start") {
+      const run = { runId: "run-contract", projectId: message.payload.projectId, status: "running", pid: 9001, startedAt: now, endedAt: null, exitCode: null };
+      this.runs.push(run);
+      this.revision += 1;
+      payload = { run };
+    } else if (message.action === "launcher.project.stop") {
+      const current = this.runs.at(-1);
+      const run = { ...current, status: "stopped", endedAt: now, exitCode: 0 };
+      this.runs[this.runs.length - 1] = run;
+      this.revision += 1;
+      payload = { run };
+    } else if (message.action === "launcher.runtime.get") {
+      payload = { aggregateRevision: this.revision, definitions: this.definitions, runs: this.runs };
+    } else {
+      throw new Error(`Unexpected Launcher Action ${message.action}`);
+    }
+    return { ...message, kind: "response", status: "ok", payload };
+  }
+}
+
 test("every declared Action uses its canonical request and success Schema", async () => {
   const runtimeDir = await tempRuntime("dashboard-contract-");
   const contracts = await loadContractRegistry({ genericEnginesRoot: GENERIC_ENGINES_ROOT });
-  const engine = await createDashboardEngine({ mode: "standalone", runtimeDir, genericEnginesRoot: GENERIC_ENGINES_ROOT });
+  const launcher = new FakeLauncherClient();
+  const engine = await createDashboardEngine({ mode: "standalone", runtimeDir, genericEnginesRoot: GENERIC_ENGINES_ROOT, engineClient: launcher });
   await engine.start();
   try {
-    assert.equal(contracts.actions.size, 14);
+    assert.equal(contracts.actions.size, 28);
     const seen = new Set();
     async function invoke(action, payload) {
       const contract = contracts.actions.get(action);
@@ -36,16 +74,32 @@ test("every declared Action uses its canonical request and success Schema", asyn
     await invoke("engine.describe", {});
     await invoke("system.health", {});
     const snapshot = await invoke("dashboard.snapshot.get", {});
-    const groupUpsert = await invoke("dashboard.group.upsert", {
+    const tagUpsert = await invoke("dashboard.tag.upsert", {
       expectedRevision: snapshot.aggregateRevision,
+      item: { name: "Contract Tag", color: "#38BDF8" },
+    });
+    const groupUpsert = await invoke("dashboard.group.upsert", {
+      expectedRevision: tagUpsert.aggregateRevision,
       item: { name: "Contract Group", color: "#A855F7" },
     });
     const pathUpsert = await invoke("dashboard.path.upsert", {
       expectedRevision: groupUpsert.aggregateRevision,
       item: { name: "Contract Path", path: "/tmp/contract-path", groupId: groupUpsert.item.id, group: groupUpsert.item.name, description: "", pinned: false },
     });
+    const inspected = await invoke("dashboard.path.inspect", { kind: "path", id: pathUpsert.item.id, expectedRevision: pathUpsert.aggregateRevision });
+    const refreshed = await invoke("dashboard.path.refresh-all", { expectedRevision: inspected.aggregateRevision });
+    await invoke("dashboard.path.preflight", { paths: ["/tmp", "/tmp"] });
+    const batch = await invoke("dashboard.path.batch-upsert", {
+      expectedRevision: refreshed.aggregateRevision,
+      items: [{
+        target: "path",
+        inspection: { status: "missing", kind: "unknown", gitRoot: false, projectType: "", suggestedName: "contract-batch", checkedAt: "2026-07-27T00:00:00.000Z" },
+        item: { name: "Contract Batch", path: "/tmp/contract-batch", tagIds: [], description: "", pinned: false },
+      }],
+    });
+    const repaired = await invoke("dashboard.path.repair", { id: batch.items[0].id, path: "/private/tmp", expectedRevision: batch.aggregateRevision });
     const noteUpsert = await invoke("dashboard.note.upsert", {
-      expectedRevision: pathUpsert.aggregateRevision,
+      expectedRevision: repaired.aggregateRevision,
       item: { title: "Contract Note", content: "value", pinned: false },
     });
     const projectUpsert = await invoke("dashboard.project.upsert", {
@@ -55,14 +109,47 @@ test("every declared Action uses its canonical request and success Schema", asyn
         url: "", port: 0, command: "echo inert", tags: ["contract"], pinned: false,
       },
     });
+    const usage = await invoke("dashboard.entry.usage.record", { kind: "path", id: pathUpsert.item.id });
+    const viewUpsert = await invoke("dashboard.view.upsert", {
+      expectedRevision: usage.aggregateRevision,
+      item: { name: "Contract View", scope: "all", query: "contract", tagIds: [tagUpsert.item.id], pathStatus: "any", sort: "smart" },
+    });
     await invoke("dashboard.project.probe", { projectIds: [projectUpsert.item.id], timeoutMs: 100 });
+    await invoke("dashboard.project.launch.configure", { projectId: projectUpsert.item.id, expectedLauncherRevision: 0, executable: "npm", args: ["run", "dev"] });
+    await invoke("dashboard.project.launch.start", { projectId: projectUpsert.item.id });
+    await invoke("dashboard.project.launch.status", { projectIds: [projectUpsert.item.id] });
+    await invoke("dashboard.project.launch.stop", { projectId: projectUpsert.item.id });
+    assert.equal(launcher.messages.every((message) => message.engine === "project-launcher" && message.protocol === "generic-engines/engine-message"), true);
+    assert.equal(launcher.messages[0].payload.item.cwd, projectUpsert.item.path);
     const exported = await invoke("dashboard.backup.export", {});
     await invoke("dashboard.backup.import", { backup: exported.backup, mode: "merge", dryRun: true });
-    const pathDelete = await invoke("dashboard.path.delete", { id: pathUpsert.item.id, expectedRevision: projectUpsert.aggregateRevision });
+    const viewDelete = await invoke("dashboard.view.delete", { id: viewUpsert.item.id, expectedRevision: viewUpsert.aggregateRevision });
+    const tagDelete = await invoke("dashboard.tag.delete", { id: tagUpsert.item.id, expectedRevision: viewDelete.aggregateRevision });
+    const repairedDelete = await invoke("dashboard.path.delete", { id: repaired.item.id, expectedRevision: tagDelete.aggregateRevision });
+    const pathDelete = await invoke("dashboard.path.delete", { id: pathUpsert.item.id, expectedRevision: repairedDelete.aggregateRevision });
     const groupDelete = await invoke("dashboard.group.delete", { id: groupUpsert.item.id, expectedRevision: pathDelete.aggregateRevision });
     const noteDelete = await invoke("dashboard.note.delete", { id: noteUpsert.item.id, expectedRevision: groupDelete.aggregateRevision });
     await invoke("dashboard.project.delete", { id: projectUpsert.item.id, expectedRevision: noteDelete.aggregateRevision });
     assert.deepEqual([...seen].sort(), [...contracts.actions.keys()].sort());
+  } finally {
+    await engine.shutdown();
+    await removeRuntime(runtimeDir);
+  }
+});
+
+test("Launcher Actions return dependency unavailable when no EngineClient is injected", async () => {
+  const runtimeDir = await tempRuntime("dashboard-launcher-unavailable-");
+  const engine = await createDashboardEngine({ mode: "standalone", runtimeDir, genericEnginesRoot: GENERIC_ENGINES_ROOT });
+  await engine.start();
+  try {
+    const initial = await engine.handle(request("dashboard.snapshot.get", {}, { id: "launcher-unavailable-initial" }));
+    const project = await engine.handle(request("dashboard.project.upsert", {
+      expectedRevision: initial.payload.aggregateRevision,
+      item: { name: "Unavailable", type: "other", label: "Other", description: "", path: "/tmp/unavailable", url: "", port: 0, command: "", pinned: false },
+    }, { id: "launcher-unavailable-project" }));
+    const response = await engine.handle(request("dashboard.project.launch.start", { projectId: project.payload.item.id }, { id: "launcher-unavailable-start" }));
+    assert.equal(response.status, "error");
+    assert.equal(response.error.code, "DEPENDENCY_UNAVAILABLE");
   } finally {
     await engine.shutdown();
     await removeRuntime(runtimeDir);
@@ -129,7 +216,9 @@ test("standard and domain error codes produce legal EngineMessage responses", as
   const contracts = await loadContractRegistry({ genericEnginesRoot: GENERIC_ENGINES_ROOT });
   const codes = [
     "DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_IMPORT_INVALID", "DASHBOARD_IMPORT_REJECTED",
-    "DASHBOARD_GROUP_ALREADY_EXISTS", "DASHBOARD_GROUP_IN_USE", "DASHBOARD_STATE_CORRUPT", "DASHBOARD_PROBE_FORBIDDEN", "STATE_OWNERSHIP_CONFLICT", "INVALID_PAYLOAD",
+    "DASHBOARD_GROUP_ALREADY_EXISTS", "DASHBOARD_GROUP_IN_USE", "DASHBOARD_TAG_ALREADY_EXISTS", "DASHBOARD_TAG_IN_USE", "DASHBOARD_VIEW_ALREADY_EXISTS", "DASHBOARD_STATE_CORRUPT", "DASHBOARD_PROBE_FORBIDDEN", "STATE_OWNERSHIP_CONFLICT", "INVALID_PAYLOAD",
+    "DEPENDENCY_UNAVAILABLE", "LAUNCHER_REVISION_CONFLICT", "LAUNCHER_DEFINITION_INVALID", "LAUNCHER_PROJECT_RUNNING",
+    "LAUNCHER_CWD_UNAVAILABLE", "LAUNCHER_START_FAILED", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROCESS_NOT_OWNED", "LAUNCHER_STOP_FAILED", "LAUNCHER_STATE_CORRUPT",
     "UNSUPPORTED_ACTION", "INTERNAL_ERROR",
   ];
   for (const code of codes) {

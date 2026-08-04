@@ -1,3 +1,13 @@
 *
 !.gitignore
 !README.md
+!state/
+!state/README.md
+!logs/
+!logs/README.md
+!cache/
+!cache/README.md
+!tmp/
+!tmp/README.md
+!locks/
+!locks/README.md

@@ -8,6 +8,28 @@ const ENTER_SUBMIT_FORMS = [
 
 const SEARCH_INPUTS = ["#pathSearch", "#projectSearch", "#noteSearch"];
 
+const STATIC_KEY_LABELS = [
+  ["#editPathForm .dialog-actions button[value='cancel']", "取消", "Esc"],
+  ["#groupRegistryForm .dialog-actions button[value='cancel']", "完成", "Esc"],
+  ["#editNoteForm .dialog-actions button[value='cancel']", "取消", "Esc"],
+  ["#dropBatchForm .dialog-actions button[value='cancel']", "取消", "Esc"],
+  ["#editProjectForm .dialog-actions button[value='cancel']", "取消", "Esc"],
+  ["#launchProjectForm .dialog-actions button[value='cancel']", "取消", "Esc"],
+  ["#launchProjectSubmit", "保存启动配置", "Enter"],
+  ["#legacyMigrationForm .dialog-actions button[value='cancel']", "稍后", "Esc"],
+];
+
+export function setButtonKeyboardLabel(target, label, key) {
+  const button = typeof target === "string" ? document.querySelector(target) : target;
+  if (!button) return;
+  const hint = button.ownerDocument.createElement("span");
+  hint.className = "button-key-hint";
+  hint.setAttribute("aria-hidden", "true");
+  hint.textContent = `(${key})`;
+  button.replaceChildren(button.ownerDocument.createTextNode(label), hint);
+  button.setAttribute("aria-label", `${label}，键盘 ${key}`);
+}
+
 export function isPlainEnterOnSingleLineInput(event) {
   if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return false;
   if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return false;
@@ -64,6 +86,7 @@ function bindHorizontalControl(rootSelector, buttonSelector) {
 }
 
 export function bindKeyboardInteractions() {
+  for (const [selector, label, key] of STATIC_KEY_LABELS) setButtonKeyboardLabel(selector, label, key);
   for (const [form, submit] of ENTER_SUBMIT_FORMS) bindPrimaryEnter(form, submit);
   for (const selector of SEARCH_INPUTS) bindSearchEscape(selector);
   bindHorizontalControl(".tabs", ".tab");

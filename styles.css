@@ -530,6 +530,14 @@ html[data-minimal="true"] #minimalModeButton.is-active {
 }
 .add-button:hover { filter: brightness(1.06); transform: translateY(-1px); }
 .add-button span { font-size: 15px; font-weight: 400; }
+.button-key-hint,
+.add-button .button-key-hint {
+  margin-left: 0;
+  opacity: .58;
+  font: 650 .82em ui-monospace, "SFMono-Regular", monospace;
+  letter-spacing: -.02em;
+}
+.guide-primary .button-key-hint { opacity: .8; }
 
 .list-toolbar { display: flex; align-items: center; gap: 7px; margin: 12px 0 8px; }
 .search-control {

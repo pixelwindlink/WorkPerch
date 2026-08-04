@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { horizontalKeyTarget, isPlainEnterOnSingleLineInput } from "../../ui/keyboard.js";
+import { horizontalKeyTarget, isPlainEnterOnSingleLineInput, setButtonKeyboardLabel } from "../../ui/keyboard.js";
 
 function keyboardEvent(overrides = {}) {
   const input = {
@@ -38,4 +38,21 @@ test("horizontal component navigation wraps and supports Home or End", () => {
   assert.equal(horizontalKeyTarget(buttons, buttons[1], "Home"), buttons[0]);
   assert.equal(horizontalKeyTarget(buttons, buttons[1], "End"), buttons[2]);
   assert.equal(horizontalKeyTarget(buttons, buttons[1], "Enter"), null);
+});
+
+test("button keyboard labels append the visible key after the original text", () => {
+  const ownerDocument = {
+    createElement: () => ({ className: "", attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } }),
+    createTextNode: (textContent) => ({ textContent }),
+  };
+  const button = {
+    ownerDocument,
+    attributes: {},
+    setAttribute(name, value) { this.attributes[name] = value; },
+    replaceChildren(...children) { this.children = children; },
+  };
+  setButtonKeyboardLabel(button, "上一步", "←");
+  assert.equal(button.children.map((child) => child.textContent).join(""), "上一步(←)");
+  assert.equal(button.children[1].className, "button-key-hint");
+  assert.equal(button.attributes["aria-label"], "上一步，键盘 ←");
 });

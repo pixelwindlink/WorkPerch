@@ -2,6 +2,7 @@ import { state } from "./state.js";
 import { elements, GROUP_COLORS, escapeHtml, icon, groupById, validGroupColor, showToast, withPreservedElementScroll } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError } from "./engine-client.js";
 import { requestConfirm } from "./confirm.js";
+import { setButtonKeyboardLabel } from "./keyboard.js";
 
 let registryFilter = "all";
 
@@ -57,7 +58,7 @@ export function resetGroupEditor(group = null) {
   document.querySelector("#editGroupId").value = group?.id || "";
   document.querySelector("#editGroupName").value = group?.name || "";
   document.querySelector("#groupRegistryEditorTitle").textContent = group ? "编辑 TAG" : "新增 TAG";
-  document.querySelector("#groupRegistrySubmit").textContent = group ? "保存 TAG" : "添加 TAG";
+  setButtonKeyboardLabel("#groupRegistrySubmit", group ? "保存 TAG" : "添加 TAG", "Enter");
   renderRegistryColorPalette(group?.color || GROUP_COLORS[5]);
 }
 

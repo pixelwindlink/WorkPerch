@@ -2,6 +2,7 @@ import { state } from "./state.js";
 import { elements, tagNames, parseTagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError, loadSnapshot } from "./engine-client.js";
 import { normalizeDroppedPath, findExistingPath, revealExistingPath } from "./render-paths.js";
+import { setButtonKeyboardLabel } from "./keyboard.js";
 
 export function pathInput(item, changes = {}) {
   return { id: item.id, name: item.name, path: item.path, tagIds: item.tagIds, description: item.description, pinned: item.pinned, ...changes };
@@ -13,7 +14,7 @@ export function openPathEditor(item = null, options = {}) {
   state.pathDialogFromDrop = Boolean(options.fromDrop);
   document.querySelector("#pathDialogKicker").textContent = editing ? "EDIT PAIR" : "ADD PAIR";
   document.querySelector("#pathDialogTitle").textContent = editing ? "编辑文件路径" : "添加文件路径";
-  document.querySelector("#pathDialogSubmit").textContent = editing ? "保存修改" : "添加路径";
+  setButtonKeyboardLabel("#pathDialogSubmit", editing ? "保存修改" : "添加路径", "Enter");
   const notice = document.querySelector("#pathDialogNotice");
   notice.textContent = options.notice || "";
   notice.hidden = !options.notice;

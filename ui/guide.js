@@ -2,6 +2,7 @@ import { state } from "./state.js";
 import { icon } from "./dom.js";
 import { switchTab } from "./engine-client.js";
 import { applyMinimalMode } from "./minimal.js";
+import { setButtonKeyboardLabel } from "./keyboard.js";
 
 const SPOTLIGHT_PADDING = 7;
 const VIEWPORT_MARGIN = 12;
@@ -289,7 +290,7 @@ function updateGuideCopy(step) {
   element("#guideStepCounter").textContent = `DASHBOARD GUIDE · ${String(currentIndex + 1).padStart(2, "0")} / ${String(sessionSteps.length).padStart(2, "0")}`;
   element("#guideProgressBar").style.width = `${((currentIndex + 1) / sessionSteps.length) * 100}%`;
   element("#guidePreviousButton").disabled = currentIndex === 0;
-  element("#guideNextButton").textContent = currentIndex === sessionSteps.length - 1 ? "完成" : "下一步";
+  setButtonKeyboardLabel("#guideNextButton", currentIndex === sessionSteps.length - 1 ? "完成" : "下一步", currentIndex === sessionSteps.length - 1 ? "Enter" : "→");
 }
 
 async function revealTarget(target) {
@@ -444,6 +445,9 @@ export function bindGuide() {
   if (!button || !overlay()) return;
   button.innerHTML = icon("guide");
   symbol.innerHTML = icon("guide");
+  setButtonKeyboardLabel("#guideExitButton", "退出指引", "Esc");
+  setButtonKeyboardLabel("#guidePreviousButton", "上一步", "←");
+  setButtonKeyboardLabel("#guideNextButton", "下一步", "→");
   button.addEventListener("click", () => active ? closeGuide() : openGuide());
   element("#guideCloseButton").addEventListener("click", () => closeGuide());
   element("#guideExitButton").addEventListener("click", () => closeGuide());

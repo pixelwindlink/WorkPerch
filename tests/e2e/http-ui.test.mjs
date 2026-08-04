@@ -214,6 +214,12 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(ui["keyboard.js"], /event\.isComposing/);
   assert.match(ui["keyboard.js"], /event\.key !== "Escape"/);
   assert.match(ui["keyboard.js"], /bindHorizontalControl\("\.tabs", "\.tab"\)/);
+  assert.match(ui["keyboard.js"], /setButtonKeyboardLabel/);
+  assert.match(ui["keyboard.js"], /hint\.textContent = `\(\$\{key\}\)`/);
+  assert.match(ui["dialogs-path.js"], /添加路径[^\n]+Enter/);
+  assert.match(ui["guide.js"], /"上一步", "←"/);
+  assert.match(ui["guide.js"], /"下一步", "→"/);
+  assert.match(css, /\.button-key-hint/);
   assert.match(html, /role="tablist"/);
   assert.match(html, /role="tabpanel"/);
   assert.match(ui["engine-client.js"], /aria-selected/);

@@ -2,6 +2,7 @@ import { state } from "./state.js";
 import { elements, tagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError, LAUNCHER_UNAVAILABLE_GUIDANCE } from "./engine-client.js";
 import { handleLauncherError, renderProjects } from "./render-projects.js";
+import { setButtonKeyboardLabel } from "./keyboard.js";
 
 export function projectInput(item, changes = {}) {
   return {
@@ -25,7 +26,7 @@ export function openProjectEditor(item = null) {
   const editing = Boolean(item?.id);
   document.querySelector("#projectDialogKicker").textContent = editing ? "EDIT ENTRY" : "ADD ENTRY";
   document.querySelector("#projectDialogTitle").textContent = editing ? "编辑项目入口" : "添加项目入口";
-  document.querySelector("#projectDialogSubmit").textContent = editing ? "保存修改" : "添加项目";
+  setButtonKeyboardLabel("#projectDialogSubmit", editing ? "保存修改" : "添加项目", "Enter");
   document.querySelector("#editProjectId").value = item?.id || "";
   document.querySelector("#editProjectName").value = item?.name || "";
   document.querySelector("#editProjectType").value = item?.type || "other";

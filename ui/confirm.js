@@ -1,3 +1,5 @@
+import { setButtonKeyboardLabel } from "./keyboard.js";
+
 let pending = null;
 
 function confirmElements() {
@@ -46,8 +48,8 @@ export function requestConfirm({
 
   titleEl.textContent = title;
   messageEl.textContent = message;
-  confirmButton.textContent = confirmLabel;
-  cancelButton.textContent = cancelLabel;
+  setButtonKeyboardLabel(confirmButton, confirmLabel, "Enter");
+  setButtonKeyboardLabel(cancelButton, cancelLabel, "Esc");
   confirmButton.classList.toggle("danger-confirm", Boolean(danger));
   dialog.returnValue = "";
 

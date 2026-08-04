@@ -28,7 +28,10 @@ export function formatReferenceSummary(breakdown) {
 export function setRegistryFilter(filter) {
   registryFilter = ["all", "unused", "in-use"].includes(filter) ? filter : "all";
   document.querySelectorAll("#groupRegistryFilter [data-tag-filter]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.tagFilter === registryFilter);
+    const selected = button.dataset.tagFilter === registryFilter;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+    button.tabIndex = selected ? 0 : -1;
   });
   renderGroupRegistry();
 }
@@ -37,7 +40,10 @@ export function setRegistryGroupColor(color) {
   const selected = validGroupColor(color) || GROUP_COLORS[5];
   document.querySelector("#editGroupColor").value = selected;
   document.querySelectorAll("#groupColorPalette [data-group-color]").forEach((button) => {
-    button.classList.toggle("is-selected", button.dataset.groupColor === selected);
+    const active = button.dataset.groupColor === selected;
+    button.classList.toggle("is-selected", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.tabIndex = active ? 0 : -1;
   });
 }
 

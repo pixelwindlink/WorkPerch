@@ -19,10 +19,10 @@
           </span>
         </a>
 
-        <nav class="tabs" aria-label="看板导航">
-          <button class="tab is-active" data-tab="paths" type="button">文件路径 <span id="pathCount">0</span></button>
-          <button class="tab" data-tab="launcher" type="button">项目入口 <span id="projectCount">0</span></button>
-          <button class="tab" data-tab="notes" type="button">速记 <span id="noteCount">0</span></button>
+        <nav class="tabs" aria-label="看板导航" role="tablist">
+          <button class="tab is-active" id="pathsTab" data-tab="paths" type="button" role="tab" aria-controls="pathsPanel" aria-selected="true" tabindex="0">文件路径 <span id="pathCount">0</span></button>
+          <button class="tab" id="launcherTab" data-tab="launcher" type="button" role="tab" aria-controls="launcherPanel" aria-selected="false" tabindex="-1">项目入口 <span id="projectCount">0</span></button>
+          <button class="tab" id="notesTab" data-tab="notes" type="button" role="tab" aria-controls="notesPanel" aria-selected="false" tabindex="-1">速记 <span id="noteCount">0</span></button>
         </nav>
 
         <div class="header-actions">
@@ -61,7 +61,7 @@
     </div>
 
     <main class="workspace" data-readonly="true">
-      <section class="panel is-active" data-panel="paths">
+      <section class="panel is-active" id="pathsPanel" data-panel="paths" role="tabpanel" aria-labelledby="pathsTab" aria-hidden="false">
         <div class="tab-sticky-bar">
           <div class="sticky-title">
             <strong>文件路径</strong>
@@ -101,7 +101,7 @@
         </div>
       </section>
 
-      <section class="panel" data-panel="launcher">
+      <section class="panel" id="launcherPanel" data-panel="launcher" role="tabpanel" aria-labelledby="launcherTab" aria-hidden="true">
         <div class="tab-sticky-bar project-sticky-bar">
           <div class="sticky-title">
             <strong>项目入口</strong>
@@ -112,12 +112,12 @@
             <input id="projectSearch" type="search" placeholder="搜索项目、类型、标签或端口…" />
           </label>
           <button class="add-icon-button" id="addProjectButton" type="button" aria-label="添加项目入口" title="添加项目入口">＋</button>
-          <div class="segmented" id="projectFilters">
-            <button class="is-active" data-filter="all" type="button">全部</button>
-            <button data-filter="engine" type="button">Engine</button>
-            <button data-filter="candidate" type="button">Candidate</button>
-            <button data-filter="tool" type="button">Tool</button>
-            <button data-filter="workspace" type="button">Workspace</button>
+          <div class="segmented" id="projectFilters" role="group" aria-label="按项目类型筛选">
+            <button class="is-active" data-filter="all" type="button" aria-pressed="true" tabindex="0">全部</button>
+            <button data-filter="engine" type="button" aria-pressed="false" tabindex="-1">Engine</button>
+            <button data-filter="candidate" type="button" aria-pressed="false" tabindex="-1">Candidate</button>
+            <button data-filter="tool" type="button" aria-pressed="false" tabindex="-1">Tool</button>
+            <button data-filter="workspace" type="button" aria-pressed="false" tabindex="-1">Workspace</button>
           </div>
         </div>
 
@@ -135,7 +135,7 @@
         </div>
       </section>
 
-      <section class="panel" data-panel="notes">
+      <section class="panel" id="notesPanel" data-panel="notes" role="tabpanel" aria-labelledby="notesTab" aria-hidden="true">
         <div class="tab-sticky-bar notes-sticky-bar">
           <div class="sticky-title">
             <strong>速记</strong>
@@ -199,9 +199,9 @@
         <p class="dialog-copy">每个 TAG 只保存一份名称和颜色；修改后，路径、速记和项目的所有引用会立即统一。</p>
         <div class="group-registry-toolbar">
           <div class="segmented" id="groupRegistryFilter" role="group" aria-label="按引用筛选 TAG">
-            <button type="button" data-tag-filter="all" class="is-active">全部</button>
-            <button type="button" data-tag-filter="unused">未使用</button>
-            <button type="button" data-tag-filter="in-use">使用中</button>
+            <button type="button" data-tag-filter="all" class="is-active" aria-pressed="true" tabindex="0">全部</button>
+            <button type="button" data-tag-filter="unused" aria-pressed="false" tabindex="-1">未使用</button>
+            <button type="button" data-tag-filter="in-use" aria-pressed="false" tabindex="-1">使用中</button>
           </div>
         </div>
         <section class="group-registry-editor">
@@ -371,7 +371,7 @@
           <button class="guide-action" id="guidePreviousButton" type="button">上一步</button>
           <button class="guide-action guide-primary" id="guideNextButton" type="button">下一步</button>
         </div>
-        <p class="guide-shortcuts">← → 切换步骤 · Enter 下一步 · Esc 退出</p>
+        <p class="guide-shortcuts">← → 切换步骤 · Enter 确认 · Esc 退出</p>
       </section>
     </div>
 

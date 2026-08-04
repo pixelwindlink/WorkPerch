@@ -17,6 +17,7 @@ import { applyTheme, setAlwaysOnTopPreference } from "./desktop.js";
 import { bindConfirmDialog } from "./confirm.js";
 import { toggleMinimalMode } from "./minimal.js";
 import { bindGuide } from "./guide.js";
+import { bindKeyboardInteractions } from "./keyboard.js";
 
 export function focusActiveSearch() {
   const selector = state.activeTab === "paths" ? "#pathSearch" : state.activeTab === "launcher" ? "#projectSearch" : "#noteSearch";
@@ -104,7 +105,12 @@ export function bindEvents() {
     const button = event.target.closest("[data-filter]");
     if (!button) return;
     state.projectFilter = button.dataset.filter;
-    document.querySelectorAll("#projectFilters button").forEach((item) => item.classList.toggle("is-active", item === button));
+    document.querySelectorAll("#projectFilters button").forEach((item) => {
+      const selected = item === button;
+      item.classList.toggle("is-active", selected);
+      item.setAttribute("aria-pressed", String(selected));
+      item.tabIndex = selected ? 0 : -1;
+    });
     renderProjects();
   });
   elements.projectList.addEventListener("click", handleProjectAction);
@@ -190,4 +196,5 @@ export function bindEvents() {
 
   bindSilentPathRefresh();
   bindSummonPalette();
+  bindKeyboardInteractions();
 }

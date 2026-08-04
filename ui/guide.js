@@ -450,7 +450,7 @@ export function bindGuide() {
   element("#guidePreviousButton").addEventListener("click", () => showStep(currentIndex - 1, -1));
   element("#guideNextButton").addEventListener("click", () => showStep(currentIndex + 1, 1));
 
-  document.addEventListener("keydown", (event) => {
+  overlay().addEventListener("keydown", (event) => {
     if (!active) return;
     if (event.key === "Tab") {
       trapFocus(event);
@@ -469,7 +469,7 @@ export function bindGuide() {
       showStep(currentIndex - 1, -1);
       return;
     }
-    if (event.key === "ArrowRight" || event.key === "Enter") {
+    if (event.key === "ArrowRight") {
       event.preventDefault();
       event.stopImmediatePropagation();
       showStep(currentIndex + 1, 1);

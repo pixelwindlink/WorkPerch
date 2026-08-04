@@ -17,8 +17,17 @@ export class EngineClientError extends Error {
 export function switchTab(name, updateHash = true) {
   const tab = ["paths", "launcher", "notes"].includes(name) ? name : "paths";
   state.activeTab = tab;
-  elements.tabs.forEach((item) => item.classList.toggle("is-active", item.dataset.tab === tab));
-  elements.panels.forEach((item) => item.classList.toggle("is-active", item.dataset.panel === tab));
+  elements.tabs.forEach((item) => {
+    const selected = item.dataset.tab === tab;
+    item.classList.toggle("is-active", selected);
+    item.setAttribute("aria-selected", String(selected));
+    item.tabIndex = selected ? 0 : -1;
+  });
+  elements.panels.forEach((item) => {
+    const selected = item.dataset.panel === tab;
+    item.classList.toggle("is-active", selected);
+    item.setAttribute("aria-hidden", String(!selected));
+  });
   if (updateHash) history.replaceState(null, "", `#${tab}`);
   storageSet(STORAGE_KEYS.activeTab, tab);
 }

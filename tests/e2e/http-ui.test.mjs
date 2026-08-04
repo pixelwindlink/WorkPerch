@@ -139,6 +139,7 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.deepEqual(uiFiles.includes("engine-client.js"), true);
   assert.deepEqual(uiFiles.includes("events.js"), true);
   assert.deepEqual(uiFiles.includes("guide.js"), true);
+  assert.deepEqual(uiFiles.includes("keyboard.js"), true);
   assert.deepEqual(uiFiles.includes("dialogs-tag-registry.js"), true);
   assert.match(ui["engine-client.js"], /dashboard\.snapshot\.get/);
   assert.match(ui["dialogs-path.js"], /dashboard\.path\.upsert/);
@@ -205,7 +206,17 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(ui["guide.js"], /scrollX: window\.scrollX/);
   assert.match(ui["guide.js"], /event\.key === "ArrowRight"/);
   assert.match(ui["guide.js"], /event\.key === "Escape"/);
+  assert.match(ui["guide.js"], /overlay\(\)\.addEventListener\("keydown"/);
+  assert.equal(/event\.key === "ArrowRight" \|\| event\.key === "Enter"/.test(ui["guide.js"]), false);
   assert.match(ui["guide.js"], /window\.innerWidth <= 640[\s\S]*targetInLowerHalf[\s\S]*aboveFits/);
+  assert.match(ui["keyboard.js"], /isPlainEnterOnSingleLineInput/);
+  assert.match(ui["keyboard.js"], /submit\.click\(\)/);
+  assert.match(ui["keyboard.js"], /event\.isComposing/);
+  assert.match(ui["keyboard.js"], /event\.key !== "Escape"/);
+  assert.match(ui["keyboard.js"], /bindHorizontalControl\("\.tabs", "\.tab"\)/);
+  assert.match(html, /role="tablist"/);
+  assert.match(html, /role="tabpanel"/);
+  assert.match(ui["engine-client.js"], /aria-selected/);
   assert.match(css, /\.guide-overlay/);
   assert.match(css, /\.guide-spotlight/);
   assert.match(css, /\.guide-card[\s\S]*backdrop-filter:\s*blur\(28px\)/);

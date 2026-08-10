@@ -4,6 +4,106 @@ Dashboard Engine 2.0（Engine ID：`dashboard`）通过 EngineMessage 管理本�
 
 它不是 Generic Engines Runtime、Message Router、Observability Plane、Shell 执行器、文件管理器、凭据管理器或其他 Engine 的状态/健康权威。Dashboard 自身不执行项目命令；Desktop 只把结构化 `cwd + executable + args[]` 经注入 EngineClient 发送给独立 `project-launcher`。
 
+## 项目定位与职责
+
+- 项目 ID：`dashboard`
+- 分类：`engine`
+- 负责：本地路径、速记、项目入口、保存视图和备份聚合，以及通过注入 EngineClient 委托 Project Launcher。
+- 不负责：Runtime/Router/Observability、任意 Shell 执行、其他 Engine 状态或健康权威。
+- 状态所有者：Dashboard Server，或使用不同绝对 Runtime Root 的 Standalone Exclusive CLI；同一状态根只允许一个写者。
+
+## 人类快速开始
+
+1. 读取 `AGENT.md`、`engine.manifest.json` 和 `architecture/README.md`。
+2. 本地检查运行 `npm run check && npm test`。
+3. Server 使用 `npm start`；完整 EngineMessage CLI 使用 `node cli.mjs`。
+4. 已有 Server owner 时使用 Server Client；Standalone 必须指定隔离绝对 `DASHBOARD_RUNTIME_DIR`。
+5. 只依据实际命令、退出码和 EngineMessage 响应报告运行状态。
+
+## 消费者面
+
+| 消费者 | 公开入口 | 适用目的 | Contract / 权威 | 证据边界 |
+|---|---|---|---|---|
+| 人类 | `README.md`、`architecture/README.md` | 理解能力、启动和状态边界 | `AGENT.md`、OpenSpec | 文档完整不等于运行通过 |
+| Agent | `.agents/skills/` | 操作 Dashboard 或登记项目入口 | canonical `SKILL.md` | Manual/Prompt 不自动运行 |
+| Program | `cli.mjs`、HTTP、Provider | EngineMessage 调用 | `contracts/action-catalog.json` 与 payload Schema | 文件存在不等于 Instance online |
+| Operator / Platform | `server.mjs`、Electron | Server/Desktop 生命周期 | manifest、Composition Root | Server/Standalone ownership 分别验证 |
+
+## Agent 入口
+
+| Agent 入口 | Skill ID | 适用场景 | 人类输入 | 交接 Prompt | 预期输出 |
+|---|---|---|---|---|---|
+| `$operate-dashboard` | `operate-dashboard` | 检查、测试、启动、调用或诊断 Dashboard | 模式、Server URL/隔离 Runtime、请求或测试范围 | `.agents/skills/operate-dashboard/PROMPT.zh-CN.md` | 命令、响应、状态 owner 和验证证据 |
+| `$register-project-entry` | `register-project-entry` | 将工程新增/更新到 Dashboard 项目入口 | 目标工程根、Server URL、项目公开事实 | `.agents/skills/register-project-entry/PROMPT.zh-CN.md` | added/updated、revision 和 snapshot readback |
+
+## Skill 清单
+
+| Skill ID | 类型 | 用途 | canonical SKILL | 中文说明书 | 交接 Prompt |
+|---|---|---|---|---|---|
+| `operate-dashboard` | `operations` | 安全操作和诊断 Dashboard | `.agents/skills/operate-dashboard/SKILL.md` | `.agents/skills/operate-dashboard/MANUAL.zh-CN.md` | `.agents/skills/operate-dashboard/PROMPT.zh-CN.md` |
+| `register-project-entry` | `capability` | 通过公开 Action 登记项目入口 | `.agents/skills/register-project-entry/SKILL.md` | `.agents/skills/register-project-entry/MANUAL.zh-CN.md` | `.agents/skills/register-project-entry/PROMPT.zh-CN.md` |
+
+## CLI 清单
+
+| 命令 | 用途 | 输入 | stdout/输出 | 读写属性 | 状态所有者 |
+|---|---|---|---|---|---|
+| `node cli.mjs` | 调用完整 EngineMessage | stdin 或 `--message-file`；可选 `--server-url` | 恰好一个 EngineMessage | 读取 / 写入，取决于 Action | Server Client 或隔离 Standalone owner |
+| `node server.mjs` | 启动 HTTP/Web Server | `DASHBOARD_RUNTIME_DIR` 与配置 | 服务生命周期/诊断到 stderr | 写入 | Dashboard Server |
+
+## 公共 Contract
+
+- 架构权威：`../../openspec/changes/define-generic-engine-runtime-architecture/design.md`
+- 项目 OpenSpec：`openspec/changes/convert-dashboard-application-to-engine/`
+- 公共协议：根 EngineMessage v1.0；Action Catalog 与 payload Schema 位于 `contracts/`
+- manifest：`engine.manifest.json` 1.2；消费者面和 Provider 声明以该文件为准
+- 错误与并发：结构化 EngineMessage error、`expectedRevision` 和 `DASHBOARD_REVISION_CONFLICT`
+
+## 状态、安全与运行数据
+
+- `runtime_data/` 是默认运行边界；正式运行可注入绝对 `DASHBOARD_RUNTIME_DIR`。
+- aggregate、锁、备份和用户路径不得进入 Git；CLI 与 Server 不得共享同一状态根成为竞争写者。
+- Dashboard 不执行保存的 command；loopback probe 只针对已登记 endpoint，最多并发 4。
+- Desktop 使用 `contextIsolation: true`、`nodeIntegration: false`，不向 Renderer 暴露任意文件系统或 Launcher IPC。
+
+## 工程文件地图
+
+| 路径 | 类型 | 职责 | Git / 生命周期 |
+|---|---|---|---|
+| `.agents/` | agent-capability | canonical Skills 与受治理资源 | tracked；Prompt/Manual 仅供人类 |
+| `.gitignore` | tooling | 本地与 Runtime 忽略边界 | tracked |
+| `AGENT.md` | agent-contract | Agent、安全和状态所有权约束 | tracked |
+| `README.md` | human-guide | 人类入口和项目说明 | tracked |
+| `app.js` | presentation | Web UI 组合入口 | tracked |
+| `architecture/` | architecture | 项目架构说明 | tracked |
+| `cli.mjs` | transport | EngineMessage CLI | tracked |
+| `contracts/` | contract | Action Catalog 与 payload Schema | tracked；版本化 |
+| `electron/` | presentation | Desktop Composition Host | tracked |
+| `engine.manifest.json` | identity | Engine 身份、Provider 和消费者声明 | tracked；Contract |
+| `index.html` | presentation | Web 页面入口 | tracked |
+| `openspec/` | contract | 项目规格与 Change | tracked |
+| `package-lock.json` | dependency-lock | Node 依赖锁 | tracked；机械生成 |
+| `package.json` | build-metadata | scripts、依赖与包身份 | tracked |
+| `prompts/` | resource | 项目内部 Prompt 资源 | tracked；不等于 Agent Skill |
+| `release/` | release | Desktop 发布配置/资源 | tracked |
+| `runtime_data/` | runtime-boundary | state/logs/cache/tmp/locks 边界 | tracked shell；运行内容 ignored |
+| `scripts/` | tooling | 构建、打包和验证脚本 | tracked |
+| `server.mjs` | transport | HTTP/Web Server 入口 | tracked |
+| `skills/` | compatibility | legacy Skill adapter | tracked；不拥有第二份 Prompt/Manual |
+| `src/` | source | Domain/Application/Ports/Adapters/Composition | tracked |
+| `styles.css` | presentation | Web 样式入口 | tracked |
+| `tests/` | test | unit/contract/integration/e2e | tracked |
+| `ui/` | presentation | Web UI 模块 | tracked |
+
+`.git/` 是基础设施豁免；本地 `.DS_Store` 和未登记 `exports/` 只作为 cleanup finding 分类，不属于本表删除授权。
+
+## 架构、OpenSpec 与验证证据
+
+- 设计声明：本 README、`architecture/README.md`、项目 OpenSpec。
+- Contract 事实：manifest、Action Catalog、payload Schema、状态 revision/lock 规则。
+- 代码事实：`src/`、CLI、Server、Electron 和 UI 统一进入 dispatcher/Application。
+- 运行事实：`npm run check`、`npm test`、OpenSpec validation 和根 selected conformance 的实际退出码。
+- 当前状态必须按 Governance、Definition 与 Instance 分别报告；本章不自行宣称 conformant 或 online。
+
 ## 架构边界
 
 ```text

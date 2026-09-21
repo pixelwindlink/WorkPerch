@@ -114,7 +114,26 @@ const GUIDE_STEPS = [
     tab: "notes",
     target: "#noteSearch",
     title: "搜索速记",
-    description: "速记采用和文件路径一致的紧凑 key-value 布局。输入关键词即可同时查找 KEY 与 VALUE。",
+    description: "速记采用和文件路径一致的紧凑 key-value 布局。输入关键词即可同时查找 KEY、VALUE 与 TAG。",
+  },
+  {
+    tab: "notes",
+    target: "#noteCategory",
+    title: "按 TAG 分组过滤",
+    description: "选择共享 TAG 后只显示对应速记；清除会同时重置关键词与标签条件，保存视图也会记住当前标签。",
+  },
+  {
+    tab: "notes",
+    target: "#manageNoteGroupsButton",
+    title: "从速记管理 TAG Registry",
+    description: "这里打开完整共享 Registry，并优先展示速记引用的 TAG。名称和颜色修改仍会统一影响路径、项目与速记。",
+  },
+  {
+    tab: "notes",
+    target: "#noteUsageHome",
+    when: () => !document.querySelector("#noteUsageHome")?.hidden,
+    title: "最近与常用速记",
+    description: "复制过的速记会按最近使用和使用频率出现在这里；点击入口即可清除冲突筛选并定位原记录。",
   },
   {
     tab: "notes",

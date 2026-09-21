@@ -41,11 +41,18 @@ consumer declaration 参与 Runtime Definition digest。manifest/package identit
 
 测试验证 manifest Schema、program/Catalog parity、Agent live inventory、human path confinement、describe projection和 CLI/in-process parity。现有 Dashboard aggregate、Repository、UI、Desktop 和 Launcher integration 代码保持不动。
 
+### 5. Desktop 携带共享 SPI 的最小只读资源
+
+Dashboard 与 Project Launcher 的 Dispatcher 都从 Generic Engines `common_components/engine-provider-spi` 引用共享 describe helper。源码布局中的四级相对路径在 ASAR 安装态解析到 `Dashboard.app/Contents/common_components/engine-provider-spi`，因此打包脚本必须在签名前把该组件的 `package.json`、`component.manifest.json` 和 `src/` 放入这个确定位置。组件 tests、fixtures、bin、Agent 文档和其他 Common Components 不进入 App。
+
+替代方案是在两个 Engine 内复制 helper。拒绝，因为会重新产生 describe 投影的多份实现。另一个方案是打包全部 `common_components/`；拒绝，因为会扩大只读安装资源和能力面。
+
 ## Risks / Trade-offs
 
 - [Dashboard 工作树已有大量用户修改] → 只 patch manifest、package identity、Dispatcher、边界测试、README 和本 Change；不格式化或覆盖其他文件。
 - [package-lock 顶层版本已落后 package.json] → 仅同步 lockfile 自身的 root package version 字段，不执行网络安装或重写依赖树。
 - [describe 投影与 manifest 漂移] → 测试直接以加载的 manifest/Catalog/live Skill inventory为输入比较，不维护第二份预期清单。
+- [源码相对导入在 ASAR 中跨出 Resources] → 在 Packager 签名前写入精确的 `Contents/common_components/engine-provider-spi` 最小资源，并以安装态 Electron Node 导入作为 smoke evidence。
 - [历史 Host 已登记 2.1.0] → 2.2.0 使用新 digest；本次 inspection 只证明 registerable，不伪造持久 Definition/Instance。
 
 ## Migration Plan

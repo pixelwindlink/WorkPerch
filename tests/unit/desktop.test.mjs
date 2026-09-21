@@ -207,6 +207,13 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.match(packaging, /identity:\s*"-"/);
   assert.match(packaging, /identityValidation:\s*false/);
   assert.match(packaging, /extraResource:\s*\[governanceRoot, launcherResourceRoot\]/);
+  assert.match(packaging, /engineProviderSpiRoot/);
+  assert.match(packaging, /afterCopyExtraResources/);
+  assert.match(packaging, /"Dashboard\.app", "Contents", "common_components"/);
+  assert.match(packaging, /engineProviderSpiRoot, "src"/);
+  assert.match(packaging, /engineProviderSpiRoot, "package\.json"/);
+  assert.match(packaging, /engineProviderSpiRoot, "component\.manifest\.json"/);
+  assert.equal(/engineProviderSpiRoot, "tests"|engineProviderSpiRoot, "fixtures"|engineProviderSpiRoot, "bin"/.test(packaging), false);
   assert.match(packaging, /ELECTRON_ZIP_DIR/);
   assert.match(packaging, /electronZipDir/);
   assert.match(packaging, /projectLauncherRoot/);

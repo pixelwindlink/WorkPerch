@@ -1,4 +1,5 @@
 import { isDashboardError } from "../domain/errors.mjs";
+import { projectEngineDescribePayload } from "../../../../common_components/engine-provider-spi/src/index.mjs";
 import { validateJsonSchema } from "./json-schema-validator.mjs";
 
 const PROTOCOL = "generic-engines/engine-message";
@@ -41,64 +42,13 @@ function errorResponse(request, code, message) {
   };
 }
 
-function describeConsumers(consumers) {
-  if (!consumers || typeof consumers !== "object") return undefined;
-  const projection = {};
-  if (consumers.human) {
-    projection.human = {
-      ...(consumers.human.readme ? { readme: consumers.human.readme } : {}),
-      ...(consumers.human.changelog ? { changelog: consumers.human.changelog } : {}),
-      ...(consumers.human.architectureDoc ? { architectureDoc: consumers.human.architectureDoc } : {})
-    };
-  }
-  if (consumers.program) {
-    projection.program = {
-      protocol: { ...consumers.program.protocol },
-      actions: [...consumers.program.actions]
-    };
-  }
-  if (consumers.agent) {
-    projection.agent = {
-      skills: consumers.agent.skills.map((skill) => ({
-        name: skill.name,
-        path: skill.path,
-        ...(skill.description ? { description: skill.description } : {})
-      }))
-    };
-  }
-  return projection;
-}
-
-function describePayload(manifest, catalog) {
-  const consumers = describeConsumers(manifest.consumers);
-  return {
-    id: manifest.id,
-    name: manifest.name,
-    version: manifest.version,
-    protocol: {
-      name: manifest.protocol.name,
-      supportedVersions: manifest.protocol.supportedVersions,
-      preferredVersion: manifest.protocol.preferredVersion
-    },
-    transports: manifest.transports,
-    ...(consumers ? { consumers } : {}),
-    actions: catalog.actions.map((action) => ({
-      name: action.name,
-      requestSchema: action.requestPayloadSchema,
-      successSchema: action.successPayloadSchema,
-      errors: action.errors,
-      deprecated: action.deprecated
-    }))
-  };
-}
-
 export class DashboardDispatcher {
   constructor({ contracts, application, lifecycle }) {
     this.contracts = contracts;
     this.application = application;
     this.lifecycle = lifecycle;
     this.handlers = application.handlers();
-    this.handlers.set("engine.describe", async () => describePayload(contracts.manifest, contracts.catalog));
+    this.handlers.set("engine.describe", async () => projectEngineDescribePayload(contracts.manifest, contracts.catalog));
     this.handlers.set("system.health", async () => lifecycle.healthPayload());
   }
 

@@ -62,7 +62,10 @@ test("in-process and CLI describe expose the same schema-safe consumers", async 
     assert.equal(inProcess.status, "ok");
     assert.deepEqual(validateJsonSchema(contracts.actions.get("engine.describe").success.schema, inProcess.payload), []);
     assert.equal(inProcess.payload.version, "2.2.0");
-    assert.ok(inProcess.payload.consumers.agent.skills.every((skill) => !Object.hasOwn(skill, "compatibilityPaths")));
+    assert.deepEqual(
+      inProcess.payload.consumers.agent.skills.find((skill) => skill.name === "register-project-entry").compatibilityPaths,
+      ["skills/register-project-entry/SKILL.md"],
+    );
 
     await engine.shutdown();
     const cli = await runCli({

@@ -7,6 +7,7 @@ import { openPathEditor, pathInput } from "./dialogs-path.js";
 import { openProjectEditor } from "./dialogs-project.js";
 import { requestConfirm } from "./confirm.js";
 import { isAbnormalInspectionStatus } from "./path-status.js";
+import { bindUsageHomeScroll } from "./usage-home.js";
 
 function parentDirectory(filePath) {
   const normalized = String(filePath || "").replace(/\/+$/, "");
@@ -36,19 +37,6 @@ function filteredPaths() {
       return groupMatches && pathStatusMatches(item) && (!query || normalize([item.name, item.path, ...tagNames(item), item.description, inspectionLabel(item)].join(" ")).includes(query));
     })
     .sort((a, b) => compareRecords(a, b));
-}
-
-function bindUsageHomeScroll(home) {
-  if (!home || home.dataset.scrollBound === "1") return;
-  home.dataset.scrollBound = "1";
-  home.addEventListener("wheel", (event) => {
-    const chips = event.target.closest(".usage-home-chips");
-    if (!chips || !home.contains(chips)) return;
-    if (chips.scrollWidth <= chips.clientWidth + 1) return;
-    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-    event.preventDefault();
-    chips.scrollLeft += event.deltaY;
-  }, { passive: false });
 }
 
 function renderUsageHome() {

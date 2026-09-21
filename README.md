@@ -179,7 +179,7 @@ DASHBOARD_RUNTIME_DIR=/absolute/path/to/dashboard-runtime npm start
 
 默认绑定 `127.0.0.1:4173`。可使用 `DASHBOARD_HOST`（只允许 loopback）和 `DASHBOARD_PORT` 调整。Web UI 访问 <http://127.0.0.1:4173>，所有业务读写均发送完整 EngineMessage 到 `POST /engine-message`。
 
-UI 保留紧凑 key-value 路径/速记列表、项目入口、搜索、过滤、复制、置顶、拖放和 200ms 图标说明动画。Server 不可用或直接打开 `index.html` 时进入只读连接失败状态，不会把浏览器数据当成第二份业务真相。
+UI 保留紧凑 key-value 路径/速记列表、项目入口、搜索、过滤、复制、置顶、拖放和 200ms 图标说明动画。速记与文件路径一样可按共享 TAG 分组过滤、从当前页进入完整 TAG Registry，并基于 Engine-owned usage 显示最近/常用入口；复制速记会记录 usage，点击入口可清除冲突筛选并定位原记录。Server 不可用或直接打开 `index.html` 时进入只读连接失败状态，不会把浏览器数据当成第二份业务真相。
 
 Web UI 源码布局：
 
@@ -236,7 +236,7 @@ ditto dist/desktop/Dashboard-darwin-arm64/Dashboard.app /Applications/Dashboard.
 
 断网构建可把包含 `electron-v43.2.0-darwin-arm64.zip` 的目录通过 `ELECTRON_ZIP_DIR=/absolute/cache/dir` 显式传入，打包器将只使用该本地 ZIP。
 
-构建使用 ASAR，排除 Git、测试、OpenSpec、runtime data、导出和 Agent Skill，并把正式 `governance/` Contract 与 Project Launcher 的 manifest/contracts/src 作为两个只读资源放入 App。Launcher tests、OpenSpec 和 runtime_data 不进入安装包。生成物采用本机 ad-hoc 签名，适用于当前 Mac；跨机器公开分发需要 Developer ID 和 notarization。
+构建使用 ASAR，排除 Git、测试、OpenSpec、runtime data、导出和 Agent Skill，并把正式 `governance/` Contract、Project Launcher 的 manifest/contracts/src，以及 Dashboard/Launcher 共享 describe 投影所需的 Engine Provider SPI `package.json`、component manifest 与 `src/` 作为最小只读资源放入 App。Launcher 与 SPI 的 tests、fixtures、OpenSpec 和 runtime_data 不进入安装包。生成物采用本机 ad-hoc 签名，适用于当前 Mac；跨机器公开分发需要 Developer ID 和 notarization。
 
 工程内的本机安装镜像位于 `release/Dashboard-2.1.0-arm64.dmg`。打开 DMG 后，把 `Dashboard.app` 拖到其中的 `Applications` 快捷方式即可安装。该镜像不包含 Dashboard 或 Project Launcher runtime state、锁、备份或用户数据。
 

@@ -80,6 +80,7 @@ export function bindEvents() {
     if (continueDrop && state.dropQueue.length) setTimeout(processNextDroppedCandidate, 80);
   });
   document.querySelector("#manageGroupsButton").addEventListener("click", () => openGroupRegistry());
+  document.querySelector("#manageNoteGroupsButton").addEventListener("click", () => openGroupRegistry("", { filter: "notes" }));
   document.querySelector("#groupRegistryReset").addEventListener("click", () => resetGroupEditor());
   document.querySelector("#editGroupColor").addEventListener("input", (event) => setRegistryGroupColor(event.target.value));
   document.querySelector("#groupColorPalette").addEventListener("click", (event) => {
@@ -119,12 +120,16 @@ export function bindEvents() {
 
   document.querySelector("#addNoteButton").addEventListener("click", () => openNoteEditor());
   document.querySelector("#noteSearch").addEventListener("input", (event) => { state.noteSearch = event.target.value; renderNotes(); });
+  document.querySelector("#noteCategory").addEventListener("change", (event) => { state.noteCategory = event.target.value; renderNotes(); });
   document.querySelector("#clearNoteFilter").addEventListener("click", () => {
     state.noteSearch = "";
+    state.noteCategory = "all";
     document.querySelector("#noteSearch").value = "";
+    document.querySelector("#noteCategory").value = "all";
     renderNotes();
   });
   elements.noteList.addEventListener("click", handleNoteAction);
+  document.querySelector("#noteUsageHome").addEventListener("click", handleNoteAction);
   bindDialogSubmit("#editNoteForm", elements.editNoteDialog, saveNoteEdit);
 
   document.querySelector("#sortMode").addEventListener("change", (event) => { state.sortMode = event.target.value; state.activeViewId = ""; renderAll(); });

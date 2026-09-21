@@ -147,8 +147,14 @@
             <kbd>/</kbd>
           </label>
           <button class="add-icon-button" id="addNoteButton" type="button" aria-label="添加速记" title="添加速记">＋</button>
+          <select id="noteCategory" aria-label="按标签筛选速记">
+            <option value="all">全部标签</option>
+          </select>
+          <button class="quiet-button group-registry-button" id="manageNoteGroupsButton" type="button">TAGS <b id="noteGroupCount">0</b></button>
           <button class="quiet-button clear-filter" id="clearNoteFilter" type="button">清除</button>
         </div>
+
+        <div class="usage-home note-usage-home" id="noteUsageHome" hidden></div>
 
         <div class="kv-list note-list">
           <div class="kv-head note-columns" aria-hidden="true">
@@ -202,6 +208,7 @@
             <button type="button" data-tag-filter="all" class="is-active" aria-pressed="true" tabindex="0">全部</button>
             <button type="button" data-tag-filter="unused" aria-pressed="false" tabindex="-1">未使用</button>
             <button type="button" data-tag-filter="in-use" aria-pressed="false" tabindex="-1">使用中</button>
+            <button type="button" data-tag-filter="notes" aria-pressed="false" tabindex="-1">速记引用</button>
           </div>
         </div>
         <section class="group-registry-editor">
@@ -234,7 +241,7 @@
         <input id="editNoteId" type="hidden" />
         <label><span>KEY</span><input id="editNoteKey" required maxlength="60" /></label>
         <label><span>VALUE / NOTE</span><textarea id="editNoteValue" required rows="6" maxlength="2000"></textarea></label>
-        <label><span>TAGS（逗号分隔）</span><input id="editNoteTags" maxlength="500" /></label>
+        <label><span>TAGS（逗号分隔）</span><input id="editNoteTags" maxlength="500" list="pathGroups" /></label>
         <div class="dialog-actions">
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
           <button class="add-button" id="noteDialogSubmit" value="save" type="submit">保存</button>

@@ -297,6 +297,7 @@ button, label { -webkit-tap-highlight-color: transparent; }
   border-radius: 9px;
   background: color-mix(in srgb, var(--surface), transparent 20%);
 }
+.usage-home[hidden] { display: none !important; }
 .usage-home-heading {
   display: flex;
   flex-wrap: wrap;
@@ -1339,7 +1340,8 @@ body.is-dragging .drop-card { transform: translateY(0) scale(1); }
   .tab-sticky-bar .search-control kbd {
     display: none;
   }
-  .tab-sticky-bar #pathCategory {
+  .tab-sticky-bar #pathCategory,
+  .tab-sticky-bar #noteCategory {
     display: inline-block;
     flex: 1 1 120px;
     min-width: 110px;

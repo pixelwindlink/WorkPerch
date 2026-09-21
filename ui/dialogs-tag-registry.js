@@ -27,7 +27,7 @@ export function formatReferenceSummary(breakdown) {
 }
 
 export function setRegistryFilter(filter) {
-  registryFilter = ["all", "unused", "in-use"].includes(filter) ? filter : "all";
+  registryFilter = ["all", "unused", "in-use", "notes"].includes(filter) ? filter : "all";
   document.querySelectorAll("#groupRegistryFilter [data-tag-filter]").forEach((button) => {
     const selected = button.dataset.tagFilter === registryFilter;
     button.classList.toggle("is-active", selected);
@@ -69,6 +69,7 @@ export function renderGroupRegistry() {
       .filter(({ breakdown }) => {
         if (registryFilter === "unused") return breakdown.total === 0;
         if (registryFilter === "in-use") return breakdown.total > 0;
+        if (registryFilter === "notes") return breakdown.notes > 0;
         return true;
       })
       .sort((a, b) => b.breakdown.total - a.breakdown.total || a.group.name.localeCompare(b.group.name, "zh-CN"));
@@ -94,9 +95,9 @@ export function renderGroupRegistry() {
   });
 }
 
-export function openGroupRegistry(groupId = "") {
+export function openGroupRegistry(groupId = "", { filter = "all" } = {}) {
   if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
-  setRegistryFilter("all");
+  setRegistryFilter(filter);
   resetGroupEditor(groupById(groupId) || null);
   elements.groupRegistryDialog.showModal();
   setTimeout(() => document.querySelector("#editGroupName").focus(), 0);

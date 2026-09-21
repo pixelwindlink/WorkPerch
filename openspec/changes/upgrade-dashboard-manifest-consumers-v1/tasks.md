@@ -12,6 +12,7 @@
 
 - [x] 3.1 Add manifest/Action/Skill/path consistency and describe validation tests
 - [x] 3.2 Verify in-process and CLI describe parity with isolated runtime state
+- [x] 3.3 Package the minimal shared Engine Provider SPI and add an installed-layout regression check
 
 ## 4. Validation
 

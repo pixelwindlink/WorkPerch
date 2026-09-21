@@ -64,7 +64,9 @@ export function activateSavedView(id) {
   } else if (view.scope === "projects") {
     switchTab("launcher"); state.projectSearch = view.query; document.querySelector("#projectSearch").value = state.projectSearch;
   } else if (view.scope === "notes") {
-    switchTab("notes"); state.noteSearch = view.query; document.querySelector("#noteSearch").value = state.noteSearch;
+    switchTab("notes"); state.noteSearch = view.query; state.noteCategory = view.tagIds[0] || "all";
+    document.querySelector("#noteSearch").value = state.noteSearch;
+    document.querySelector("#noteCategory").value = state.noteCategory;
   }
   renderAll();
 }
@@ -77,7 +79,9 @@ export async function saveCurrentView() {
   const query = scope === "paths" ? state.pathSearch : scope === "projects" ? state.projectSearch : state.noteSearch;
   const item = {
     ...(existing ? { id: existing.id } : {}), name: name.trim(), scope, query,
-    tagIds: scope === "paths" && state.pathCategory !== "all" ? [state.pathCategory] : [],
+    tagIds: scope === "paths" && state.pathCategory !== "all"
+      ? [state.pathCategory]
+      : scope === "notes" && state.noteCategory !== "all" ? [state.noteCategory] : [],
     pathStatus: scope === "paths" && ["available", "missing", "denied", "invalid"].includes(state.pathStatus) ? state.pathStatus : "any",
     sort: state.sortMode,
   };

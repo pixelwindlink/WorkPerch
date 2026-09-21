@@ -155,6 +155,7 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="groupRegistryFilter"/);
   assert.match(html, /data-tag-filter="unused"/);
   assert.match(html, /data-tag-filter="in-use"/);
+  assert.match(html, /data-tag-filter="notes"/);
   assert.match(css, /\.confirm-dialog/);
   assert.match(css, /\.group-registry-toolbar/);
   assert.match(css, /@media \(max-width: 600px\)[\s\S]*\.header-tools[\s\S]*display:\s*flex/);
@@ -185,6 +186,7 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="abnormalPathsButton"/);
   assert.match(html, /id="cleanupAbnormalPathsButton"/);
   assert.match(html, /id="usageHome"/);
+  assert.match(html, /id="noteUsageHome"/);
   assert.match(html, /id="summonOverlay"/);
   assert.match(html, /id="summonSearch"/);
   assert.match(ui["summon.js"], /onSummon/);
@@ -237,7 +239,10 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(ui["header-layout.js"], /headerOverflowPanel/);
   assert.match(ui["render-projects.js"], /revealExistingProject/);
   assert.match(css, /\.usage-home/);
-  assert.match(ui["render-paths.js"], /bindUsageHomeScroll/);
+  assert.match(css, /\.usage-home\[hidden\]\s*\{\s*display:\s*none\s*!important/);
+  assert.match(ui["render-paths.js"], /from "\.\/usage-home\.js"/);
+  assert.match(ui["render-notes.js"], /from "\.\/usage-home\.js"/);
+  assert.match(ui["usage-home.js"], /export function bindUsageHomeScroll/);
   assert.match(html, /id="minimalModeButton"/);
   assert.match(ui["minimal.js"], /applyMinimalMode/);
   assert.match(ui["minimal.js"], /dataset\.minimal/);
@@ -298,6 +303,16 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(ui["render-paths.js"], /resetScroll/);
   assert.match(ui["events.js"], /renderPaths\(\{ resetScroll: true \}\)/);
   assert.match(html, /id="editNoteTags"/);
+  assert.match(html, /id="noteCategory"/);
+  assert.match(html, /id="manageNoteGroupsButton"/);
+  assert.match(ui["render-notes.js"], /item\.tagIds\.includes\(state\.noteCategory\)/);
+  assert.match(ui["render-notes.js"], /reveal-usage-note/);
+  assert.match(ui["render-notes.js"], /revealExistingNote/);
+  assert.match(ui["render-notes.js"], /\.slice\(0, limit\)/);
+  assert.match(ui["events.js"], /openGroupRegistry\("", \{ filter: "notes" \}\)/);
+  assert.match(ui["events.js"], /state\.noteCategory = "all"/);
+  assert.match(ui["render-shared.js"], /scope === "notes" && state\.noteCategory !== "all"/);
+  assert.match(ui["dialogs-tag-registry.js"], /registryFilter === "notes"/);
   assert.match(html, /id="dropBatchDialog"/);
   assert.match(html, /id="manageGroupsButton"/);
   assert.match(html, /id="groupRegistryDialog"/);

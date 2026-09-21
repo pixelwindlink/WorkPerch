@@ -7,6 +7,7 @@ Generic Engines 当前主动迁移准入要求 manifest 1.2，而 Dashboard 仍�
 - 将 Dashboard manifest 从 1.1 升到 1.2，并把 Engine/package Contract 版本从 `2.1.0` 升到 `2.2.0`，使 consumer declaration 形成新的不可变 Definition 身份。
 - 声明 human、program 和 agent consumers；program Action 集合与当前 Action Catalog 完全一致，Agent Skill 与 live canonical inventory 完全一致。
 - 让 `engine.describe` 投影 schema-safe consumers，并增加 manifest/Action/Skill/文档路径与 CLI/in-process parity 回归测试。
+- 让 Desktop 包显式携带 `engine.describe` 共享 helper 所属的只读 Engine Provider SPI 最小源码，保证 Dashboard 与随包 Project Launcher 在安装态可解析同一依赖。
 - 保持 Dashboard Actions、状态 Schema、single-writer 所有权、EngineClient dependency、Provider、Transport 和 Business Core 不变。
 
 ## Capabilities
@@ -21,6 +22,6 @@ Generic Engines 当前主动迁移准入要求 manifest 1.2，而 Dashboard 仍�
 
 ## Impact
 
-- 修改 `engine.manifest.json`、package version、`engine.describe` 应用投影、边界测试和 README/OpenSpec 说明。
+- 修改 `engine.manifest.json`、package version、`engine.describe` 应用投影、Desktop 只读资源打包、边界测试和 README/OpenSpec 说明。
 - 不迁移 Dashboard runtime state，不启动正常 Server，不读取用户数据，不改变 Registry status，也不声明 Runtime Instance online。
 - 上位治理 Change：`formalize-engine-consumer-surfaces-v1`；唯一架构权威：`openspec/changes/define-generic-engine-runtime-architecture/design.md`。

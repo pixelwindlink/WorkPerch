@@ -23,4 +23,9 @@ Dashboard manifest 1.2 program Actions SHALL equal the Engine-owned Action Catal
 - **WHEN** a caller invokes `engine.describe` through in-process or CLI transport
 - **THEN** the response SHALL expose the same human/program/Agent consumer facts as the manifest, SHALL omit `compatibilityPaths`, and SHALL validate against the root success payload Schema
 
+#### Scenario: Packaged Desktop loads the shared describe projection
+- **WHEN** Dashboard Desktop is packaged with ASAR together with the Project Launcher resource
+- **THEN** the App SHALL include the minimal read-only Engine Provider SPI source at the relative location required by both Engine Dispatchers
+- **AND** the installed main process SHALL resolve the shared describe helper without a module-not-found failure
+
 > Architecture authority: `openspec/changes/define-generic-engine-runtime-architecture/design.md`.

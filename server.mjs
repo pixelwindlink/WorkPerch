@@ -3,7 +3,7 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createDashboardEngine } from "./src/composition/create-dashboard-engine.mjs";
+import { createPerchEngine } from "./src/composition/create-perch-engine.mjs";
 import { errorResponse } from "./src/inbound/dispatcher.mjs";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -84,19 +84,25 @@ async function serveStatic(requestPath, response, staticRoot) {
   }
 }
 
-function parsePort(value, fallback = 4173) {
-  const port = value === undefined || value === "" ? fallback : Number(value);
-  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error("DASHBOARD_PORT 必须是 0 到 65535 的整数。");
+function parsePort(value) {
+  const port = value === "" ? null : Number(value);
+  if (port === null || !Number.isInteger(port) || port < 0 || port > 65535) throw new Error("PERCH_SERVER_PORT / PERCH_PORT 必须是 0 到 65535 的整数。");
   return port;
 }
 
-export async function createDashboardHttpServer(options = {}) {
+const DEFAULT_PORT = 4173;
+const MAX_PORT_ATTEMPTS = 32;
+
+export async function createPerchHttpServer(options = {}) {
   const environment = options.environment || process.env;
-  const host = options.host || environment.DASHBOARD_HOST || "127.0.0.1";
-  if (!LOOPBACK_HOSTS.has(host)) throw new Error("Dashboard Server 只允许绑定 loopback 地址。");
-  const port = parsePort(options.port ?? environment.DASHBOARD_PORT);
+  const host = options.host || environment.PERCH_SERVER_HOST || environment.PERCH_HOST || "127.0.0.1";
+  if (!LOOPBACK_HOSTS.has(host)) throw new Error("WorkPerch Server 只允许绑定 loopback 地址。");
+  const explicitPort = options.port ?? environment.PERCH_SERVER_PORT ?? environment.PERCH_PORT;
+  const ports = (explicitPort !== undefined && String(explicitPort) !== "")
+    ? [parsePort(explicitPort)]
+    : Array.from({ length: MAX_PORT_ATTEMPTS }, (_, i) => DEFAULT_PORT + i);
   const staticRoot = path.resolve(options.staticRoot || ROOT);
-  const engine = options.engine || await createDashboardEngine({
+  const engine = options.engine || await createPerchEngine({
     mode: "server",
     environment,
     runtimeDir: options.runtimeDir,
@@ -125,7 +131,7 @@ export async function createDashboardHttpServer(options = {}) {
         const result = await engine.handle(message);
         sendJson(response, 200, result);
       } catch (error) {
-        transportError(response, error?.statusCode || 500, error?.code || "TRANSPORT_ERROR", error?.statusCode ? error.message : "Dashboard HTTP Adapter 内部错误。");
+        transportError(response, error?.statusCode || 500, error?.code || "TRANSPORT_ERROR", error?.statusCode ? error.message : "Perch HTTP Adapter 内部错误。");
       }
       return;
     }
@@ -145,20 +151,34 @@ export async function createDashboardHttpServer(options = {}) {
     async start() {
       if (started) return server.address();
       await engine.start();
-      try {
-        await new Promise((resolve, reject) => {
-          server.once("error", reject);
-          server.listen(port, host, () => {
-            server.off("error", reject);
-            resolve();
+      let lastError;
+      for (const candidate of ports) {
+        try {
+          const address = await new Promise((resolve, reject) => {
+            server.removeAllListeners("error");
+            server.once("error", reject);
+            server.listen(candidate, host, () => {
+              server.off("error", reject);
+              resolve(server.address());
+            });
           });
-        });
-        started = true;
-        return server.address();
-      } catch (error) {
-        await engine.shutdown().catch(() => {});
-        throw error;
+          started = true;
+          return address;
+        } catch (error) {
+          lastError = error;
+          if (error?.code === "EADDRINUSE" && ports.length > 1) {
+            process.stderr.write(`WorkPerch port ${candidate} in use, trying ${candidate + 1}...\n`);
+            continue;
+          }
+          break;
+        }
       }
+      await engine.shutdown().catch(() => {});
+      const conflictPort = lastError?.port ?? ports[0];
+      const message = lastError?.code === "EADDRINUSE"
+        ? `端口 ${conflictPort} 已被占用。显式配置端口冲突时不可回退；请用 lsof -i :${conflictPort} 查看占用进程。`
+        : String(lastError?.message || lastError);
+      throw Object.assign(new Error(message), { code: lastError?.code, port: conflictPort });
     },
     async stop() {
       if (started) {
@@ -171,15 +191,15 @@ export async function createDashboardHttpServer(options = {}) {
 }
 
 async function main() {
-  const dashboardServer = await createDashboardHttpServer();
-  const address = await dashboardServer.start();
+  const perchServer = await createPerchHttpServer();
+  const address = await perchServer.start();
   const displayHost = typeof address === "object" && address?.family === "IPv6" ? `[${address.address}]` : address.address;
-  process.stderr.write(`Dashboard Engine listening on http://${displayHost}:${address.port}\n`);
+  process.stderr.write(`WorkPerch listening on http://${displayHost}:${address.port}\n`);
   let stopping = false;
   const shutdown = async () => {
     if (stopping) return;
     stopping = true;
-    await dashboardServer.stop();
+    await perchServer.stop();
   };
   process.once("SIGINT", () => shutdown().finally(() => { process.exitCode = 0; }));
   process.once("SIGTERM", () => shutdown().finally(() => { process.exitCode = 0; }));
@@ -187,7 +207,7 @@ async function main() {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
-    process.stderr.write(`dashboard server failure: ${String(error?.message || error).slice(0, 500)}\n`);
+    process.stderr.write(`perch server failure: ${String(error?.message || error).slice(0, 500)}\n`);
     process.exitCode = 1;
   });
 }

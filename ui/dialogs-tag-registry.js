@@ -96,7 +96,7 @@ export function renderGroupRegistry() {
 }
 
 export function openGroupRegistry(groupId = "", { filter = "all" } = {}) {
-  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
   setRegistryFilter(filter);
   resetGroupEditor(groupById(groupId) || null);
   elements.groupRegistryDialog.showModal();
@@ -111,7 +111,7 @@ export async function saveGroupEdit() {
     color: document.querySelector("#editGroupColor").value.toUpperCase(),
   };
   try {
-    const result = await engineAction("dashboard.tag.upsert", { expectedRevision: state.aggregateRevision, item });
+    const result = await engineAction("perch.tag.upsert", { expectedRevision: state.aggregateRevision, item });
     await afterWrite(id ? "TAG 已统一更新" : "TAG 已添加", { result, patch: { type: "upsert", collection: "tags" } });
     resetGroupEditor();
     return true;
@@ -146,7 +146,7 @@ export async function handleGroupRegistryAction(event) {
   if (!confirmed) return;
 
   try {
-    const result = await engineAction("dashboard.tag.delete", { id: group.id, expectedRevision: state.aggregateRevision });
+    const result = await engineAction("perch.tag.delete", { id: group.id, expectedRevision: state.aggregateRevision });
     await afterWrite("TAG 已删除", { result, patch: { type: "delete", collection: "tags" } });
     if (document.querySelector("#editGroupId").value === group.id) resetGroupEditor();
     renderGroupRegistry();

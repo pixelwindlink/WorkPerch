@@ -12,7 +12,7 @@ const GUIDE_STEPS = [
   {
     target: ".brand",
     title: "你的本地快速入口",
-    description: "Dashboard 把常用文件路径、项目入口和速记集中在一个高密度看板里。点击左上角品牌可以随时回到文件路径。",
+    description: "Perch 把常用文件路径、项目入口和速记集中在一个高密度看板里。点击左上角品牌可以随时回到文件路径。",
   },
   {
     target: ".tabs",
@@ -53,7 +53,7 @@ const GUIDE_STEPS = [
     tab: "paths",
     target: "#addPathButton",
     title: "添加或拖入路径",
-    description: "点击加号填写一个文件路径。桌面应用中也可以把文件或文件夹直接拖进窗口，Dashboard 会先查重再让你确认收录。",
+    description: "点击加号填写一个文件路径。桌面应用中也可以把文件或文件夹直接拖进窗口，Perch 会先查重再让你确认收录。",
   },
   {
     tab: "paths",
@@ -145,12 +145,12 @@ const GUIDE_STEPS = [
     tab: "notes",
     target: () => document.querySelector(".note-row") || document.querySelector(".note-list .kv-head") || document.querySelector(".note-list"),
     title: "复制与整理速记",
-    description: "点击 VALUE 可以快速复制；右侧动作可以置顶、复制、编辑或删除。所有修改仍由 Dashboard Engine 单写入保存。",
+    description: "点击 VALUE 可以快速复制；右侧动作可以置顶、复制、编辑或删除。所有修改仍由 WorkPerch 单写入保存。",
   },
   {
     target: null,
     title: "准备好了",
-    description: "你已经看完 Dashboard 的主要界面。以后点击顶部问号，可以随时重新进入指引模式。",
+    description: "你已经看完 Perch 的主要界面。以后点击顶部问号，可以随时重新进入指引模式。",
     centered: true,
   },
 ];
@@ -306,7 +306,7 @@ function positionGuide(target, step) {
 function updateGuideCopy(step) {
   element("#guideTitle").textContent = step.title;
   element("#guideDescription").textContent = step.description;
-  element("#guideStepCounter").textContent = `DASHBOARD GUIDE · ${String(currentIndex + 1).padStart(2, "0")} / ${String(sessionSteps.length).padStart(2, "0")}`;
+  element("#guideStepCounter").textContent = `WORKPERCH GUIDE · ${String(currentIndex + 1).padStart(2, "0")} / ${String(sessionSteps.length).padStart(2, "0")}`;
   element("#guideProgressBar").style.width = `${((currentIndex + 1) / sessionSteps.length) * 100}%`;
   element("#guidePreviousButton").disabled = currentIndex === 0;
   setButtonKeyboardLabel("#guideNextButton", currentIndex === sessionSteps.length - 1 ? "完成" : "下一步", currentIndex === sessionSteps.length - 1 ? "Enter" : "→");

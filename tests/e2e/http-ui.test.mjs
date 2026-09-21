@@ -2,20 +2,20 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createDashboardHttpServer } from "../../server.mjs";
+import { createPerchHttpServer } from "../../server.mjs";
 import { loadContractRegistry } from "../../src/inbound/contract-registry.mjs";
 import { validateJsonSchema } from "../../src/inbound/json-schema-validator.mjs";
-import { DASHBOARD_ROOT, GENERIC_ENGINES_ROOT, removeRuntime, request, runCli, tempRuntime } from "../helpers.mjs";
+import { PERCH_ROOT, GENERIC_ENGINES_ROOT, removeRuntime, request, runCli, tempRuntime } from "../helpers.mjs";
 
 test("HTTP Adapter, CLI client and static UI share one running Engine boundary", async (t) => {
-  const runtimeDir = await tempRuntime("dashboard-http-");
-  const clientRuntime = await tempRuntime("dashboard-http-client-");
-  const dashboardServer = await createDashboardHttpServer({ runtimeDir, port: 0, genericEnginesRoot: GENERIC_ENGINES_ROOT });
+  const runtimeDir = await tempRuntime("perch-http-");
+  const clientRuntime = await tempRuntime("perch-http-client-");
+  const perchServer = await createPerchHttpServer({ runtimeDir, port: 0, genericEnginesRoot: GENERIC_ENGINES_ROOT });
   let started = false;
   try {
     let address;
     try {
-      address = await dashboardServer.start();
+      address = await perchServer.start();
       started = true;
     } catch (error) {
       if (error?.code === "EPERM" || error?.code === "EACCES") {
@@ -30,18 +30,18 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
     const htmlResponse = await fetch(`${baseUrl}/`);
     assert.equal(htmlResponse.status, 200);
     const htmlText = await htmlResponse.text();
-    assert.match(htmlText, /Dashboard Engine/);
+    assert.match(htmlText, /WorkPerch/);
     assert.match(htmlText, /type="module"\s+src="\.\/app\.js"/);
     const appResponse = await fetch(`${baseUrl}/app.js`);
     assert.equal(appResponse.status, 200);
     assert.match(await appResponse.text(), /from "\.\/ui\//);
     const engineClientResponse = await fetch(`${baseUrl}/ui/engine-client.js`);
     assert.equal(engineClientResponse.status, 200);
-    assert.match(await engineClientResponse.text(), /dashboard\.snapshot\.get/);
+    assert.match(await engineClientResponse.text(), /perch\.snapshot\.get/);
     assert.equal((await fetch(`${baseUrl}/ui/../package.json`)).status, 404);
     assert.equal((await fetch(`${baseUrl}/ui/not-real.js`)).status, 404);
 
-    const snapshotRequest = request("dashboard.snapshot.get", {}, { id: "http-snapshot" });
+    const snapshotRequest = request("perch.snapshot.get", {}, { id: "http-snapshot" });
     const httpResponse = await fetch(`${baseUrl}/engine-message`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -52,17 +52,17 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
     assert.deepEqual(validateJsonSchema(contracts.envelope.schema, httpMessage), []);
     assert.equal(httpMessage.status, "ok");
 
-    const cliRequest = request("dashboard.snapshot.get", {}, { id: "cli-client-snapshot" });
+    const cliRequest = request("perch.snapshot.get", {}, { id: "cli-client-snapshot" });
     const cliResult = await runCli({
       runtimeDir: clientRuntime,
       input: JSON.stringify(cliRequest),
-      environment: { DASHBOARD_SERVER_URL: baseUrl },
+      environment: { PERCH_SERVER_URL: baseUrl },
     });
     assert.equal(cliResult.code, 0);
     assert.equal(cliResult.stderr, "");
     const cliMessage = JSON.parse(cliResult.stdout.trim());
     assert.deepEqual(cliMessage.payload, httpMessage.payload);
-    await assert.rejects(() => fs.access(path.join(clientRuntime, "dashboard-state.json")), (error) => error.code === "ENOENT");
+    await assert.rejects(() => fs.access(path.join(clientRuntime, "perch-state.json")), (error) => error.code === "ENOENT");
 
     async function postAction(action, payload, id) {
       const response = await fetch(`${baseUrl}/engine-message`, {
@@ -74,30 +74,30 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
       assert.equal(message.status, "ok", JSON.stringify(message));
       return message.payload;
     }
-    const group = await postAction("dashboard.group.upsert", {
+    const group = await postAction("perch.group.upsert", {
       expectedRevision: httpMessage.payload.aggregateRevision,
       item: { name: "工程", color: "#38BDF8" },
     }, "http-group");
-    const firstPath = await postAction("dashboard.path.upsert", {
+    const firstPath = await postAction("perch.path.upsert", {
       expectedRevision: group.aggregateRevision,
       item: { name: "One", path: "/tmp/http-one", groupId: group.item.id, group: group.item.name, description: "", pinned: false },
     }, "http-path-one");
-    const secondPath = await postAction("dashboard.path.upsert", {
+    const secondPath = await postAction("perch.path.upsert", {
       expectedRevision: firstPath.aggregateRevision,
       item: { name: "Two", path: "/tmp/http-two", groupId: group.item.id, group: group.item.name, description: "", pinned: false },
     }, "http-path-two");
-    const pathColorEdit = await postAction("dashboard.path.upsert", {
+    const pathColorEdit = await postAction("perch.path.upsert", {
       expectedRevision: secondPath.aggregateRevision,
       item: { id: firstPath.item.id, name: "One", path: "/tmp/http-one", groupId: group.item.id, group: group.item.name, groupColor: "#EC4899", description: "", pinned: false },
     }, "http-path-color");
-    const recolored = await postAction("dashboard.snapshot.get", {}, "http-shared-color");
+    const recolored = await postAction("perch.snapshot.get", {}, "http-shared-color");
     assert.equal(recolored.tags.find((item) => item.id === group.item.id).color, "#EC4899");
     assert.equal(recolored.paths.filter((item) => [firstPath.item.id, secondPath.item.id].includes(item.id)).every((item) => item.tagIds.includes(group.item.id)), true);
-    const registryEdit = await postAction("dashboard.group.upsert", {
+    const registryEdit = await postAction("perch.group.upsert", {
       expectedRevision: pathColorEdit.aggregateRevision,
       item: { id: group.item.id, name: "核心工程", color: "#FF8A00" },
     }, "http-group-edit");
-    const renamed = await postAction("dashboard.snapshot.get", {}, "http-shared-name");
+    const renamed = await postAction("perch.snapshot.get", {}, "http-shared-name");
     assert.equal(registryEdit.item.color, "#FF8A00");
     assert.equal(renamed.tags.find((item) => item.id === group.item.id).name, "核心工程");
     assert.equal(renamed.paths.filter((item) => item.tagIds.includes(group.item.id)).every((item) => item.tagIds.includes(group.item.id)), true);
@@ -115,20 +115,20 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
     assert.equal((await fetch(`${baseUrl}/%2e%2e/package.json`)).status, 404);
     assert.equal((await fetch(`${baseUrl}/engine-message`)).status, 405);
   } finally {
-    if (started) await dashboardServer.stop();
+    if (started) await perchServer.stop();
     await removeRuntime(runtimeDir);
     await removeRuntime(clientRuntime);
   }
 });
 
 test("Web UI preserves compact interactions without browser-owned business state", async () => {
-  const uiDir = path.join(DASHBOARD_ROOT, "ui");
+  const uiDir = path.join(PERCH_ROOT, "ui");
   const uiFiles = (await fs.readdir(uiDir)).filter((name) => name.endsWith(".js")).sort();
   const [html, app, css, server, ...uiSources] = await Promise.all([
-    fs.readFile(path.join(DASHBOARD_ROOT, "index.html"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "app.js"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "styles.css"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "server.mjs"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "index.html"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "app.js"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "styles.css"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "server.mjs"), "utf8"),
     ...uiFiles.map((name) => fs.readFile(path.join(uiDir, name), "utf8")),
   ]);
   const ui = Object.fromEntries(uiFiles.map((name, index) => [name, uiSources[index]]));
@@ -141,10 +141,10 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.deepEqual(uiFiles.includes("guide.js"), true);
   assert.deepEqual(uiFiles.includes("keyboard.js"), true);
   assert.deepEqual(uiFiles.includes("dialogs-tag-registry.js"), true);
-  assert.match(ui["engine-client.js"], /dashboard\.snapshot\.get/);
-  assert.match(ui["dialogs-path.js"], /dashboard\.path\.upsert/);
-  assert.match(ui["dialogs-tag-registry.js"], /dashboard\.tag\.upsert/);
-  assert.match(ui["dialogs-tag-registry.js"], /dashboard\.tag\.delete/);
+  assert.match(ui["engine-client.js"], /perch\.snapshot\.get/);
+  assert.match(ui["dialogs-path.js"], /perch\.path\.upsert/);
+  assert.match(ui["dialogs-tag-registry.js"], /perch\.tag\.upsert/);
+  assert.match(ui["dialogs-tag-registry.js"], /perch\.tag\.delete/);
   assert.match(ui["dialogs-tag-registry.js"], /requestConfirm/);
   assert.match(ui["dialogs-tag-registry.js"], /setRegistryFilter/);
   assert.match(ui["dialogs-tag-registry.js"], /formatReferenceSummary/);
@@ -168,20 +168,20 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(css, /\.tag-strip[\s\S]*overflow:\s*visible/);
 
   assert.match(css, /@media \(max-width: 600px\)[\s\S]*\.tab-sticky-bar[\s\S]*display:\s*flex/);
-  assert.match(ui["dialogs-note.js"], /dashboard\.note\.upsert/);
-  assert.match(ui["dialogs-project.js"], /dashboard\.project\.upsert/);
-  assert.match(ui["render-projects.js"], /dashboard\.project\.probe/);
-  assert.match(ui["dialogs-project.js"], /dashboard\.project\.launch\.configure/);
-  assert.match(ui["render-projects.js"], /dashboard\.project\.launch\.start/);
-  assert.match(ui["render-projects.js"], /dashboard\.project\.launch\.stop/);
-  assert.match(ui["render-projects.js"], /dashboard\.project\.launch\.status/);
-  assert.match(ui["drop-batch.js"], /dashboard\.path\.preflight/);
+  assert.match(ui["dialogs-note.js"], /perch\.note\.upsert/);
+  assert.match(ui["dialogs-project.js"], /perch\.project\.upsert/);
+  assert.match(ui["render-projects.js"], /perch\.project\.probe/);
+  assert.match(ui["dialogs-project.js"], /perch\.project\.launch\.configure/);
+  assert.match(ui["render-projects.js"], /perch\.project\.launch\.start/);
+  assert.match(ui["render-projects.js"], /perch\.project\.launch\.stop/);
+  assert.match(ui["render-projects.js"], /perch\.project\.launch\.status/);
+  assert.match(ui["drop-batch.js"], /perch\.path\.preflight/);
   assert.match(ui["drop-batch.js"], /查看已收录/);
   assert.match(ui["drop-batch.js"], /revealExistingEntry/);
-  assert.match(ui["drop-batch.js"], /dashboard\.path\.batch-upsert/);
-  assert.match(ui["render-paths.js"], /dashboard\.path\.inspect/);
-  assert.match(ui["render-paths.js"], /dashboard\.path\.refresh-all/);
-  assert.match(ui["render-paths.js"], /dashboard\.path\.repair/);
+  assert.match(ui["drop-batch.js"], /perch\.path\.batch-upsert/);
+  assert.match(ui["render-paths.js"], /perch\.path\.inspect/);
+  assert.match(ui["render-paths.js"], /perch\.path\.refresh-all/);
+  assert.match(ui["render-paths.js"], /perch\.path\.repair/);
   assert.match(html, /id="refreshAllPathsButton"/);
   assert.match(html, /id="abnormalPathsButton"/);
   assert.match(html, /id="cleanupAbnormalPathsButton"/);
@@ -234,7 +234,7 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(ui["render-paths.js"], /promote-path/);
   assert.match(ui["render-paths.js"], /open-path-parent/);
   assert.match(ui["render-paths.js"], /batchDeleteAbnormalPaths/);
-  assert.match(ui["silent-refresh.js"], /dashboard\.path\.refresh-all/);
+  assert.match(ui["silent-refresh.js"], /perch\.path\.refresh-all/);
   assert.match(ui["silent-refresh.js"], /发现 .+ 条新的异常路径/);
   assert.match(ui["header-layout.js"], /headerOverflowPanel/);
   assert.match(ui["render-projects.js"], /revealExistingProject/);
@@ -253,7 +253,7 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(css, /\.usage-chip[\s\S]*white-space:\s*nowrap/);
   assert.match(css, /\.usage-chip[\s\S]*flex:\s*0\s+0\s+auto/);
   assert.equal(/usage-home-more|toggle-usage-home|syncUsageHomeOverflow/.test(ui["render-paths.js"] + css), false);  assert.match(css, /\.header-overflow/);
-  assert.match(ui["engine-client.js"], /dashboard\.entry\.usage\.record/);
+  assert.match(ui["engine-client.js"], /perch\.entry\.usage\.record/);
   assert.match(ui["engine-client.js"], /export function knownTagIds/);
   assert.match(ui["engine-client.js"], /export async function afterWrite/);
   assert.match(ui["engine-client.js"], /patch\?\.type/);
@@ -266,9 +266,9 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="launcherDependencyBanner"/);
   assert.match(css, /\.launcher-dependency-banner/);
   assert.match(ui["render-projects.js"], /launcherDependencyBanner/);
-  assert.match(ui["render-shared.js"], /dashboard\.view\.upsert/);
-  assert.match(ui["backup-legacy.js"], /dashboard\.backup\.export/);
-  assert.match(ui["backup-legacy.js"], /dashboard\.backup\.import/);
+  assert.match(ui["render-shared.js"], /perch\.view\.upsert/);
+  assert.match(ui["backup-legacy.js"], /perch\.backup\.export/);
+  assert.match(ui["backup-legacy.js"], /perch\.backup\.import/);
   assert.equal(/const\s+PROJECTS\s*=/.test(client), false);
   assert.equal(/localStorage\.setItem\(STORAGE_KEYS\.(paths|notes)/.test(client), false);
   assert.equal(/localStorage\.getItem\(STORAGE_KEYS\.(paths|notes)/.test(client), false);

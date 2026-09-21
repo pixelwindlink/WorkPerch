@@ -1,3 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://dashboard.local/schemas/actions/dashboard.path.preflight/2.0/request-payload.json", "title": "dashboard.path.preflight request payload", "type": "object", "additionalProperties": false, "required": ["paths"], "properties": { "paths": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "type": "string", "minLength": 1, "maxLength": 4096 } } }
-}

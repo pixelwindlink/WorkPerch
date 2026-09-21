@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.project.launch.configure/2.0/success-payload.json",
+  "title": "perch.project.launch.configure success payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["projectId", "launcherRevision", "definition"],
+  "properties": {
+    "projectId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
+    "launcherRevision": { "type": "integer", "minimum": 1 },
+    "definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectId", "cwd", "executable", "args", "createdAt", "updatedAt"],
+      "properties": {
+        "projectId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
+        "cwd": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^/" },
+        "executable": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "args": { "type": "array", "maxItems": 64, "items": { "type": "string", "maxLength": 2048 } },
+        "createdAt": { "type": "string", "minLength": 20, "maxLength": 40 },
+        "updatedAt": { "type": "string", "minLength": 20, "maxLength": 40 }
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@ async function readJson(filePath) {
 function resolveInside(base, reference) {
   const target = path.resolve(base, reference);
   const relative = path.relative(base, target);
-  if (relative.startsWith("..") || path.isAbsolute(relative)) throw new Error(`Contract reference escapes Dashboard root: ${reference}`);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) throw new Error(`Contract reference escapes Perch root: ${reference}`);
   return target;
 }
 

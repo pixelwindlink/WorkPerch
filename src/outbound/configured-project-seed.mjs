@@ -2,10 +2,10 @@ import path from "node:path";
 import { ProjectSeedPort } from "../application/ports/project-seed.mjs";
 
 export class ConfiguredProjectSeed extends ProjectSeedPort {
-  constructor({ genericEnginesRoot, dashboardRoot }) {
+  constructor({ genericEnginesRoot, perchRoot }) {
     super();
     this.genericEnginesRoot = path.resolve(genericEnginesRoot);
-    this.dashboardRoot = path.resolve(dashboardRoot);
+    this.perchRoot = path.resolve(perchRoot);
   }
 
   async projects() {
@@ -64,12 +64,12 @@ export class ConfiguredProjectSeed extends ProjectSeedPort {
         pinned: false
       },
       {
-        id: "dashboard",
-        name: "Dashboard Engine",
+        id: "perch",
+        name: "WorkPerch",
         type: "engine",
         label: "Engine",
         description: "当前路径、速记与项目入口目录",
-        path: this.dashboardRoot,
+        path: this.perchRoot,
         url: "http://127.0.0.1:4173",
         port: 4173,
         command: "npm start",

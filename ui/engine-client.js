@@ -4,7 +4,7 @@ import { renderAll } from "./render-shared.js";
 import { inspectLegacyData } from "./backup-legacy.js";
 import { refreshProjectStatuses, refreshLauncherStatuses } from "./render-projects.js";
 
-export const LAUNCHER_UNAVAILABLE_GUIDANCE = "Project Launcher 未接入。启动/停止请用 Dashboard.app（并确认已打包 Launcher 资源）；路径、速记和项目目录管理不受影响。";
+export const LAUNCHER_UNAVAILABLE_GUIDANCE = "Project Launcher 未接入。启动/停止请用 Perch.app（并确认已打包 Launcher 资源）；路径、速记和项目目录管理不受影响。";
 
 export class EngineClientError extends Error {
   constructor(code, message) {
@@ -77,13 +77,13 @@ async function refreshProbes() {
 }
 
 export async function engineAction(action, payload = {}) {
-  if (location.protocol === "file:") throw new EngineClientError("ENGINE_DISCONNECTED", "直接打开 HTML 时没有 Dashboard Engine Server。");
+  if (location.protocol === "file:") throw new EngineClientError("ENGINE_DISCONNECTED", "直接打开 HTML 时没有 WorkPerch Server。");
   const request = {
     protocol: "generic-engines/engine-message",
     version: "1.0",
     kind: "request",
     id: messageId(),
-    engine: "dashboard",
+    engine: "perch",
     action,
     payload,
   };
@@ -96,7 +96,7 @@ export async function engineAction(action, payload = {}) {
       cache: "no-store",
     });
   } catch {
-    throw new EngineClientError("ENGINE_DISCONNECTED", "无法连接 Dashboard Engine Server。");
+    throw new EngineClientError("ENGINE_DISCONNECTED", "无法连接 WorkPerch Server。");
   }
   let result;
   try { result = await response.json(); } catch { throw new EngineClientError("TRANSPORT_ERROR", `Server 返回了非 JSON 响应（HTTP ${response.status}）。`); }
@@ -112,9 +112,9 @@ export async function engineAction(action, payload = {}) {
 }
 
 export async function loadSnapshot({ silent = false, probe = true } = {}) {
-  if (!silent) setConnectionStatus("connecting", "正在连接 Dashboard Engine…", "正在读取 Engine-owned workspace snapshot。");
+  if (!silent) setConnectionStatus("connecting", "正在连接 WorkPerch…", "正在读取 Engine-owned workspace snapshot。");
   try {
-    const snapshot = await engineAction("dashboard.snapshot.get", {});
+    const snapshot = await engineAction("perch.snapshot.get", {});
     state.aggregateRevision = snapshot.aggregateRevision;
     state.snapshotUpdatedAt = snapshot.updatedAt || "";
     state.tags = snapshot.tags || [];
@@ -134,7 +134,7 @@ export async function loadSnapshot({ silent = false, probe = true } = {}) {
     }
     return true;
   } catch (error) {
-    setConnectionStatus("error", "Dashboard Engine 未连接", error.message || "请通过 npm start 启动 Server，然后重试。");
+    setConnectionStatus("error", "WorkPerch 未连接", error.message || "请通过 npm start 启动 Server，然后重试。");
     renderAll();
     if (!silent) showToast("当前为只读连接失败状态", 2600);
     return false;
@@ -179,13 +179,13 @@ export async function afterWrite(message, { probe = false, result = null, patch 
 }
 
 export async function handleWriteError(error, preservedMessage = "操作失败") {
-  if (error.code === "DASHBOARD_REVISION_CONFLICT") {
+  if (error.code === "PERCH_REVISION_CONFLICT") {
     await loadSnapshot({ silent: true, probe: false });
     showToast("数据已被其他客户端更新；已刷新，请检查输入后重试", 3200);
     return;
   }
   if (error.code === "ENGINE_DISCONNECTED" || error.code === "TRANSPORT_ERROR") {
-    setConnectionStatus("error", "Dashboard Engine 连接中断", error.message);
+    setConnectionStatus("error", "WorkPerch 连接中断", error.message);
   }
   showToast(`${preservedMessage}：${error.message}`, 3200);
 }
@@ -193,14 +193,14 @@ export async function handleWriteError(error, preservedMessage = "操作失败")
 export async function recordUsage(kind, id) {
   if (!state.connected || !id) return;
   try {
-    const result = await engineAction("dashboard.entry.usage.record", { kind, id });
+    const result = await engineAction("perch.entry.usage.record", { kind, id });
     state.aggregateRevision = result.aggregateRevision;
     const collection = kind === "path" ? state.paths : kind === "note" ? state.notes : state.projects;
     const item = collection.find((candidate) => candidate.id === id);
     if (item) item.usage = result.usage;
     renderAll();
   } catch (error) {
-    if (error.code === "DASHBOARD_REVISION_CONFLICT") await loadSnapshot({ silent: true, probe: false });
+    if (error.code === "PERCH_REVISION_CONFLICT") await loadSnapshot({ silent: true, probe: false });
   }
 }
 

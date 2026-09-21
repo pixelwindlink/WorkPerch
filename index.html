@@ -55,7 +55,7 @@
     </header>
 
     <div class="connection-banner" id="connectionBanner" data-state="connecting">
-      <strong id="connectionTitle">正在连接 Dashboard Engine…</strong>
+      <strong id="connectionTitle">正在连接 WorkPerch…</strong>
       <span id="connectionMessage">业务数据由 Engine Server 单一持有。</span>
       <button class="quiet-button" id="retryConnectionButton" type="button">重试</button>
     </div>
@@ -171,7 +171,7 @@
     </main>
 
     <footer class="app-footer">
-      <span><i></i> Dashboard Engine · single-writer</span>
+      <span><i></i> WorkPerch · single-writer</span>
       <span>Enter 添加 · 点击 VALUE 复制 · <b>⌘/Ctrl + K</b> 搜索 · Desktop <b>⌘⇧D</b> 召唤</span>
     </footer>
 
@@ -320,7 +320,7 @@
           <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
         </div>
         <div class="dialog-notice" id="legacyMigrationSummary"></div>
-        <p class="dialog-copy">迁移会先通过 <code>dashboard.backup.import</code> dry-run 完整校验，再经确认合并到 Engine。旧数据不会被自动删除。</p>
+        <p class="dialog-copy">迁移会先通过 <code>perch.backup.import</code> dry-run 完整校验，再经确认合并到 Engine。旧数据不会被自动删除。</p>
         <div class="dialog-actions">
           <button class="quiet-button danger-text" id="cleanupLegacyButton" value="cleanup" type="submit" formnovalidate hidden>手动清理旧 paths / notes</button>
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>稍后</button>
@@ -367,8 +367,8 @@
           <button class="guide-close-button" id="guideCloseButton" type="button" aria-label="退出指引">×</button>
         </div>
         <div class="guide-copy" aria-live="polite">
-          <small id="guideStepCounter">DASHBOARD GUIDE</small>
-          <h2 id="guideTitle">欢迎使用 Dashboard</h2>
+          <small id="guideStepCounter">WORKPERCH GUIDE</small>
+          <h2 id="guideTitle">欢迎使用 Perch</h2>
           <p id="guideDescription"></p>
         </div>
         <div class="guide-progress" aria-hidden="true"><i id="guideProgressBar"></i></div>

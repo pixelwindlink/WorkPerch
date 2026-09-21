@@ -1,17 +1,17 @@
-import { isDashboardError } from "../domain/errors.mjs";
+import { isPerchError } from "../domain/errors.mjs";
 import { projectEngineDescribePayload } from "../../../../common_components/engine-provider-spi/src/index.mjs";
 import { validateJsonSchema } from "./json-schema-validator.mjs";
 
 const PROTOCOL = "generic-engines/engine-message";
 const VERSION = "1.0";
-const ENGINE_ID = "dashboard";
+const ENGINE_ID = "perch";
 const ACTION_PATTERN = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$/;
 const ENGINE_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function safeFields(request = {}) {
   request ||= {};
   return {
-    id: typeof request.id === "string" && request.id.length > 0 && request.id.length <= 128 ? request.id : "dashboard-invalid-request",
+    id: typeof request.id === "string" && request.id.length > 0 && request.id.length <= 128 ? request.id : "perch-invalid-request",
     engine: typeof request.engine === "string" && request.engine.length <= 64 && ENGINE_PATTERN.test(request.engine) ? request.engine : ENGINE_ID,
     action: typeof request.action === "string" && request.action.length <= 128 && ACTION_PATTERN.test(request.action) ? request.action : "engine.describe"
   };
@@ -42,7 +42,7 @@ function errorResponse(request, code, message) {
   };
 }
 
-export class DashboardDispatcher {
+export class PerchDispatcher {
   constructor({ contracts, application, lifecycle }) {
     this.contracts = contracts;
     this.application = application;
@@ -58,9 +58,9 @@ export class DashboardDispatcher {
       if (envelopeErrors.length || request?.kind !== "request") {
         return errorResponse(request, "INVALID_PAYLOAD", envelopeErrors[0]?.message || "只接受 EngineMessage request。");
       }
-      if (request.engine !== ENGINE_ID) return errorResponse(request, "WRONG_ENGINE", `请求目标 ${request.engine} 不是 dashboard。`);
+      if (request.engine !== ENGINE_ID) return errorResponse(request, "WRONG_ENGINE", `请求目标 ${request.engine} 不是 perch。`);
       if (!this.lifecycle.canDispatch() && request.action !== "system.health" && request.action !== "engine.describe") {
-        return errorResponse(request, "ENGINE_NOT_READY", "Dashboard Engine 当前不可接收业务请求。");
+        return errorResponse(request, "ENGINE_NOT_READY", "WorkPerch 当前不可接收业务请求。");
       }
       const contract = this.contracts.actions.get(request.action);
       const handler = this.handlers.get(request.action);
@@ -75,8 +75,8 @@ export class DashboardDispatcher {
       if (responseErrors.length) throw new Error(`Success response envelope failed: ${responseErrors[0].message}`);
       return response;
     } catch (error) {
-      const code = isDashboardError(error) ? error.code : "INTERNAL_ERROR";
-      return errorResponse(request, code, isDashboardError(error) ? error.message : "Dashboard Engine 内部错误。");
+      const code = isPerchError(error) ? error.code : "INTERNAL_ERROR";
+      return errorResponse(request, code, isPerchError(error) ? error.message : "WorkPerch 内部错误。");
     }
   }
 }

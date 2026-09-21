@@ -1,13 +1,13 @@
 {
   "$schema": "https://generic-engines.local/schemas/governance/engine-manifest-1.2.json",
   "schemaVersion": "1.2",
-  "id": "dashboard",
-  "name": "Dashboard Engine",
+  "id": "perch",
+  "name": "WorkPerch",
   "version": "2.2.0",
   "classification": "engine",
   "description": "管理本地开发路径、速记、项目入口、共享标签、使用视图与路径状态，并通过注入 EngineClient 委托独立 Project Launcher 安全启动项目。",
   "architecture": {
-    "authority": "openspec/changes/define-generic-engine-runtime-architecture/design.md"
+    "authority": "openspec/architecture/generic-engine-runtime-architecture.md"
   },
   "protocol": {
     "name": "generic-engines/engine-message",
@@ -39,7 +39,7 @@
             "launcher.project.stop",
             "launcher.runtime.get"
           ],
-          "reason": "Dashboard Desktop delegates structured project launch configuration and owned process lifecycle to Project Launcher while standalone Dashboard CRUD remains available without injection."
+          "reason": "Perch Desktop delegates structured project launch configuration and owned process lifecycle to Project Launcher while standalone Perch CRUD remains available without injection."
         }
       ]
     },
@@ -65,7 +65,7 @@
   },
   "state": {
     "mode": "single-writer",
-    "owner": "Dashboard Engine Server or an explicitly isolated Standalone Exclusive CLI process",
+    "owner": "WorkPerch Server or an explicitly isolated Standalone Exclusive CLI process",
     "runtimeData": "runtime_data",
     "conformance": {
       "temporaryRuntimeEnv": "RUNTIME_DATA_DIR"
@@ -84,39 +84,39 @@
       "actions": [
         "engine.describe",
         "system.health",
-        "dashboard.snapshot.get",
-        "dashboard.group.upsert",
-        "dashboard.group.delete",
-        "dashboard.tag.upsert",
-        "dashboard.tag.delete",
-        "dashboard.path.upsert",
-        "dashboard.path.delete",
-        "dashboard.path.inspect",
-        "dashboard.path.refresh-all",
-        "dashboard.path.preflight",
-        "dashboard.path.batch-upsert",
-        "dashboard.path.repair",
-        "dashboard.note.upsert",
-        "dashboard.note.delete",
-        "dashboard.project.upsert",
-        "dashboard.project.delete",
-        "dashboard.project.probe",
-        "dashboard.project.launch.configure",
-        "dashboard.project.launch.start",
-        "dashboard.project.launch.stop",
-        "dashboard.project.launch.status",
-        "dashboard.entry.usage.record",
-        "dashboard.view.upsert",
-        "dashboard.view.delete",
-        "dashboard.backup.export",
-        "dashboard.backup.import"
+        "perch.snapshot.get",
+        "perch.group.upsert",
+        "perch.group.delete",
+        "perch.tag.upsert",
+        "perch.tag.delete",
+        "perch.path.upsert",
+        "perch.path.delete",
+        "perch.path.inspect",
+        "perch.path.refresh-all",
+        "perch.path.preflight",
+        "perch.path.batch-upsert",
+        "perch.path.repair",
+        "perch.note.upsert",
+        "perch.note.delete",
+        "perch.project.upsert",
+        "perch.project.delete",
+        "perch.project.probe",
+        "perch.project.launch.configure",
+        "perch.project.launch.start",
+        "perch.project.launch.stop",
+        "perch.project.launch.status",
+        "perch.entry.usage.record",
+        "perch.view.upsert",
+        "perch.view.delete",
+        "perch.backup.export",
+        "perch.backup.import"
       ]
     },
     "agent": {
       "skills": [
         {
-          "name": "operate-dashboard",
-          "path": ".agents/skills/operate-dashboard/SKILL.md"
+          "name": "operate-perch",
+          "path": ".agents/skills/operate-perch/SKILL.md"
         },
         {
           "name": "register-project-entry",

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.backup.import/2.0/request-payload.json",
+  "title": "perch.backup.import request payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["backup", "mode", "dryRun"],
+  "properties": {
+    "mode": { "enum": ["merge", "replace"] },
+    "dryRun": { "type": "boolean" },
+    "expectedRevision": { "type": "integer", "minimum": 0 },
+    "backup": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false, "required": ["format", "version", "paths", "notes"],
+          "properties": { "format": { "const": "perch-key-value-list" }, "version": { "const": 1 }, "exportedAt": { "type": "string", "minLength": 10, "maxLength": 40 }, "paths": { "type": "array", "maxItems": 5000 }, "notes": { "type": "array", "maxItems": 5000 } }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["format", "version", "aggregateRevision", "exportedAt", "paths", "notes", "projects"],
+          "properties": { "format": { "const": "perch-engine-backup" }, "version": { "const": 1 }, "aggregateRevision": { "type": "integer", "minimum": 0 }, "exportedAt": { "type": "string", "minLength": 20, "maxLength": 40 }, "groups": { "type": "array", "maxItems": 500 }, "paths": { "type": "array", "maxItems": 5000 }, "notes": { "type": "array", "maxItems": 5000 }, "projects": { "type": "array", "maxItems": 2000 } }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["format", "version", "aggregateRevision", "exportedAt", "tags", "paths", "notes", "projects", "savedViews"],
+          "properties": { "format": { "const": "perch-engine-backup" }, "version": { "const": 2 }, "aggregateRevision": { "type": "integer", "minimum": 0 }, "exportedAt": { "type": "string", "minLength": 20, "maxLength": 40 }, "tags": { "type": "array", "maxItems": 500 }, "paths": { "type": "array", "maxItems": 5000 }, "notes": { "type": "array", "maxItems": 5000 }, "projects": { "type": "array", "maxItems": 2000 }, "savedViews": { "type": "array", "maxItems": 200 } }
+        }
+      ]
+    }
+  }
+}

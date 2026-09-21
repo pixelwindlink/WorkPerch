@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operate WorkPerch"
+  short_description: "Run and verify Perch without state conflicts"
+  default_prompt: "Use $operate-perch to safely start, test, call, and diagnose WorkPerch with correct state ownership."

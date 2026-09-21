@@ -80,7 +80,7 @@ export async function handleProjectAction(event) {
   if (action.dataset.action === "configure-project-launch") return openProjectLaunchEditor(item);
   if (action.dataset.action === "start-project-launch") {
     try {
-      const result = await engineAction("dashboard.project.launch.start", { projectId: item.id });
+      const result = await engineAction("perch.project.launch.start", { projectId: item.id });
       state.launcherAvailable = true;
       state.launcherRuns.set(item.id, result.run);
       renderProjects();
@@ -91,7 +91,7 @@ export async function handleProjectAction(event) {
   }
   if (action.dataset.action === "stop-project-launch") {
     try {
-      const result = await engineAction("dashboard.project.launch.stop", { projectId: item.id });
+      const result = await engineAction("perch.project.launch.stop", { projectId: item.id });
       state.launcherAvailable = true;
       state.launcherRuns.set(item.id, result.run);
       renderProjects();
@@ -102,7 +102,7 @@ export async function handleProjectAction(event) {
   }
   if (action.dataset.action === "inspect-project-path") {
     try {
-      const result = await engineAction("dashboard.path.inspect", { kind: "project", id: item.id, expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.path.inspect", { kind: "project", id: item.id, expectedRevision: state.aggregateRevision });
       await afterWrite("项目路径状态已刷新", { result, patch: { type: "inspection", kind: "project", id: item.id } });
     } catch (error) { await handleWriteError(error, "项目路径检查失败"); }
     return;
@@ -110,7 +110,7 @@ export async function handleProjectAction(event) {
   if (action.dataset.action === "edit-project") return openProjectEditor(item);
   if (action.dataset.action === "pin-project") {
     try {
-      const result = await engineAction("dashboard.project.upsert", { expectedRevision: state.aggregateRevision, item: projectInput(item, { pinned: !item.pinned }) });
+      const result = await engineAction("perch.project.upsert", { expectedRevision: state.aggregateRevision, item: projectInput(item, { pinned: !item.pinned }) });
       await afterWrite(item.pinned ? "已取消置顶" : "项目已置顶", { result, patch: { type: "upsert", collection: "projects" } });
     } catch (error) { await handleWriteError(error, "置顶操作失败"); }
   }
@@ -126,7 +126,7 @@ export async function handleProjectAction(event) {
       danger: true,
     }))) return;
     try {
-      const result = await engineAction("dashboard.project.delete", { id: item.id, expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.project.delete", { id: item.id, expectedRevision: state.aggregateRevision });
       await afterWrite("项目入口已删除", { probe: true, result, patch: { type: "delete", collection: "projects" } });
     } catch (error) { await handleWriteError(error, "删除项目失败"); }
   }
@@ -135,7 +135,7 @@ export async function handleProjectAction(event) {
 export async function refreshProjectStatuses() {
   if (!state.connected || !state.projects.length) return;
   try {
-    const payload = await engineAction("dashboard.project.probe", { timeoutMs: 1200 });
+    const payload = await engineAction("perch.project.probe", { timeoutMs: 1200 });
     state.probeResults = new Map(payload.results.map((item) => [item.projectId, item]));
     renderProjects();
   } catch (error) {
@@ -148,7 +148,7 @@ export async function refreshProjectStatuses() {
 export async function refreshLauncherStatuses({ silent = false } = {}) {
   if (!state.connected) return false;
   try {
-    const payload = await engineAction("dashboard.project.launch.status", { projectIds: state.projects.map((item) => item.id) });
+    const payload = await engineAction("perch.project.launch.status", { projectIds: state.projects.map((item) => item.id) });
     state.launcherAvailable = true;
     state.launcherRevision = payload.launcherRevision;
     state.launcherDefinitions = new Map(payload.definitions.map((item) => [item.projectId, item]));

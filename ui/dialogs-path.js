@@ -9,7 +9,7 @@ export function pathInput(item, changes = {}) {
 }
 
 export function openPathEditor(item = null, options = {}) {
-  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
   const editing = Boolean(item?.id);
   state.pathDialogFromDrop = Boolean(options.fromDrop);
   document.querySelector("#pathDialogKicker").textContent = editing ? "EDIT PAIR" : "ADD PAIR";
@@ -39,11 +39,11 @@ export async function savePathEdit() {
     pinned: existing?.pinned || false,
   };
   try {
-    const result = await engineAction("dashboard.path.upsert", { expectedRevision: state.aggregateRevision, item });
+    const result = await engineAction("perch.path.upsert", { expectedRevision: state.aggregateRevision, item });
     await afterWrite(existing ? "路径已更新" : "路径已添加", { result, patch: { type: "upsert", collection: "paths" } });
     return true;
   } catch (error) {
-    if (error.code === "DASHBOARD_PATH_ALREADY_EXISTS") {
+    if (error.code === "PERCH_PATH_ALREADY_EXISTS") {
       await loadSnapshot({ silent: true, probe: false });
       const duplicate = findExistingPath(item.path);
       if (duplicate) {

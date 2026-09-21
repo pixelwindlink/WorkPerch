@@ -8,7 +8,7 @@ export function noteInput(item, changes = {}) {
 }
 
 export function openNoteEditor(item = null) {
-  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
   const editing = Boolean(item?.id);
   document.querySelector("#noteDialogKicker").textContent = editing ? "EDIT PAIR" : "ADD PAIR";
   document.querySelector("#noteDialogTitle").textContent = editing ? "编辑速记" : "添加速记";
@@ -32,7 +32,7 @@ export async function saveNoteEdit() {
     pinned: existing?.pinned || false,
   };
   try {
-    const result = await engineAction("dashboard.note.upsert", { expectedRevision: state.aggregateRevision, item });
+    const result = await engineAction("perch.note.upsert", { expectedRevision: state.aggregateRevision, item });
     await afterWrite(existing ? "速记已更新" : "速记已添加", { result, patch: { type: "upsert", collection: "notes" } });
     return true;
   } catch (error) {

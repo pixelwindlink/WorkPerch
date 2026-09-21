@@ -91,7 +91,7 @@ export async function handleNoteAction(event) {
   if (action.dataset.action === "edit-note") return openNoteEditor(item);
   if (action.dataset.action === "pin-note") {
     try {
-      const result = await engineAction("dashboard.note.upsert", { expectedRevision: state.aggregateRevision, item: noteInput(item, { pinned: !item.pinned }) });
+      const result = await engineAction("perch.note.upsert", { expectedRevision: state.aggregateRevision, item: noteInput(item, { pinned: !item.pinned }) });
       await afterWrite(item.pinned ? "已取消置顶" : "速记已置顶", { result, patch: { type: "upsert", collection: "notes" } });
     } catch (error) { await handleWriteError(error, "置顶操作失败"); }
   }
@@ -103,7 +103,7 @@ export async function handleNoteAction(event) {
       danger: true,
     }))) return;
     try {
-      const result = await engineAction("dashboard.note.delete", { id: item.id, expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.note.delete", { id: item.id, expectedRevision: state.aggregateRevision });
       await afterWrite("速记已删除", { result, patch: { type: "delete", collection: "notes" } });
     } catch (error) { await handleWriteError(error, "删除速记失败"); }
   }

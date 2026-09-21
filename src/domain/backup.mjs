@@ -1,4 +1,4 @@
-import { dashboardError } from "./errors.mjs";
+import { perchError } from "./errors.mjs";
 import {
   assertAggregate,
   assertExpectedRevision,
@@ -7,7 +7,7 @@ import {
   normalizeNoteItem,
   normalizePathItem,
   normalizeTagItem
-} from "./dashboard-aggregate.mjs";
+} from "./perch-aggregate.mjs";
 import { LIMITS, assertAllowedKeys, comparablePath, comparableTagName } from "./value-objects.mjs";
 
 function blankSummary() {
@@ -31,16 +31,16 @@ function legacyTag(tags, item, { now, idFactory }) {
       id: item.groupId,
       name,
       color: item.groupColor || item.color || defaultTagColor(name)
-    }, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID" });
+    }, { now, idFactory, code: "PERCH_IMPORT_INVALID" });
     tags.push(tag);
   }
   return tag;
 }
 
 function normalizeLegacyList(backup, { now, idFactory }) {
-  assertAllowedKeys(backup, ["format", "version", "exportedAt", "paths", "notes"], "backup", "DASHBOARD_IMPORT_INVALID");
-  if (!Array.isArray(backup.paths) || !Array.isArray(backup.notes)) throw dashboardError("DASHBOARD_IMPORT_INVALID", "备份集合不完整。");
-  if (backup.paths.length > LIMITS.paths || backup.notes.length > LIMITS.notes) throw dashboardError("DASHBOARD_IMPORT_REJECTED", "备份集合超过 Dashboard 容量限制。");
+  assertAllowedKeys(backup, ["format", "version", "exportedAt", "paths", "notes"], "backup", "PERCH_IMPORT_INVALID");
+  if (!Array.isArray(backup.paths) || !Array.isArray(backup.notes)) throw perchError("PERCH_IMPORT_INVALID", "备份集合不完整。");
+  if (backup.paths.length > LIMITS.paths || backup.notes.length > LIMITS.notes) throw perchError("PERCH_IMPORT_REJECTED", "备份集合超过 Perch 容量限制。");
   const tags = [];
   const paths = backup.paths.map((source) => {
     const tag = legacyTag(tags, source, { now, idFactory });
@@ -49,30 +49,30 @@ function normalizeLegacyList(backup, { now, idFactory }) {
       tagIds: [tag.id],
       description: source.description || "",
       pinned: source.pinned ?? false
-    }, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID", legacy: true });
+    }, { now, idFactory, code: "PERCH_IMPORT_INVALID", legacy: true });
   });
   const notes = backup.notes.map((source) => normalizeNoteItem({
     ...source,
     tagIds: [],
     pinned: source.pinned ?? false
-  }, { now, idFactory, code: "DASHBOARD_IMPORT_INVALID", legacy: true }));
+  }, { now, idFactory, code: "PERCH_IMPORT_INVALID", legacy: true }));
   const pathKeys = new Set();
   for (const item of paths) {
     const key = comparablePath(item.path);
-    if (pathKeys.has(key)) throw dashboardError("DASHBOARD_IMPORT_INVALID", `备份内路径重复：${item.path}。`);
+    if (pathKeys.has(key)) throw perchError("PERCH_IMPORT_INVALID", `备份内路径重复：${item.path}。`);
     pathKeys.add(key);
   }
   const noteIds = new Set();
   for (const item of notes) {
-    if (noteIds.has(item.id)) throw dashboardError("DASHBOARD_IMPORT_INVALID", `备份内 notes.id 重复：${item.id}。`);
+    if (noteIds.has(item.id)) throw perchError("PERCH_IMPORT_INVALID", `备份内 notes.id 重复：${item.id}。`);
     noteIds.add(item.id);
   }
   return { tags, paths, notes, projects: null, savedViews: [] };
 }
 
 function normalizeEngineV1(backup, { now, idFactory }) {
-  assertAllowedKeys(backup, ["format", "version", "aggregateRevision", "exportedAt", "groups", "paths", "notes", "projects"], "backup", "DASHBOARD_IMPORT_INVALID");
-  if (!Array.isArray(backup.paths) || !Array.isArray(backup.notes) || !Array.isArray(backup.projects)) throw dashboardError("DASHBOARD_IMPORT_INVALID", "备份集合不完整。");
+  assertAllowedKeys(backup, ["format", "version", "aggregateRevision", "exportedAt", "groups", "paths", "notes", "projects"], "backup", "PERCH_IMPORT_INVALID");
+  if (!Array.isArray(backup.paths) || !Array.isArray(backup.notes) || !Array.isArray(backup.projects)) throw perchError("PERCH_IMPORT_INVALID", "备份集合不完整。");
   const createdAt = backup.exportedAt || now;
   try {
     return migrateAggregateToV2({
@@ -86,12 +86,12 @@ function normalizeEngineV1(backup, { now, idFactory }) {
       updatedAt: createdAt
     }, { now, idFactory }).state;
   } catch (error) {
-    throw dashboardError("DASHBOARD_IMPORT_INVALID", `1.x Engine 备份不合法：${error.message}`, { cause: error });
+    throw perchError("PERCH_IMPORT_INVALID", `1.x Engine 备份不合法：${error.message}`, { cause: error });
   }
 }
 
 function normalizeEngineV2(backup) {
-  assertAllowedKeys(backup, ["format", "version", "aggregateRevision", "exportedAt", "tags", "paths", "notes", "projects", "savedViews"], "backup", "DASHBOARD_IMPORT_INVALID");
+  assertAllowedKeys(backup, ["format", "version", "aggregateRevision", "exportedAt", "tags", "paths", "notes", "projects", "savedViews"], "backup", "PERCH_IMPORT_INVALID");
   const state = {
     schemaVersion: "2.0",
     aggregateRevision: backup.aggregateRevision || 0,
@@ -106,23 +106,23 @@ function normalizeEngineV2(backup) {
   try {
     assertAggregate(state);
   } catch (error) {
-    throw dashboardError("DASHBOARD_IMPORT_INVALID", `2.0 Engine 备份不合法：${error.message}`, { cause: error });
+    throw perchError("PERCH_IMPORT_INVALID", `2.0 Engine 备份不合法：${error.message}`, { cause: error });
   }
   return state;
 }
 
 function normalizeBackup(backup, context) {
-  if (!backup || typeof backup !== "object" || Array.isArray(backup)) throw dashboardError("DASHBOARD_IMPORT_INVALID", "备份必须是对象。");
-  if (backup.format === "dashboard-key-value-list" && backup.version === 1) return normalizeLegacyList(backup, context);
-  if (backup.format === "dashboard-engine-backup" && backup.version === 1) {
+  if (!backup || typeof backup !== "object" || Array.isArray(backup)) throw perchError("PERCH_IMPORT_INVALID", "备份必须是对象。");
+  if (backup.format === "perch-key-value-list" && backup.version === 1) return normalizeLegacyList(backup, context);
+  if (backup.format === "perch-engine-backup" && backup.version === 1) {
     const state = normalizeEngineV1(backup, context);
     return { tags: state.tags, paths: state.paths, notes: state.notes, projects: state.projects, savedViews: state.savedViews };
   }
-  if (backup.format === "dashboard-engine-backup" && backup.version === 2) {
+  if (backup.format === "perch-engine-backup" && backup.version === 2) {
     const state = normalizeEngineV2(backup);
     return { tags: state.tags, paths: state.paths, notes: state.notes, projects: state.projects, savedViews: state.savedViews };
   }
-  throw dashboardError("DASHBOARD_IMPORT_INVALID", "不支持的备份格式或版本。");
+  throw perchError("PERCH_IMPORT_INVALID", "不支持的备份格式或版本。");
 }
 
 function mergeCollection(current, incoming, keyOf, summary) {
@@ -179,7 +179,7 @@ function mergeTags(current, incoming) {
 
 export function exportBackup(state, exportedAt) {
   return {
-    format: "dashboard-engine-backup",
+    format: "perch-engine-backup",
     version: 2,
     aggregateRevision: state.aggregateRevision,
     exportedAt,
@@ -193,7 +193,7 @@ export function exportBackup(state, exportedAt) {
 
 export function planBackupImport(state, { backup, mode, dryRun, expectedRevision }, { now, idFactory }) {
   if (!dryRun) {
-    if (expectedRevision === undefined) throw dashboardError("DASHBOARD_IMPORT_REJECTED", "正式导入必须提供 expectedRevision。");
+    if (expectedRevision === undefined) throw perchError("PERCH_IMPORT_REJECTED", "正式导入必须提供 expectedRevision。");
     assertExpectedRevision(state, expectedRevision);
   }
   const normalized = normalizeBackup(backup, { now, idFactory });
@@ -222,7 +222,7 @@ export function planBackupImport(state, { backup, mode, dryRun, expectedRevision
     savedViews = normalized.savedViews?.length ? mergeCollection(state.savedViews, mergedTags.remapItems(normalized.savedViews), (item) => item.id, { added: 0, updated: 0, skipped: 0 }) : structuredClone(state.savedViews);
     if (!normalized.projects) summary.projects.skipped = state.projects.length;
   } else {
-    throw dashboardError("DASHBOARD_IMPORT_REJECTED", `不支持导入模式 ${mode}。`);
+    throw perchError("PERCH_IMPORT_REJECTED", `不支持导入模式 ${mode}。`);
   }
   const candidate = {
     ...structuredClone(state),
@@ -237,7 +237,7 @@ export function planBackupImport(state, { backup, mode, dryRun, expectedRevision
   try {
     assertAggregate(candidate);
   } catch (error) {
-    throw dashboardError("DASHBOARD_IMPORT_REJECTED", `导入候选状态不满足 Dashboard 不变量：${error.message}`, { cause: error });
+    throw perchError("PERCH_IMPORT_REJECTED", `导入候选状态不满足 Perch 不变量：${error.message}`, { cause: error });
   }
   return { candidate, summary, dryRun, mode };
 }

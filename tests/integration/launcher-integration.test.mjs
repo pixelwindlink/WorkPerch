@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createProjectLauncherEngine } from "../../../project-launcher/src/composition/create-project-launcher-engine.mjs";
 import { LocalEngineClient } from "../../electron/local-engine-client.mjs";
-import { createDashboardEngine } from "../../src/composition/create-dashboard-engine.mjs";
+import { createPerchEngine } from "../../src/composition/create-perch-engine.mjs";
 import { GENERIC_ENGINES_ROOT, removeRuntime, request, tempRuntime } from "../helpers.mjs";
 
 class FakeProcessRunner {
@@ -23,9 +23,9 @@ class FakeProcessRunner {
   async stopAll() { this.children.clear(); }
 }
 
-test("Dashboard and Project Launcher keep separate runtimes and communicate only by EngineMessage", async () => {
-  const dashboardRuntime = await tempRuntime("dashboard-launcher-dashboard-");
-  const launcherRuntime = await tempRuntime("dashboard-launcher-engine-");
+test("Perch and Project Launcher keep separate runtimes and communicate only by EngineMessage", async () => {
+  const perchRuntime = await tempRuntime("perch-launcher-perch-");
+  const launcherRuntime = await tempRuntime("perch-launcher-engine-");
   const launcher = await createProjectLauncherEngine({
     mode: "standalone",
     runtimeDir: launcherRuntime,
@@ -38,37 +38,37 @@ test("Dashboard and Project Launcher keep separate runtimes and communicate only
     engineId: "project-launcher",
     allowedActions: ["launcher.definition.upsert", "launcher.project.start", "launcher.project.stop", "launcher.runtime.get"]
   });
-  const dashboard = await createDashboardEngine({
+  const perch = await createPerchEngine({
     mode: "standalone",
-    runtimeDir: dashboardRuntime,
+    runtimeDir: perchRuntime,
     genericEnginesRoot: GENERIC_ENGINES_ROOT,
     engineClient
   });
-  await dashboard.start();
+  await perch.start();
   try {
-    const initial = await dashboard.handle(request("dashboard.snapshot.get", {}, { id: "launcher-integration-initial" }));
-    const project = await dashboard.handle(request("dashboard.project.upsert", {
+    const initial = await perch.handle(request("perch.snapshot.get", {}, { id: "launcher-integration-initial" }));
+    const project = await perch.handle(request("perch.project.upsert", {
       expectedRevision: initial.payload.aggregateRevision,
       item: { name: "Launch Demo", type: "application", label: "App", description: "", path: "/tmp", url: "", port: 0, command: "", pinned: false }
     }, { id: "launcher-integration-project" }));
     const projectId = project.payload.item.id;
-    const configured = await dashboard.handle(request("dashboard.project.launch.configure", {
+    const configured = await perch.handle(request("perch.project.launch.configure", {
       projectId, expectedLauncherRevision: 0, executable: "node", args: ["server.mjs"]
     }, { id: "launcher-integration-configure" }));
     assert.equal(configured.payload.definition.cwd, "/tmp");
-    const started = await dashboard.handle(request("dashboard.project.launch.start", { projectId }, { id: "launcher-integration-start" }));
+    const started = await perch.handle(request("perch.project.launch.start", { projectId }, { id: "launcher-integration-start" }));
     assert.equal(started.payload.run.status, "running");
-    const status = await dashboard.handle(request("dashboard.project.launch.status", { projectIds: [projectId] }, { id: "launcher-integration-status" }));
+    const status = await perch.handle(request("perch.project.launch.status", { projectIds: [projectId] }, { id: "launcher-integration-status" }));
     assert.equal(status.payload.runs.at(-1).status, "running");
-    const stopped = await dashboard.handle(request("dashboard.project.launch.stop", { projectId }, { id: "launcher-integration-stop" }));
+    const stopped = await perch.handle(request("perch.project.launch.stop", { projectId }, { id: "launcher-integration-stop" }));
     assert.equal(stopped.payload.run.status, "stopped");
-    assert.equal((await fs.stat(path.join(dashboardRuntime, "dashboard-state.json"))).isFile(), true);
+    assert.equal((await fs.stat(path.join(perchRuntime, "perch-state.json"))).isFile(), true);
     assert.equal((await fs.stat(path.join(launcherRuntime, "state", "launcher-state.json"))).isFile(), true);
-    await assert.rejects(fs.access(path.join(dashboardRuntime, "state", "launcher-state.json")));
+    await assert.rejects(fs.access(path.join(perchRuntime, "state", "launcher-state.json")));
   } finally {
-    await dashboard.shutdown();
+    await perch.shutdown();
     await launcher.shutdown();
-    await removeRuntime(dashboardRuntime);
+    await removeRuntime(perchRuntime);
     await removeRuntime(launcherRuntime);
   }
 });

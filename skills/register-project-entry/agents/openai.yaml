@@ -1,4 +1,4 @@
 interface:
-  display_name: "Register Dashboard Project (Compatibility)"
+  display_name: "Register Perch Project (Compatibility)"
   short_description: "Delegate legacy registration to canonical Skill"
   default_prompt: "Use $register-project-entry from this legacy path only to load the canonical .agents/skills/register-project-entry workflow."

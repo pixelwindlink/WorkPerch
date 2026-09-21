@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.project.probe/1.0/request-payload.json",
+  "title": "perch.project.probe request payload",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "projectIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" }
+    },
+    "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 5000 }
+  }
+}

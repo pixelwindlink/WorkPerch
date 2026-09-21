@@ -86,7 +86,7 @@ export async function saveCurrentView() {
     sort: state.sortMode,
   };
   try {
-    const result = await engineAction("dashboard.view.upsert", { expectedRevision: state.aggregateRevision, item });
+    const result = await engineAction("perch.view.upsert", { expectedRevision: state.aggregateRevision, item });
     state.activeViewId = result.item.id;
     await afterWrite(existing ? "保存视图已更新" : "保存视图已添加", { result, patch: { type: "upsert", collection: "savedViews" } });
   } catch (error) { await handleWriteError(error, "保存视图失败"); }
@@ -102,7 +102,7 @@ export async function deleteCurrentView() {
     danger: true,
   }))) return;
   try {
-    const result = await engineAction("dashboard.view.delete", { id: view.id, expectedRevision: state.aggregateRevision });
+    const result = await engineAction("perch.view.delete", { id: view.id, expectedRevision: state.aggregateRevision });
     await afterWrite("保存视图已删除", { result, patch: { type: "delete", collection: "savedViews", id: view.id } });
   } catch (error) { await handleWriteError(error, "删除视图失败"); }
 }

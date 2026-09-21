@@ -2,8 +2,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createDashboardEngine } from "./src/composition/create-dashboard-engine.mjs";
-import { isDashboardError } from "./src/domain/errors.mjs";
+import { createPerchEngine } from "./src/composition/create-perch-engine.mjs";
+import { isPerchError } from "./src/domain/errors.mjs";
 import { errorResponse } from "./src/inbound/dispatcher.mjs";
 import { loadContractRegistry } from "./src/inbound/contract-registry.mjs";
 import { validateJsonSchema } from "./src/inbound/json-schema-validator.mjs";
@@ -61,14 +61,14 @@ async function callServer(serverUrl, request, contracts) {
       body: JSON.stringify(request),
       signal: controller.signal
     });
-    if (!response.ok) throw new Error(`Dashboard Server 返回 HTTP ${response.status}。`);
+    if (!response.ok) throw new Error(`Perch Server 返回 HTTP ${response.status}。`);
     const text = await response.text();
-    if (Buffer.byteLength(text) > MAX_INPUT_BYTES) throw new Error("Dashboard Server 响应超过 1 MiB 限制。");
+    if (Buffer.byteLength(text) > MAX_INPUT_BYTES) throw new Error("Perch Server 响应超过 1 MiB 限制。");
     const result = JSON.parse(text);
     const errors = validateJsonSchema(contracts.envelope.schema, result);
-    if (errors.length || result.kind !== "response") throw new Error("Dashboard Server 返回了非法 EngineMessage。");
+    if (errors.length || result.kind !== "response") throw new Error("Perch Server 返回了非法 EngineMessage。");
     if (result.id !== request?.id || result.engine !== request?.engine || result.action !== request?.action) {
-      throw new Error("Dashboard Server 响应关联字段与请求不一致。");
+      throw new Error("Perch Server 响应关联字段与请求不一致。");
     }
     return result;
   } finally {
@@ -77,7 +77,7 @@ async function callServer(serverUrl, request, contracts) {
 }
 
 async function callStandalone(request, environment) {
-  const engine = await createDashboardEngine({ mode: "standalone", environment });
+  const engine = await createPerchEngine({ mode: "standalone", environment });
   try {
     await engine.start();
     return await engine.handle(request);
@@ -91,15 +91,15 @@ export async function runCli({ argv = process.argv.slice(2), environment = proce
   try {
     const options = parseArguments(argv);
     request = parseRequest(await readMessageText(options.messageFile));
-    const serverUrl = options.serverUrl || environment.DASHBOARD_SERVER_URL;
+    const serverUrl = options.serverUrl || environment.PERCH_SERVER_URL;
     if (serverUrl) {
       const contracts = await loadContractRegistry({ environment });
       return await callServer(serverUrl, request, contracts);
     }
     return await callStandalone(request, environment);
   } catch (error) {
-    const code = isDashboardError(error) ? error.code : error instanceof SyntaxError ? "INVALID_PAYLOAD" : "TRANSPORT_ERROR";
-    const message = isDashboardError(error) ? error.message : String(error?.message || "Dashboard CLI 失败。").slice(0, 1000);
+    const code = isPerchError(error) ? error.code : error instanceof SyntaxError ? "INVALID_PAYLOAD" : "TRANSPORT_ERROR";
+    const message = isPerchError(error) ? error.message : String(error?.message || "Perch CLI 失败。").slice(0, 1000);
     return errorResponse(request, code, message);
   }
 }
@@ -112,9 +112,9 @@ async function main() {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
-    const response = errorResponse(null, "INTERNAL_ERROR", "Dashboard CLI 内部错误。");
+    const response = errorResponse(null, "INTERNAL_ERROR", "Perch CLI 内部错误。");
     process.stdout.write(`${JSON.stringify(response)}\n`);
-    process.stderr.write(`dashboard cli failure: ${String(error?.message || error).slice(0, 500)}\n`);
+    process.stderr.write(`perch cli failure: ${String(error?.message || error).slice(0, 500)}\n`);
     process.exitCode = 1;
   });
 }

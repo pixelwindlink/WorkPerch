@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.backup.export/2.0/success-payload.json",
+  "title": "perch.backup.export success payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["backup"],
+  "properties": {
+    "backup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "version", "aggregateRevision", "exportedAt", "tags", "paths", "notes", "projects", "savedViews"],
+      "properties": {
+        "format": { "const": "perch-engine-backup" },
+        "version": { "const": 2 },
+        "aggregateRevision": { "type": "integer", "minimum": 0 },
+        "exportedAt": { "type": "string", "minLength": 20, "maxLength": 40 },
+        "tags": { "type": "array", "maxItems": 500 },
+        "paths": { "type": "array", "maxItems": 5000 },
+        "notes": { "type": "array", "maxItems": 5000 },
+        "projects": { "type": "array", "maxItems": 2000 },
+        "savedViews": { "type": "array", "maxItems": 200 }
+      }
+    }
+  }
+}

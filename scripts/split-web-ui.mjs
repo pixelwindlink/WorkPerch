@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * One-shot helper: split /tmp/dashboard-app-monolith.js into ui/* modules + thin app.js.
+ * One-shot helper: split /tmp/perch-app-monolith.js into ui/* modules + thin app.js.
  * Safe to re-run; overwrites ui/*.js and app.js.
  */
 import fs from "node:fs/promises";
@@ -8,7 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const monolithPath = "/tmp/dashboard-app-monolith.js";
+const monolithPath = "/tmp/perch-app-monolith.js";
 const source = await fs.readFile(monolithPath, "utf8");
 
 function scanBalanced(startIdx, openCh, closeCh) {
@@ -375,9 +375,9 @@ import { applyTheme, initializeDesktopWindowControls } from "./ui/desktop.js";
 import { bindHeaderLayout } from "./ui/header-layout.js";
 import { bindEvents } from "./ui/events.js";
 
-if (window.dashboardDesktop?.getPathForFile) document.documentElement.dataset.desktop = "true";
+if (window.perchDesktop?.getPathForFile) document.documentElement.dataset.desktop = "true";
 applyTheme(storageGet(STORAGE_KEYS.theme) || "dark");
-setConnectionStatus("connecting", "正在连接 Dashboard Engine…", "业务数据由 Engine Server 单一持有。");
+setConnectionStatus("connecting", "正在连接 WorkPerch…", "业务数据由 Engine Server 单一持有。");
 renderAll();
 bindEvents();
 bindHeaderLayout();

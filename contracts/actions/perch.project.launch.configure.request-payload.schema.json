@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.project.launch.configure/2.0/request-payload.json",
+  "title": "perch.project.launch.configure request payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["projectId", "expectedLauncherRevision", "executable", "args"],
+  "properties": {
+    "projectId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
+    "expectedLauncherRevision": { "type": "integer", "minimum": 0 },
+    "executable": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "args": { "type": "array", "maxItems": 64, "items": { "type": "string", "maxLength": 2048 } }
+  }
+}

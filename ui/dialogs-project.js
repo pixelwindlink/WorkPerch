@@ -22,7 +22,7 @@ export function projectInput(item, changes = {}) {
 }
 
 export function openProjectEditor(item = null) {
-  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
   const editing = Boolean(item?.id);
   document.querySelector("#projectDialogKicker").textContent = editing ? "EDIT ENTRY" : "ADD ENTRY";
   document.querySelector("#projectDialogTitle").textContent = editing ? "编辑项目入口" : "添加项目入口";
@@ -59,7 +59,7 @@ export async function saveProjectEdit() {
     pinned: existing?.pinned || false,
   };
   try {
-    const result = await engineAction("dashboard.project.upsert", { expectedRevision: state.aggregateRevision, item });
+    const result = await engineAction("perch.project.upsert", { expectedRevision: state.aggregateRevision, item });
     await afterWrite(existing ? "项目入口已更新" : "项目入口已添加", { probe: true, result, patch: { type: "upsert", collection: "projects" } });
     return true;
   } catch (error) {
@@ -76,7 +76,7 @@ export function conservativeCommandSuggestion(command) {
 }
 
 export function openProjectLaunchEditor(item) {
-  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
   if (state.launcherAvailable === false) return showToast(LAUNCHER_UNAVAILABLE_GUIDANCE, 4200);
   const definition = state.launcherDefinitions.get(item.id);
   const suggestion = definition ? null : conservativeCommandSuggestion(item.command);
@@ -100,7 +100,7 @@ export async function saveProjectLaunchConfiguration() {
   const executable = document.querySelector("#launchProjectExecutable").value.trim();
   const args = document.querySelector("#launchProjectArgs").value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
   try {
-    const result = await engineAction("dashboard.project.launch.configure", {
+    const result = await engineAction("perch.project.launch.configure", {
       projectId,
       expectedLauncherRevision: state.launcherRevision,
       executable,

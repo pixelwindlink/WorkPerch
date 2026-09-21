@@ -6,26 +6,26 @@ const VERSION = "1.0";
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
 function requestId() {
-  return `dashboard-desktop-${Date.now()}-${Math.random().toString(36).slice(2)}`.slice(0, 128);
+  return `perch-desktop-${Date.now()}-${Math.random().toString(36).slice(2)}`.slice(0, 128);
 }
 
 export function resolveDesktopServerUrl(environment = process.env) {
-  const configured = environment.DASHBOARD_DESKTOP_URL;
-  const fallbackHost = environment.DASHBOARD_HOST || "127.0.0.1";
-  const fallbackPort = environment.DASHBOARD_PORT || "4173";
+  const configured = environment.PERCH_DESKTOP_URL;
+  const fallbackHost = environment.PERCH_HOST || "127.0.0.1";
+  const fallbackPort = environment.PERCH_PORT || "4173";
   const source = configured || `http://${fallbackHost.includes(":") ? `[${fallbackHost}]` : fallbackHost}:${fallbackPort}`;
   let url;
   try {
     url = new URL(source);
   } catch {
-    throw new Error("DASHBOARD_DESKTOP_URL 必须是合法 loopback HTTP URL。");
+    throw new Error("PERCH_DESKTOP_URL 必须是合法 loopback HTTP URL。");
   }
   const host = url.hostname.replace(/^\[|\]$/g, "");
   if (url.protocol !== "http:" || !LOOPBACK_HOSTS.has(host) || url.username || url.password || url.pathname !== "/" || url.search || url.hash) {
-    throw new Error("Dashboard Desktop 只允许连接无凭据的 loopback HTTP 根地址。");
+    throw new Error("Perch Desktop 只允许连接无凭据的 loopback HTTP 根地址。");
   }
   const port = Number(url.port || 80);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Dashboard Desktop Server 端口不合法。");
+  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Perch Desktop Server 端口不合法。");
   return { baseUrl: url.origin, host, port };
 }
 
@@ -47,7 +47,7 @@ export function resolveDesktopGenericEnginesRoot({
     const envelope = path.join(root, "governance", "protocol", "engine-message", "v1.0", "envelope.schema.json");
     if (exists(envelope)) return root;
   }
-  throw new Error("Dashboard Desktop 找不到 Generic Engines governance Contract 根目录。");
+  throw new Error("Perch Desktop 找不到 Generic Engines governance Contract 根目录。");
 }
 
 export function resolveProjectLauncherRoot({
@@ -66,10 +66,10 @@ export function resolveProjectLauncherRoot({
     const root = path.resolve(candidate);
     if (exists(path.join(root, "engine.manifest.json")) && exists(path.join(root, "src", "composition", "create-project-launcher-engine.mjs"))) return root;
   }
-  throw new Error("Dashboard Desktop 找不到 Project Launcher Engine 资源。");
+  throw new Error("Perch Desktop 找不到 Project Launcher Engine 资源。");
 }
 
-export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeoutMs = 900 } = {}) {
+export async function isPerchServerReady(baseUrl, { fetchImpl = fetch, timeoutMs = 900 } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -81,7 +81,7 @@ export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeo
         version: VERSION,
         kind: "request",
         id: requestId(),
-        engine: "dashboard",
+        engine: "perch",
         action: "engine.describe",
         payload: {}
       }),
@@ -92,10 +92,10 @@ export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeo
     return message?.protocol === PROTOCOL
       && message?.version === VERSION
       && message?.kind === "response"
-      && message?.engine === "dashboard"
+      && message?.engine === "perch"
       && message?.action === "engine.describe"
       && message?.status === "ok"
-      && message?.payload?.id === "dashboard";
+      && message?.payload?.id === "perch";
   } catch {
     return false;
   } finally {
@@ -103,9 +103,9 @@ export async function isDashboardServerReady(baseUrl, { fetchImpl = fetch, timeo
   }
 }
 
-export async function acquireDashboardServer({ baseUrl, createServer, fetchImpl = fetch, allowReuse = true }) {
-  if (await isDashboardServerReady(baseUrl, { fetchImpl })) {
-    if (!allowReuse) throw new Error(`Dashboard Desktop 需要拥有组合式 Server，但 ${baseUrl} 已被现有 Dashboard Server 占用。`);
+export async function acquirePerchServer({ baseUrl, createServer, fetchImpl = fetch, allowReuse = true }) {
+  if (await isPerchServerReady(baseUrl, { fetchImpl })) {
+    if (!allowReuse) throw new Error(`Perch Desktop 需要拥有组合式 Server，但 ${baseUrl} 已被现有 Perch Server 占用。`);
     return { baseUrl, owned: false, server: null };
   }
   const server = await createServer();
@@ -113,8 +113,8 @@ export async function acquireDashboardServer({ baseUrl, createServer, fetchImpl 
     await server.start();
     return { baseUrl, owned: true, server };
   } catch (error) {
-    if (await isDashboardServerReady(baseUrl, { fetchImpl })) {
-      if (!allowReuse) throw new Error(`Dashboard Desktop 需要拥有组合式 Server，但 ${baseUrl} 已被并发 Dashboard Server 占用。`, { cause: error });
+    if (await isPerchServerReady(baseUrl, { fetchImpl })) {
+      if (!allowReuse) throw new Error(`Perch Desktop 需要拥有组合式 Server，但 ${baseUrl} 已被并发 Perch Server 占用。`, { cause: error });
       return { baseUrl, owned: false, server: null };
     }
     throw error;

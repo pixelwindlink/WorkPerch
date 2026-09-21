@@ -1,22 +1,22 @@
 ---
 name: register-project-entry
-description: Register or update the current engineering project in Dashboard Engine's project launcher catalog through the official dashboard.snapshot.get and dashboard.project.upsert EngineMessage Actions. Use when an agent responsible for another project is asked to add, onboard, sync, or verify that project in Dashboard 项目入口, without editing Dashboard seed/source/state files or executing project commands.
+description: Register or update the current engineering project in WorkPerch's project launcher catalog through the official perch.snapshot.get and perch.project.upsert EngineMessage Actions. Use when an agent responsible for another project is asked to add, onboard, sync, or verify that project in Perch 项目入口, without editing Perch seed/source/state files or executing project commands.
 ---
 
-# Register a Dashboard project entry
+# Register a Perch project entry
 
-Register the project through Dashboard EngineMessage. Treat Dashboard aggregate state as the only authority after initialization.
+Register the project through Perch EngineMessage. Treat Perch aggregate state as the only authority after initialization.
 
 ## Resolve boundaries
 
-1. Starting from this canonical `SKILL.md`, walk upward until finding `engine.manifest.json`; read it and require `id` to equal `dashboard`. Stop if no unique matching root exists. Do not calculate `DASHBOARD_ROOT` from a fixed number of parent directories.
+1. Starting from this canonical `SKILL.md`, walk upward until finding `engine.manifest.json`; read it and require `id` to equal `perch`. Stop if no unique matching root exists. Do not calculate `PERCH_ROOT` from a fixed number of parent directories.
 2. Read these contracts before writing:
-   - `DASHBOARD_ROOT/engine.manifest.json`
-   - `DASHBOARD_ROOT/contracts/actions/dashboard.snapshot.get.request-payload.schema.json`
-   - `DASHBOARD_ROOT/contracts/actions/dashboard.snapshot.get.success-payload.schema.json`
-   - `DASHBOARD_ROOT/contracts/actions/dashboard.project.upsert.request-payload.schema.json`
-   - `DASHBOARD_ROOT/contracts/actions/dashboard.project.upsert.success-payload.schema.json`
-3. Do not edit Dashboard `configured-project-seed.mjs`, `app.js`, `dashboard-state.json`, lock files, backups, registry records, or Action Schemas to add a project.
+   - `PERCH_ROOT/engine.manifest.json`
+   - `PERCH_ROOT/contracts/actions/perch.snapshot.get.request-payload.schema.json`
+   - `PERCH_ROOT/contracts/actions/perch.snapshot.get.success-payload.schema.json`
+   - `PERCH_ROOT/contracts/actions/perch.project.upsert.request-payload.schema.json`
+   - `PERCH_ROOT/contracts/actions/perch.project.upsert.success-payload.schema.json`
+3. Do not edit Perch `configured-project-seed.mjs`, `app.js`, `perch-state.json`, lock files, backups, registry records, or Action Schemas to add a project.
 4. Do not execute the project's command. Store it only as inert text for display and copying.
 
 ## Collect project facts
@@ -41,24 +41,24 @@ Prefer facts from manifest, package metadata, README, actual entrypoints, and ve
 
 Prefer Server Client mode:
 
-1. Use `DASHBOARD_SERVER_URL` when configured.
-2. Otherwise try Dashboard's declared default `http://127.0.0.1:4173` as a client URL.
-3. If the Server is unavailable, stop and ask for either a working Server URL or the authoritative absolute `DASHBOARD_RUNTIME_DIR` with confirmation that no Server owns it.
+1. Use `PERCH_SERVER_URL` when configured.
+2. Otherwise try Perch's declared default `http://127.0.0.1:4173` as a client URL.
+3. If the Server is unavailable, stop and ask for either a working Server URL or the authoritative absolute `PERCH_RUNTIME_DIR` with confirmation that no Server owns it.
 
-Use Standalone Exclusive mode only with an explicitly supplied authoritative absolute runtime directory. Never silently fall back, invent a runtime directory, delete a lock, or write into Dashboard source.
+Use Standalone Exclusive mode only with an explicitly supplied authoritative absolute runtime directory. Never silently fall back, invent a runtime directory, delete a lock, or write into Perch source.
 
 ## Read the current snapshot
 
-Send a complete `dashboard.snapshot.get` request through `DASHBOARD_ROOT/cli.mjs`. Preferred invocation:
+Send a complete `perch.snapshot.get` request through `PERCH_ROOT/cli.mjs`. Preferred invocation:
 
 ```text
-node <DASHBOARD_ROOT>/cli.mjs --server-url <DASHBOARD_SERVER_URL> --message-file <request.json>
+node <PERCH_ROOT>/cli.mjs --server-url <PERCH_SERVER_URL> --message-file <request.json>
 ```
 
 Standalone invocation, only when explicitly authorized:
 
 ```text
-DASHBOARD_RUNTIME_DIR=<absolute-runtime-dir> node <DASHBOARD_ROOT>/cli.mjs --message-file <request.json>
+PERCH_RUNTIME_DIR=<absolute-runtime-dir> node <PERCH_ROOT>/cli.mjs --message-file <request.json>
 ```
 
 Parse stdout as exactly one EngineMessage. Treat nonzero exit or `status: "error"` as failure.
@@ -73,17 +73,17 @@ Inspect `snapshot.payload.projects`:
 4. If the proposed ID belongs to a different project/path, stop and report the identity conflict.
 5. Preserve the existing `pinned` value on update unless the user explicitly changes it.
 
-Use `snapshot.payload.aggregateRevision` as `expectedRevision` and call `dashboard.project.upsert` with every required project field.
+Use `snapshot.payload.aggregateRevision` as `expectedRevision` and call `perch.project.upsert` with every required project field.
 
-If the response is `DASHBOARD_REVISION_CONFLICT`, fetch a new snapshot, re-evaluate identity/path matches, and retry once with the new revision. Do not loop indefinitely or perform client-side silent merging.
+If the response is `PERCH_REVISION_CONFLICT`, fetch a new snapshot, re-evaluate identity/path matches, and retry once with the new revision. Do not loop indefinitely or perform client-side silent merging.
 
-If the response is `STATE_OWNERSHIP_CONFLICT`, do not remove the lock. Start/use the owning Dashboard Server or obtain explicit runtime-owner guidance.
+If the response is `STATE_OWNERSHIP_CONFLICT`, do not remove the lock. Start/use the owning Perch Server or obtain explicit runtime-owner guidance.
 
 ## Verify the saved entry
 
-1. Fetch a fresh `dashboard.snapshot.get`.
+1. Fetch a fresh `perch.snapshot.get`.
 2. Verify the saved ID, absolute path, type, URL/port, command string, tags, and new aggregate revision.
-3. If the entry has a loopback HTTP(S) endpoint, optionally call `dashboard.project.probe` with only the saved project ID. Treat the result as launcher liveness, not another Engine's `system.health`.
+3. If the entry has a loopback HTTP(S) endpoint, optionally call `perch.project.probe` with only the saved project ID. Treat the result as launcher liveness, not another Engine's `system.health`.
 4. Do not probe remote hosts or temporary request-supplied URLs.
 
 Report whether the entry was added or updated, saved project ID/path, previous/committed revisions, transport, optional probe and unverified metadata. Do not claim success until the fresh snapshot contains the expected entry.

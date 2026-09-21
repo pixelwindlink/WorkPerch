@@ -16,7 +16,7 @@ import {
   upsertPath,
   upsertProject,
   upsertGroup,
-} from "../../src/domain/dashboard-aggregate.mjs";
+} from "../../src/domain/perch-aggregate.mjs";
 
 const times = [
   "2026-07-27T00:00:00.000Z",
@@ -59,11 +59,11 @@ test("path, note and project CRUD increments exactly one aggregate revision", ()
   const projectResult = upsertProject(state, {
     expectedRevision: 2,
     item: {
-      name: "Dashboard",
+      name: "Perch",
       type: "engine",
       label: "Engine",
       description: "Catalog",
-      path: "/tmp/dashboard",
+      path: "/tmp/perch",
       url: "http://127.0.0.1:4173",
       port: 4173,
       command: "npm start",
@@ -94,12 +94,12 @@ test("revision conflict and normalized duplicate path never mutate the source ag
   assert.throws(() => upsertPath(first, {
     expectedRevision: 0,
     item: { name: "B", path: "/tmp/other", group: "G", description: "", pinned: false },
-  }, { now: times[2], idFactory }), (error) => error.code === "DASHBOARD_REVISION_CONFLICT");
+  }, { now: times[2], idFactory }), (error) => error.code === "PERCH_REVISION_CONFLICT");
 
   assert.throws(() => upsertPath(first, {
     expectedRevision: 1,
     item: { name: "Duplicate", path: "/tmp//folder", group: "G", description: "", pinned: false },
-  }, { now: times[2], idFactory }), (error) => error.code === "DASHBOARD_PATH_ALREADY_EXISTS");
+  }, { now: times[2], idFactory }), (error) => error.code === "PERCH_PATH_ALREADY_EXISTS");
   assert.equal(first.paths.length, 1);
   assert.equal(first.aggregateRevision, 1);
 });
@@ -108,18 +108,18 @@ test("stored aggregate validation rejects missing, noncanonical and time-reverse
   const state = createInitialAggregate({ now: times[0], projects: [], idFactory: ids() });
   const missing = structuredClone(state);
   missing.paths = [{ id: "path-one", name: "A", path: "/tmp/a" }];
-  assert.throws(() => assertAggregate(missing), (error) => error.code === "DASHBOARD_STATE_CORRUPT");
+  assert.throws(() => assertAggregate(missing), (error) => error.code === "PERCH_STATE_CORRUPT");
 
   const noncanonical = structuredClone(state);
   noncanonical.paths = [{
     id: "path-one", name: " A ", path: "/tmp/a", tagIds: [], description: "", pinned: false,
     usage: { count: 0, lastUsedAt: null }, inspection: null, createdAt: times[0], updatedAt: times[0],
   }];
-  assert.throws(() => assertAggregate(noncanonical), (error) => error.code === "DASHBOARD_STATE_CORRUPT");
+  assert.throws(() => assertAggregate(noncanonical), (error) => error.code === "PERCH_STATE_CORRUPT");
 
   const reversed = structuredClone(state);
   reversed.updatedAt = "2026-07-26T23:59:59.000Z";
-  assert.throws(() => assertAggregate(reversed), (error) => error.code === "DASHBOARD_STATE_CORRUPT");
+  assert.throws(() => assertAggregate(reversed), (error) => error.code === "PERCH_STATE_CORRUPT");
 });
 
 test("project URL accepts HTTP(S) data but rejects executable schemes", () => {
@@ -172,7 +172,7 @@ test("shared Tag Registry owns color and name for every referencing record", () 
     item: { id: state.tags[0].id, name: "核心工程", color: "#EC4899" },
   }, { now: times[4], idFactory }).state;
   assert.equal(state.tags[0].name, "核心工程");
-  assert.throws(() => deleteTag(state, { id: state.tags[0].id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "DASHBOARD_TAG_IN_USE");
+  assert.throws(() => deleteTag(state, { id: state.tags[0].id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "PERCH_TAG_IN_USE");
   assert.equal(state.aggregateRevision, 4);
 
   state = deletePath(state, { id: first.item.id, expectedRevision: 4 }, { now: times[5] }).state;
@@ -194,7 +194,7 @@ test("usage and saved views are persisted with deterministic tag references", ()
   const view = upsertSavedView(state, { expectedRevision: 3, item: { name: "常用速记", scope: "notes", query: "", tagIds: [tag.item.id], pathStatus: "any", sort: "smart" } }, { now: times[4], idFactory });
   state = view.state;
   assert.equal(state.savedViews[0].tagIds[0], tag.item.id);
-  assert.throws(() => deleteTag(state, { id: tag.item.id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "DASHBOARD_TAG_IN_USE");
+  assert.throws(() => deleteTag(state, { id: tag.item.id, expectedRevision: 4 }, { now: times[5] }), (error) => error.code === "PERCH_TAG_IN_USE");
   state = deleteSavedView(state, { id: view.item.id, expectedRevision: 4 }, { now: times[5] }).state;
   assert.equal(state.savedViews.length, 0);
 });

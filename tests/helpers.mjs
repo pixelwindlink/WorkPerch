@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const DASHBOARD_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const GENERIC_ENGINES_ROOT = path.resolve(DASHBOARD_ROOT, "../..");
+export const PERCH_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+export const GENERIC_ENGINES_ROOT = path.resolve(PERCH_ROOT, "../..");
 
 export function request(action, payload = {}, options = {}) {
   return {
@@ -13,13 +13,13 @@ export function request(action, payload = {}, options = {}) {
     version: "1.0",
     kind: "request",
     id: options.id || `test-${action}`,
-    engine: options.engine || "dashboard",
+    engine: options.engine || "perch",
     action,
     payload,
   };
 }
 
-export async function tempRuntime(prefix = "dashboard-test-") {
+export async function tempRuntime(prefix = "perch-test-") {
   return fs.mkdtemp(path.join(os.tmpdir(), prefix));
 }
 
@@ -30,11 +30,11 @@ export async function removeRuntime(runtimeDir) {
 export function runCli({ runtimeDir, input = "", args = [], environment = {} }) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ["cli.mjs", ...args], {
-      cwd: DASHBOARD_ROOT,
+      cwd: PERCH_ROOT,
       env: {
         ...process.env,
         GENERIC_ENGINES_ROOT,
-        ...(runtimeDir ? { DASHBOARD_RUNTIME_DIR: runtimeDir } : {}),
+        ...(runtimeDir ? { PERCH_RUNTIME_DIR: runtimeDir } : {}),
         ...environment,
       },
       shell: false,

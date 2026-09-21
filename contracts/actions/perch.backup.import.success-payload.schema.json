@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.backup.import/1.0/success-payload.json",
+  "title": "perch.backup.import success payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dryRun", "mode", "aggregateRevision", "summary"],
+  "properties": {
+    "dryRun": { "type": "boolean" },
+    "mode": { "enum": ["merge", "replace"] },
+    "aggregateRevision": { "type": "integer", "minimum": 0 },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["paths", "notes", "projects"],
+      "properties": {
+        "paths": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["added", "updated", "skipped"],
+          "properties": {
+            "added": { "type": "integer", "minimum": 0 },
+            "updated": { "type": "integer", "minimum": 0 },
+            "skipped": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "notes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["added", "updated", "skipped"],
+          "properties": {
+            "added": { "type": "integer", "minimum": 0 },
+            "updated": { "type": "integer", "minimum": 0 },
+            "skipped": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "projects": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["added", "updated", "skipped"],
+          "properties": {
+            "added": { "type": "integer", "minimum": 0 },
+            "updated": { "type": "integer", "minimum": 0 },
+            "skipped": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  }
+}

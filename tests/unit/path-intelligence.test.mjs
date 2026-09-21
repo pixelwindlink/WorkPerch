@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { batchUpsertEntries, createInitialAggregate, planPathCandidates, repairPath } from "../../src/domain/dashboard-aggregate.mjs";
+import { batchUpsertEntries, createInitialAggregate, planPathCandidates, repairPath } from "../../src/domain/perch-aggregate.mjs";
 import { LocalPathInspector } from "../../src/outbound/local-path-inspector.mjs";
 import { removeRuntime, tempRuntime } from "../helpers.mjs";
 
@@ -10,7 +10,7 @@ const times = ["2026-07-27T00:00:00.000Z", "2026-07-27T00:00:01.000Z", "2026-07-
 function idFactory(prefix) { return `${prefix}-${Math.random().toString(36).slice(2, 10)}`; }
 
 test("LocalPathInspector recognizes bounded root metadata without reading scripts", async () => {
-  const root = await tempRuntime("dashboard-inspect-");
+  const root = await tempRuntime("perch-inspect-");
   try {
     await fs.mkdir(path.join(root, ".git"));
     await fs.writeFile(path.join(root, "package.json"), "{ definitely not parsed }", "utf8");

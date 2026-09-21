@@ -5,11 +5,11 @@ import { requestConfirm } from "./confirm.js";
 
 export async function exportData() {
   try {
-    const { backup } = await engineAction("dashboard.backup.export", {});
+    const { backup } = await engineAction("perch.backup.export", {});
     const url = URL.createObjectURL(new Blob([`${JSON.stringify(backup, null, 2)}\n`], { type: "application/json" }));
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `dashboard-engine-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `perch-engine-backup-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
     showToast("Engine 备份已导出");
@@ -28,14 +28,14 @@ export async function importData(file) {
     if (selected === null) return;
     const mode = selected.trim().toLowerCase();
     if (!new Set(["merge", "replace"]).has(mode)) throw new Error("导入模式必须是 merge 或 replace。");
-    const dryRun = await engineAction("dashboard.backup.import", { backup, mode, dryRun: true });
+    const dryRun = await engineAction("perch.backup.import", { backup, mode, dryRun: true });
     if (!(await requestConfirm({
       title: "确认导入",
       message: `dry-run 已通过：${importSummary(dryRun.summary)}。\n\n确认以 ${mode} 模式提交？`,
       confirmLabel: "提交导入",
       danger: mode === "replace",
     }))) return;
-    await engineAction("dashboard.backup.import", { backup, mode, dryRun: false, expectedRevision: state.aggregateRevision });
+    await engineAction("perch.backup.import", { backup, mode, dryRun: false, expectedRevision: state.aggregateRevision });
     await afterWrite("备份已原子导入", { probe: true });
   } catch (error) {
     await handleWriteError(error, "导入失败");
@@ -74,15 +74,15 @@ export function inspectLegacyData() {
 
 export async function migrateLegacyData() {
   const legacy = legacyData();
-  const backup = { format: "dashboard-key-value-list", version: 1, exportedAt: new Date().toISOString(), paths: legacy.paths, notes: legacy.notes };
+  const backup = { format: "perch-key-value-list", version: 1, exportedAt: new Date().toISOString(), paths: legacy.paths, notes: legacy.notes };
   try {
-    const dryRun = await engineAction("dashboard.backup.import", { backup, mode: "merge", dryRun: true });
+    const dryRun = await engineAction("perch.backup.import", { backup, mode: "merge", dryRun: true });
     if (!(await requestConfirm({
       title: "确认迁移",
-      message: `旧数据 dry-run 已通过：${importSummary(dryRun.summary)}。\n\n确认合并到 Dashboard Engine？旧 localStorage 不会被删除。`,
+      message: `旧数据 dry-run 已通过：${importSummary(dryRun.summary)}。\n\n确认合并到 WorkPerch？旧 localStorage 不会被删除。`,
       confirmLabel: "合并迁移",
     }))) return false;
-    const committed = await engineAction("dashboard.backup.import", { backup, mode: "merge", dryRun: false, expectedRevision: state.aggregateRevision });
+    const committed = await engineAction("perch.backup.import", { backup, mode: "merge", dryRun: false, expectedRevision: state.aggregateRevision });
     storageSet(STORAGE_KEYS.migration, JSON.stringify({ migratedAt: new Date().toISOString(), aggregateRevision: committed.aggregateRevision }));
     await afterWrite("旧数据已迁移；localStorage 原数据仍保留");
     inspectLegacyData();

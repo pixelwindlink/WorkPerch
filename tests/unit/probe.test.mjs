@@ -7,8 +7,8 @@ test("probe policy accepts only HTTP(S) loopback targets", () => {
   assert.equal(assertProbeEndpoint("not a url"), null);
   assert.equal(assertProbeEndpoint("http://127.0.0.1:4173").hostname, "127.0.0.1");
   assert.equal(assertProbeEndpoint("https://localhost:4443").protocol, "https:");
-  assert.throws(() => assertProbeEndpoint("http://example.com"), (error) => error.code === "DASHBOARD_PROBE_FORBIDDEN");
-  assert.throws(() => assertProbeEndpoint("file:///tmp/a"), (error) => error.code === "DASHBOARD_PROBE_FORBIDDEN");
+  assert.throws(() => assertProbeEndpoint("http://example.com"), (error) => error.code === "PERCH_PROBE_FORBIDDEN");
+  assert.throws(() => assertProbeEndpoint("file:///tmp/a"), (error) => error.code === "PERCH_PROBE_FORBIDDEN");
 });
 
 test("probe derives only registered project endpoint data and caps concurrency", () => {

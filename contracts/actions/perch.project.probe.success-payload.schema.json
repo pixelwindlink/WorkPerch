@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.project.probe/1.0/success-payload.json",
+  "title": "perch.project.probe success payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["checkedAt", "results"],
+  "properties": {
+    "checkedAt": { "type": "string", "minLength": 20, "maxLength": 40 },
+    "results": {
+      "type": "array",
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["projectId", "endpoint", "state", "latencyMs"],
+        "properties": {
+          "projectId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" },
+          "endpoint": { "type": "string", "maxLength": 2048 },
+          "state": { "enum": ["online", "offline", "invalid"] },
+          "latencyMs": { "type": "integer", "minimum": 0, "maximum": 60000 }
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { dashboardError } from "./errors.mjs";
+import { perchError } from "./errors.mjs";
 
 export const LIMITS = Object.freeze({
   groups: 500,
@@ -14,7 +14,7 @@ const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 const PROJECT_TYPES = new Set(["engine", "candidate", "tool", "application", "workspace", "archive", "other"]);
 
 function invalid(message, code = "INVALID_PAYLOAD") {
-  throw dashboardError(code, message);
+  throw perchError(code, message);
 }
 
 export function boundedString(value, name, { min = 0, max, trim = false, code = "INVALID_PAYLOAD" } = {}) {
@@ -63,7 +63,7 @@ export function integerValue(value, name, { min = Number.MIN_SAFE_INTEGER, max =
   return value;
 }
 
-export function timestamp(value, name, code = "DASHBOARD_STATE_CORRUPT") {
+export function timestamp(value, name, code = "PERCH_STATE_CORRUPT") {
   const result = boundedString(value, name, { min: 20, max: 40, code });
   if (Number.isNaN(Date.parse(result))) invalid(`${name} 不是有效时间。`, code);
   return result;
@@ -110,13 +110,13 @@ export function projectUrl(value, code = "INVALID_PAYLOAD") {
   return result;
 }
 
-export function assertAllowedKeys(value, allowed, name, code = "DASHBOARD_IMPORT_INVALID") {
+export function assertAllowedKeys(value, allowed, name, code = "PERCH_IMPORT_INVALID") {
   if (!value || typeof value !== "object" || Array.isArray(value)) invalid(`${name} 必须是对象。`, code);
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
   if (unknown.length) invalid(`${name} 包含未声明字段：${unknown.join(", ")}。`, code);
 }
 
-export function assertRequiredKeys(value, required, name, code = "DASHBOARD_IMPORT_INVALID") {
+export function assertRequiredKeys(value, required, name, code = "PERCH_IMPORT_INVALID") {
   const missing = required.filter((key) => !Object.hasOwn(value, key));
   if (missing.length) invalid(`${name} 缺少必要字段：${missing.join(", ")}。`, code);
 }

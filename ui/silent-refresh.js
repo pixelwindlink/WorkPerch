@@ -13,7 +13,7 @@ export async function maybeSilentRefreshPaths({ force = false } = {}) {
   running = true;
   try {
     const before = collectAbnormalPathIds(state.paths);
-    const result = await engineAction("dashboard.path.refresh-all", { expectedRevision: state.aggregateRevision });
+    const result = await engineAction("perch.path.refresh-all", { expectedRevision: state.aggregateRevision });
     state.aggregateRevision = result.aggregateRevision;
     for (const item of result.items || []) {
       if (item?.id && item.inspection) patchInspection("path", item.id, item.inspection);

@@ -5,13 +5,13 @@ import { createReadStream } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const dashboardRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const packageJson = JSON.parse(await fs.readFile(path.join(dashboardRoot, "package.json"), "utf8"));
-const appPath = path.join(dashboardRoot, "dist", "desktop", "Dashboard-darwin-arm64", "Dashboard.app");
-const stagingRoot = path.join(dashboardRoot, "dist", "dmg", `Dashboard-${packageJson.version}`);
-const stagedApp = path.join(stagingRoot, "Dashboard.app");
-const releaseRoot = path.join(dashboardRoot, "release");
-const dmgName = `Dashboard-${packageJson.version}-arm64.dmg`;
+const perchRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const packageJson = JSON.parse(await fs.readFile(path.join(perchRoot, "package.json"), "utf8"));
+const appPath = path.join(perchRoot, "dist", "desktop", "Perch-darwin-arm64", "Perch.app");
+const stagingRoot = path.join(perchRoot, "dist", "dmg", `Perch-${packageJson.version}`);
+const stagedApp = path.join(stagingRoot, "Perch.app");
+const releaseRoot = path.join(perchRoot, "release");
+const dmgName = `Perch-${packageJson.version}-arm64.dmg`;
 const dmgPath = path.join(releaseRoot, dmgName);
 const checksumPath = `${dmgPath}.sha256`;
 
@@ -35,7 +35,7 @@ async function sha256(filePath) {
   return hash.digest("hex");
 }
 
-await fs.access(path.join(appPath, "Contents", "MacOS", "Dashboard"));
+await fs.access(path.join(appPath, "Contents", "MacOS", "Perch"));
 await fs.rm(stagingRoot, { recursive: true, force: true });
 await fs.mkdir(stagingRoot, { recursive: true });
 await run("ditto", [appPath, stagedApp]);
@@ -43,7 +43,7 @@ await fs.symlink("/Applications", path.join(stagingRoot, "Applications"));
 await fs.mkdir(releaseRoot, { recursive: true });
 await fs.rm(dmgPath, { force: true });
 await fs.rm(checksumPath, { force: true });
-await run("hdiutil", ["create", "-volname", "Dashboard", "-srcfolder", stagingRoot, "-ov", "-format", "UDZO", dmgPath]);
+await run("hdiutil", ["create", "-volname", "Perch", "-srcfolder", stagingRoot, "-ov", "-format", "UDZO", dmgPath]);
 const digest = await sha256(dmgPath);
 await fs.writeFile(checksumPath, `${digest}  ${dmgName}\n`, "utf8");
 process.stdout.write(`${dmgPath}\n${checksumPath}\n${digest}\n`);

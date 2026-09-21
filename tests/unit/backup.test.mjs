@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createInitialAggregate, upsertNote, upsertPath } from "../../src/domain/dashboard-aggregate.mjs";
+import { createInitialAggregate, upsertNote, upsertPath } from "../../src/domain/perch-aggregate.mjs";
 import { exportBackup, planBackupImport } from "../../src/domain/backup.mjs";
 
 const t0 = "2026-07-27T00:00:00.000Z";
@@ -19,7 +19,7 @@ function populatedState() {
 test("legacy merge dry-run plans without changing revision or source", () => {
   const state = populatedState();
   const backup = {
-    format: "dashboard-key-value-list",
+    format: "perch-key-value-list",
     version: 1,
     paths: [{ id: "legacy-path", name: "A2", path: "/tmp/a", group: "G", color: "#ec4899", description: "new", pinned: true }],
     notes: [{ id: "legacy-note", title: "Imported", content: "value", pinned: false }],
@@ -52,7 +52,7 @@ test("replace commit increments once and Engine backup round-trips", () => {
 test("old Engine v1 backups materialize one shared Tag Registry", () => {
   const state = populatedState();
   const backup = {
-    format: "dashboard-engine-backup",
+    format: "perch-engine-backup",
     version: 1,
     aggregateRevision: 7,
     exportedAt: t2,
@@ -74,7 +74,7 @@ test("old Engine v1 backups materialize one shared Tag Registry", () => {
 test("invalid or duplicated backup items reject the complete import", () => {
   const state = populatedState();
   const duplicate = {
-    format: "dashboard-key-value-list",
+    format: "perch-key-value-list",
     version: 1,
     paths: [],
     notes: [
@@ -82,7 +82,7 @@ test("invalid or duplicated backup items reject the complete import", () => {
       { id: "note-same", title: "B", content: "2" },
     ],
   };
-  assert.throws(() => planBackupImport(state, { backup: duplicate, mode: "merge", dryRun: true }, { now: t2, idFactory }), (error) => error.code === "DASHBOARD_IMPORT_INVALID");
+  assert.throws(() => planBackupImport(state, { backup: duplicate, mode: "merge", dryRun: true }, { now: t2, idFactory }), (error) => error.code === "PERCH_IMPORT_INVALID");
   assert.equal(state.aggregateRevision, 2);
   assert.equal(state.notes.length, 1);
 });
@@ -90,11 +90,11 @@ test("invalid or duplicated backup items reject the complete import", () => {
 test("merge candidate invariant conflicts are reported as import rejection", () => {
   const state = populatedState();
   const backup = {
-    format: "dashboard-key-value-list",
+    format: "perch-key-value-list",
     version: 1,
     paths: [{ id: state.paths[0].id, name: "Different", path: "/tmp/different" }],
     notes: [],
   };
-  assert.throws(() => planBackupImport(state, { backup, mode: "merge", dryRun: true }, { now: t2, idFactory }), (error) => error.code === "DASHBOARD_IMPORT_REJECTED");
+  assert.throws(() => planBackupImport(state, { backup, mode: "merge", dryRun: true }, { now: t2, idFactory }), (error) => error.code === "PERCH_IMPORT_REJECTED");
   assert.equal(state.paths.length, 1);
 });

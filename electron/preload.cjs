@@ -1,15 +1,15 @@
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
-const WINDOW_GET_ALWAYS_ON_TOP = "dashboard:window:get-always-on-top";
-const WINDOW_SET_ALWAYS_ON_TOP = "dashboard:window:set-always-on-top";
-const PATH_OPEN_IN_FINDER = "dashboard:path:open-in-finder";
-const SUMMON_CHANNEL = "dashboard:summon";
+const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
+const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
+const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
+const SUMMON_CHANNEL = "perch:summon";
 
 if (typeof webUtils?.getPathForFile !== "function") {
   throw new Error("Electron webUtils.getPathForFile is unavailable.");
 }
 
-contextBridge.exposeInMainWorld("dashboardDesktop", Object.freeze({
+contextBridge.exposeInMainWorld("perchDesktop", Object.freeze({
   getPathForFile(file) {
     try {
       const value = webUtils.getPathForFile(file);

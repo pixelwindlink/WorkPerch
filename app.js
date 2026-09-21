@@ -7,10 +7,10 @@ import { applyMinimalMode } from "./ui/minimal.js";
 import { bindHeaderLayout } from "./ui/header-layout.js";
 import { bindEvents } from "./ui/events.js";
 
-if (window.dashboardDesktop?.getPathForFile) document.documentElement.dataset.desktop = "true";
+if (window.perchDesktop?.getPathForFile) document.documentElement.dataset.desktop = "true";
 applyTheme(storageGet(STORAGE_KEYS.theme) || "dark");
 applyMinimalMode(storageGet(STORAGE_KEYS.minimalMode) === "true", { persist: false, render: false });
-setConnectionStatus("connecting", "正在连接 Dashboard Engine…", "业务数据由 Engine Server 单一持有。");
+setConnectionStatus("connecting", "正在连接 WorkPerch…", "业务数据由 Engine Server 单一持有。");
 renderAll();
 bindEvents();
 bindHeaderLayout();

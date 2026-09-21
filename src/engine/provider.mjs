@@ -8,7 +8,7 @@ async function readJson(reference) {
   return JSON.parse(await fs.readFile(path.join(ENGINE_ROOT, reference), "utf8"));
 }
 
-export class DashboardEngineProvider {
+export class PerchEngineProvider {
   constructor({ createEngine }) {
     this.createEngineFactory = createEngine;
   }
@@ -27,9 +27,9 @@ export class DashboardEngineProvider {
 }
 
 export async function createProvider(defaultOptions = {}) {
-  const { createDashboardEngine } = await import("../composition/create-dashboard-engine.mjs");
-  return new DashboardEngineProvider({
-    createEngine: (dependencies = {}) => createDashboardEngine({ ...defaultOptions, ...dependencies })
+  const { createPerchEngine } = await import("../composition/create-perch-engine.mjs");
+  return new PerchEngineProvider({
+    createEngine: (dependencies = {}) => createPerchEngine({ ...defaultOptions, ...dependencies })
   });
 }
 

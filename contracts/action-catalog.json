@@ -1,7 +1,7 @@
 {
   "$schema": "https://generic-engines.local/schemas/engine-message/1.0/action-catalog.json",
   "schemaVersion": "1.0",
-  "engine": "dashboard",
+  "engine": "perch",
   "protocol": {
     "name": "generic-engines/engine-message",
     "version": "1.0"
@@ -18,189 +18,189 @@
       "name": "system.health",
       "requestPayloadSchema": "https://generic-engines.local/schemas/actions/system.health/1.0/request-payload.json",
       "successPayloadSchema": "https://generic-engines.local/schemas/actions/system.health/1.0/success-payload.json",
-      "errors": ["ENGINE_NOT_READY", "DEPENDENCY_UNAVAILABLE", "DASHBOARD_STATE_CORRUPT"],
+      "errors": ["ENGINE_NOT_READY", "DEPENDENCY_UNAVAILABLE", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.snapshot.get",
-      "requestPayloadSchema": "contracts/actions/dashboard.snapshot.get.request-payload.schema.json",
-      "successPayloadSchema": "contracts/state/dashboard-state.schema.json",
-      "errors": ["DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.snapshot.get",
+      "requestPayloadSchema": "contracts/actions/perch.snapshot.get.request-payload.schema.json",
+      "successPayloadSchema": "contracts/state/perch-state.schema.json",
+      "errors": ["PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.group.upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.group.upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.group.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_GROUP_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.group.upsert",
+      "requestPayloadSchema": "contracts/actions/perch.group.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.group.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_GROUP_ALREADY_EXISTS", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.group.delete",
-      "requestPayloadSchema": "contracts/actions/dashboard.group.delete.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.group.delete.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_GROUP_IN_USE", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.group.delete",
+      "requestPayloadSchema": "contracts/actions/perch.group.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.group.delete.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_GROUP_IN_USE", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.tag.upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.tag.upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.tag.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_TAG_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.tag.upsert",
+      "requestPayloadSchema": "contracts/actions/perch.tag.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.tag.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_TAG_ALREADY_EXISTS", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.tag.delete",
-      "requestPayloadSchema": "contracts/actions/dashboard.tag.delete.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.tag.delete.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_TAG_IN_USE", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.tag.delete",
+      "requestPayloadSchema": "contracts/actions/perch.tag.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.tag.delete.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_TAG_IN_USE", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_PATH_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.upsert",
+      "requestPayloadSchema": "contracts/actions/perch.path.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_PATH_ALREADY_EXISTS", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.delete",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.delete.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.delete.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.delete",
+      "requestPayloadSchema": "contracts/actions/perch.path.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.delete.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.inspect",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.inspect.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.inspect.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.inspect",
+      "requestPayloadSchema": "contracts/actions/perch.path.inspect.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.inspect.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.refresh-all",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.refresh-all.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.refresh-all.success-payload.schema.json",
-      "errors": ["DASHBOARD_REVISION_CONFLICT", "INVALID_PAYLOAD", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.refresh-all",
+      "requestPayloadSchema": "contracts/actions/perch.path.refresh-all.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.refresh-all.success-payload.schema.json",
+      "errors": ["PERCH_REVISION_CONFLICT", "INVALID_PAYLOAD", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.preflight",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.preflight.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.preflight.success-payload.schema.json",
-      "errors": ["INVALID_PAYLOAD", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.preflight",
+      "requestPayloadSchema": "contracts/actions/perch.path.preflight.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.preflight.success-payload.schema.json",
+      "errors": ["INVALID_PAYLOAD", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.batch-upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.batch-upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.batch-upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_PATH_ALREADY_EXISTS", "DASHBOARD_PROJECT_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "INVALID_PAYLOAD", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.batch-upsert",
+      "requestPayloadSchema": "contracts/actions/perch.path.batch-upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.batch-upsert.success-payload.schema.json",
+      "errors": ["PERCH_PATH_ALREADY_EXISTS", "PERCH_PROJECT_ALREADY_EXISTS", "PERCH_REVISION_CONFLICT", "INVALID_PAYLOAD", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.path.repair",
-      "requestPayloadSchema": "contracts/actions/dashboard.path.repair.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.path.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_PATH_ALREADY_EXISTS", "DASHBOARD_PATH_UNAVAILABLE", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.path.repair",
+      "requestPayloadSchema": "contracts/actions/perch.path.repair.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.path.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_PATH_ALREADY_EXISTS", "PERCH_PATH_UNAVAILABLE", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.note.upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.note.upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.note.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.note.upsert",
+      "requestPayloadSchema": "contracts/actions/perch.note.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.note.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.note.delete",
-      "requestPayloadSchema": "contracts/actions/dashboard.note.delete.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.note.delete.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.note.delete",
+      "requestPayloadSchema": "contracts/actions/perch.note.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.note.delete.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.project.upsert",
+      "requestPayloadSchema": "contracts/actions/perch.project.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.delete",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.delete.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.delete.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.project.delete",
+      "requestPayloadSchema": "contracts/actions/perch.project.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.delete.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.probe",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.probe.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.probe.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_PROBE_FORBIDDEN", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.project.probe",
+      "requestPayloadSchema": "contracts/actions/perch.project.probe.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.probe.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_PROBE_FORBIDDEN", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.launch.configure",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.configure.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.launch.configure.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_REVISION_CONFLICT", "LAUNCHER_DEFINITION_INVALID", "LAUNCHER_PROJECT_RUNNING", "LAUNCHER_CWD_UNAVAILABLE"],
+      "name": "perch.project.launch.configure",
+      "requestPayloadSchema": "contracts/actions/perch.project.launch.configure.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.launch.configure.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_REVISION_CONFLICT", "LAUNCHER_DEFINITION_INVALID", "LAUNCHER_PROJECT_RUNNING", "LAUNCHER_CWD_UNAVAILABLE"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.launch.start",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.start.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.launch.start.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROJECT_RUNNING", "LAUNCHER_CWD_UNAVAILABLE", "LAUNCHER_START_FAILED"],
+      "name": "perch.project.launch.start",
+      "requestPayloadSchema": "contracts/actions/perch.project.launch.start.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.launch.start.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROJECT_RUNNING", "LAUNCHER_CWD_UNAVAILABLE", "LAUNCHER_START_FAILED"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.launch.stop",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.stop.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.launch.stop.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROCESS_NOT_OWNED", "LAUNCHER_STOP_FAILED"],
+      "name": "perch.project.launch.stop",
+      "requestPayloadSchema": "contracts/actions/perch.project.launch.stop.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.launch.stop.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_ITEM_NOT_FOUND", "LAUNCHER_PROCESS_NOT_OWNED", "LAUNCHER_STOP_FAILED"],
       "deprecated": false
     },
     {
-      "name": "dashboard.project.launch.status",
-      "requestPayloadSchema": "contracts/actions/dashboard.project.launch.status.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.project.launch.status.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_STATE_CORRUPT"],
+      "name": "perch.project.launch.status",
+      "requestPayloadSchema": "contracts/actions/perch.project.launch.status.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.project.launch.status.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "DEPENDENCY_UNAVAILABLE", "LAUNCHER_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.entry.usage.record",
-      "requestPayloadSchema": "contracts/actions/dashboard.entry.usage.record.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.entry.usage.record.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.entry.usage.record",
+      "requestPayloadSchema": "contracts/actions/perch.entry.usage.record.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.entry.usage.record.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.view.upsert",
-      "requestPayloadSchema": "contracts/actions/dashboard.view.upsert.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.view.upsert.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_VIEW_ALREADY_EXISTS", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.view.upsert",
+      "requestPayloadSchema": "contracts/actions/perch.view.upsert.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.view.upsert.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_VIEW_ALREADY_EXISTS", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.view.delete",
-      "requestPayloadSchema": "contracts/actions/dashboard.view.delete.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.view.delete.success-payload.schema.json",
-      "errors": ["DASHBOARD_ITEM_NOT_FOUND", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.view.delete",
+      "requestPayloadSchema": "contracts/actions/perch.view.delete.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.view.delete.success-payload.schema.json",
+      "errors": ["PERCH_ITEM_NOT_FOUND", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.backup.export",
-      "requestPayloadSchema": "contracts/actions/dashboard.backup.export.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.backup.export.success-payload.schema.json",
-      "errors": ["DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.backup.export",
+      "requestPayloadSchema": "contracts/actions/perch.backup.export.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.backup.export.success-payload.schema.json",
+      "errors": ["PERCH_STATE_CORRUPT"],
       "deprecated": false
     },
     {
-      "name": "dashboard.backup.import",
-      "requestPayloadSchema": "contracts/actions/dashboard.backup.import.request-payload.schema.json",
-      "successPayloadSchema": "contracts/actions/dashboard.backup.import.success-payload.schema.json",
-      "errors": ["DASHBOARD_IMPORT_INVALID", "DASHBOARD_IMPORT_REJECTED", "DASHBOARD_REVISION_CONFLICT", "DASHBOARD_STATE_CORRUPT"],
+      "name": "perch.backup.import",
+      "requestPayloadSchema": "contracts/actions/perch.backup.import.request-payload.schema.json",
+      "successPayloadSchema": "contracts/actions/perch.backup.import.success-payload.schema.json",
+      "errors": ["PERCH_IMPORT_INVALID", "PERCH_IMPORT_REJECTED", "PERCH_REVISION_CONFLICT", "PERCH_STATE_CORRUPT"],
       "deprecated": false
     }
   ]

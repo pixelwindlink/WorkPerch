@@ -3,18 +3,18 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { packager } from "@electron/packager";
 
-const dashboardRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const genericEnginesRoot = path.resolve(dashboardRoot, "../..");
+const perchRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const genericEnginesRoot = path.resolve(perchRoot, "../..");
 const governanceRoot = path.join(genericEnginesRoot, "governance");
 const engineProviderSpiRoot = path.join(genericEnginesRoot, "common_components", "engine-provider-spi");
 const projectLauncherRoot = path.join(genericEnginesRoot, "engine_projects", "project-launcher");
-const outputRoot = path.join(dashboardRoot, "dist", "desktop");
-const resourceStagingRoot = path.join(dashboardRoot, "dist", "package-resources");
+const outputRoot = path.join(perchRoot, "dist", "desktop");
+const resourceStagingRoot = path.join(perchRoot, "dist", "package-resources");
 const launcherResourceRoot = path.join(resourceStagingRoot, "project-launcher");
 const commonComponentsResourceRoot = path.join(resourceStagingRoot, "common_components");
 const engineProviderSpiResourceRoot = path.join(commonComponentsResourceRoot, "engine-provider-spi");
 const electronZipDir = process.env.ELECTRON_ZIP_DIR ? path.resolve(process.env.ELECTRON_ZIP_DIR) : null;
-const packageJson = JSON.parse(await fs.readFile(path.join(dashboardRoot, "package.json"), "utf8"));
+const packageJson = JSON.parse(await fs.readFile(path.join(perchRoot, "package.json"), "utf8"));
 
 await fs.access(path.join(governanceRoot, "protocol", "engine-message", "v1.0", "envelope.schema.json"));
 await fs.access(path.join(engineProviderSpiRoot, "src", "index.mjs"));
@@ -33,11 +33,11 @@ await Promise.all([
 ]);
 
 const appPaths = await packager({
-  dir: dashboardRoot,
+  dir: perchRoot,
   out: outputRoot,
-  name: "Dashboard",
-  executableName: "Dashboard",
-  appBundleId: "local.ugreen.dashboard",
+  name: "Perch",
+  executableName: "Perch",
+  appBundleId: "local.ugreen.perch",
   appVersion: packageJson.version,
   buildVersion: packageJson.version,
   platform: "darwin",
@@ -57,7 +57,7 @@ const appPaths = await packager({
   afterCopyExtraResources: [async ({ buildPath }) => {
     await fs.cp(
       commonComponentsResourceRoot,
-      path.join(buildPath, "Dashboard.app", "Contents", "common_components"),
+      path.join(buildPath, "Perch.app", "Contents", "common_components"),
       { recursive: true }
     );
   }],

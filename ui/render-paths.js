@@ -164,13 +164,13 @@ export function setAbnormalPathFilter(enabled = true) {
 
 export async function refreshAllPathStatuses({ silent = false } = {}) {
   if (!state.connected) {
-    if (!silent) showToast("Dashboard Engine 未连接");
+    if (!silent) showToast("WorkPerch 未连接");
     return;
   }
   const button = document.querySelector("#refreshAllPathsButton");
   if (button) button.disabled = true;
   try {
-    const result = await engineAction("dashboard.path.refresh-all", { expectedRevision: state.aggregateRevision });
+    const result = await engineAction("perch.path.refresh-all", { expectedRevision: state.aggregateRevision });
     const abnormal = (result.summary?.missing || 0) + (result.summary?.denied || 0) + (result.summary?.invalid || 0);
     const message = abnormal > 0
       ? `已检查 ${result.summary.total} 条：有效 ${result.summary.available}，异常 ${abnormal}`
@@ -184,7 +184,7 @@ export async function refreshAllPathStatuses({ silent = false } = {}) {
 }
 
 export async function batchDeleteAbnormalPaths() {
-  if (!state.connected) return showToast("请先连接 Dashboard Engine Server");
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
   const targets = filteredPaths().filter((item) => isAbnormalInspectionStatus(item.inspection?.status));
   if (!targets.length) return showToast("当前没有可清理的异常路径");
   if (!(await requestConfirm({
@@ -196,7 +196,7 @@ export async function batchDeleteAbnormalPaths() {
   let deleted = 0;
   for (const item of targets) {
     try {
-      const result = await engineAction("dashboard.path.delete", { id: item.id, expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.path.delete", { id: item.id, expectedRevision: state.aggregateRevision });
       state.aggregateRevision = result.aggregateRevision;
       state.paths = state.paths.filter((candidate) => candidate.id !== item.id);
       deleted += 1;
@@ -254,7 +254,7 @@ export async function handlePathAction(event) {
   }
   if (action.dataset.action === "inspect-path") {
     try {
-      const result = await engineAction("dashboard.path.inspect", { kind: "path", id: item.id, expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.path.inspect", { kind: "path", id: item.id, expectedRevision: state.aggregateRevision });
       await afterWrite("路径状态已刷新", { result, patch: { type: "inspection", kind: "path", id: item.id } });
     } catch (error) { await handleWriteError(error, "路径检查失败"); }
     return;
@@ -263,7 +263,7 @@ export async function handlePathAction(event) {
     const nextPath = prompt(`输入“${item.name}”的新绝对路径`, item.path);
     if (!nextPath || nextPath === item.path) return;
     try {
-      const result = await engineAction("dashboard.path.repair", { id: item.id, path: nextPath.trim(), expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.path.repair", { id: item.id, path: nextPath.trim(), expectedRevision: state.aggregateRevision });
       await afterWrite("路径已修复", { result, patch: { type: "upsert", collection: "paths" } });
     } catch (error) { await handleWriteError(error, "路径修复失败"); }
     return;
@@ -286,7 +286,7 @@ export async function handlePathAction(event) {
   if (action.dataset.action === "edit-path") return openPathEditor(item);
   if (action.dataset.action === "pin-path") {
     try {
-      const result = await engineAction("dashboard.path.upsert", { expectedRevision: state.aggregateRevision, item: pathInput(item, { pinned: !item.pinned }) });
+      const result = await engineAction("perch.path.upsert", { expectedRevision: state.aggregateRevision, item: pathInput(item, { pinned: !item.pinned }) });
       await afterWrite(item.pinned ? "已取消置顶" : "路径已置顶", { result, patch: { type: "upsert", collection: "paths" } });
     } catch (error) { await handleWriteError(error, "置顶操作失败"); }
   }
@@ -298,7 +298,7 @@ export async function handlePathAction(event) {
       danger: true,
     }))) return;
     try {
-      const result = await engineAction("dashboard.path.delete", { id: item.id, expectedRevision: state.aggregateRevision });
+      const result = await engineAction("perch.path.delete", { id: item.id, expectedRevision: state.aggregateRevision });
       await afterWrite("路径已删除", { result, patch: { type: "delete", collection: "paths" } });
     } catch (error) { await handleWriteError(error, "删除路径失败"); }
   }

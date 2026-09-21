@@ -1,20 +1,20 @@
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { app, BrowserWindow, globalShortcut, ipcMain, shell, screen } from "electron";
-import { createDashboardHttpServer } from "../server.mjs";
+import { createPerchHttpServer } from "../server.mjs";
 import { openPathInFinder } from "./finder-path-controller.mjs";
 import { LocalEngineClient } from "./local-engine-client.mjs";
-import { acquireDashboardServer, resolveDesktopGenericEnginesRoot, resolveDesktopServerUrl, resolveProjectLauncherRoot } from "./server-coordinator.mjs";
+import { acquirePerchServer, resolveDesktopGenericEnginesRoot, resolveDesktopServerUrl, resolveProjectLauncherRoot } from "./server-coordinator.mjs";
 import { createWindowStateTracker, windowStatePath } from "./window-state.mjs";
 
 const ELECTRON_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEVELOPMENT_GENERIC_ENGINES_ROOT = path.resolve(ELECTRON_DIR, "../../..");
 const DEVELOPMENT_PROJECT_LAUNCHER_ROOT = path.resolve(ELECTRON_DIR, "../../project-launcher");
 const LAUNCHER_ACTIONS = ["launcher.definition.upsert", "launcher.project.start", "launcher.project.stop", "launcher.runtime.get"];
-const WINDOW_GET_ALWAYS_ON_TOP = "dashboard:window:get-always-on-top";
-const WINDOW_SET_ALWAYS_ON_TOP = "dashboard:window:set-always-on-top";
-const PATH_OPEN_IN_FINDER = "dashboard:path:open-in-finder";
-const SUMMON_CHANNEL = "dashboard:summon";
+const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
+const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
+const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
+const SUMMON_CHANNEL = "perch:summon";
 const SUMMON_HOTKEY = process.platform === "darwin" ? "Command+Shift+D" : "Control+Shift+D";
 const serverTarget = resolveDesktopServerUrl(process.env);
 let lease;
@@ -26,15 +26,15 @@ let mainWindow;
 let quitting = false;
 let windowStateTracker = null;
 
-function currentDashboardWindow(event) {
+function currentPerchWindow(event) {
   const sourceWindow = BrowserWindow.fromWebContents(event.sender);
   if (!mainWindow || mainWindow.isDestroyed() || sourceWindow !== mainWindow) {
-    throw new Error("Dashboard Desktop window request source is not allowed.");
+    throw new Error("Perch Desktop window request source is not allowed.");
   }
   return sourceWindow;
 }
 
-function setDashboardWindowAlwaysOnTop(window, enabled) {
+function setPerchWindowAlwaysOnTop(window, enabled) {
   if (enabled) window.setAlwaysOnTop(true, process.platform === "darwin" ? "floating" : "normal");
   else window.setAlwaysOnTop(false);
   if (process.platform === "darwin") {
@@ -43,7 +43,7 @@ function setDashboardWindowAlwaysOnTop(window, enabled) {
   return window.isAlwaysOnTop();
 }
 
-function summonDashboardWindow() {
+function summonPerchWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   if (mainWindow.isMinimized()) mainWindow.restore();
   mainWindow.show();
@@ -53,22 +53,22 @@ function summonDashboardWindow() {
 
 function registerSummonHotkey() {
   try {
-    const ok = globalShortcut.register(SUMMON_HOTKEY, summonDashboardWindow);
-    if (!ok) process.stderr.write(`Dashboard summon hotkey ${SUMMON_HOTKEY} unavailable.\n`);
-    else process.stderr.write(`Dashboard summon hotkey ready: ${SUMMON_HOTKEY}\n`);
+    const ok = globalShortcut.register(SUMMON_HOTKEY, summonPerchWindow);
+    if (!ok) process.stderr.write(`Perch summon hotkey ${SUMMON_HOTKEY} unavailable.\n`);
+    else process.stderr.write(`Perch summon hotkey ready: ${SUMMON_HOTKEY}\n`);
   } catch (error) {
-    process.stderr.write(`Dashboard summon hotkey failed: ${String(error?.message || error).slice(0, 200)}\n`);
+    process.stderr.write(`Perch summon hotkey failed: ${String(error?.message || error).slice(0, 200)}\n`);
   }
 }
 
 function registerDesktopIpcHandlers() {
-  ipcMain.handle(WINDOW_GET_ALWAYS_ON_TOP, (event) => currentDashboardWindow(event).isAlwaysOnTop());
+  ipcMain.handle(WINDOW_GET_ALWAYS_ON_TOP, (event) => currentPerchWindow(event).isAlwaysOnTop());
   ipcMain.handle(WINDOW_SET_ALWAYS_ON_TOP, (event, enabled) => {
     if (typeof enabled !== "boolean") throw new TypeError("always-on-top preference must be boolean.");
-    return setDashboardWindowAlwaysOnTop(currentDashboardWindow(event), enabled);
+    return setPerchWindowAlwaysOnTop(currentPerchWindow(event), enabled);
   });
   ipcMain.handle(PATH_OPEN_IN_FINDER, async (event, localPath) => {
-    currentDashboardWindow(event);
+    currentPerchWindow(event);
     return openPathInFinder(localPath, {
       openDirectory: (value) => shell.openPath(value),
       showItemInFolder: (value) => shell.showItemInFolder(value),
@@ -114,10 +114,10 @@ async function ensureServer() {
     engineClient = new LocalEngineClient({
       engineId: "project-launcher",
       allowedActions: LAUNCHER_ACTIONS,
-      sourceEngine: "dashboard",
+      sourceEngine: "perch",
       send: (message, options) => runtimeHost.engineClient.send(message, options)
     });
-    if (process.env.DASHBOARD_MONITOR_HALL !== "0") {
+    if (process.env.PERCH_MONITOR_HALL !== "0") {
       const port = Number(process.env.MONITOR_HALL_PORT || 8787);
       monitorHallInfo = await runtimeHost.startMonitorHall({ host: "127.0.0.1", port });
       process.stderr.write(`EngineMessage monitor hall: ${monitorHallInfo.hallUrl}\n`);
@@ -129,13 +129,13 @@ async function ensureServer() {
     monitorHallInfo = null;
     localLauncher = null;
     launcherDiagnostic = String(error?.message || error).slice(0, 500);
-    process.stderr.write(`Project Launcher unavailable; Dashboard CRUD remains available: ${launcherDiagnostic}\n`);
+    process.stderr.write(`Project Launcher unavailable; Perch CRUD remains available: ${launcherDiagnostic}\n`);
   }
   try {
-    lease = await acquireDashboardServer({
+    lease = await acquirePerchServer({
       baseUrl: serverTarget.baseUrl,
       allowReuse: false,
-      createServer: () => createDashboardHttpServer({ host: serverTarget.host, port: serverTarget.port, genericEnginesRoot, engineClient })
+      createServer: () => createPerchHttpServer({ host: serverTarget.host, port: serverTarget.port, genericEnginesRoot, engineClient })
     });
     launcherEngine = localLauncher;
   } catch (error) {
@@ -154,7 +154,7 @@ async function createWindow() {
   });
   const saved = windowStateTracker.load();
   mainWindow = new BrowserWindow({
-    title: "Dashboard Engine",
+    title: "WorkPerch",
     width: saved.width,
     height: saved.height,
     ...(Number.isFinite(saved.x) ? { x: saved.x } : {}),
@@ -186,10 +186,10 @@ async function createWindow() {
   });
   mainWindow.on("closed", () => { mainWindow = null; });
   await mainWindow.loadURL(activeLease.baseUrl);
-  const desktopBridgeReady = await mainWindow.webContents.executeJavaScript('["getPathForFile", "getAlwaysOnTop", "setAlwaysOnTop", "openPathInFinder", "onSummon"].every((name) => typeof window.dashboardDesktop?.[name] === "function")');
-  if (!desktopBridgeReady) throw new Error("Dashboard Desktop preload bridge 未完整加载。");
+  const desktopBridgeReady = await mainWindow.webContents.executeJavaScript('["getPathForFile", "getAlwaysOnTop", "setAlwaysOnTop", "openPathInFinder", "onSummon"].every((name) => typeof window.perchDesktop?.[name] === "function")');
+  if (!desktopBridgeReady) throw new Error("Perch Desktop preload bridge 未完整加载。");
   registerSummonHotkey();
-  process.stderr.write(`Dashboard Desktop ready at ${activeLease.baseUrl} (owned composition Server; Project Launcher ${launcherEngine ? "ready" : `unavailable: ${launcherDiagnostic}`}; desktop bridge ready)\n`);
+  process.stderr.write(`Perch Desktop ready at ${activeLease.baseUrl} (owned composition Server; Project Launcher ${launcherEngine ? "ready" : `unavailable: ${launcherDiagnostic}`}; desktop bridge ready)\n`);
 }
 
 async function stopOwnedServices() {
@@ -212,17 +212,17 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   registerDesktopIpcHandlers();
   app.on("second-instance", () => {
-    summonDashboardWindow();
+    summonPerchWindow();
   });
 
   app.whenReady().then(createWindow).catch((error) => {
-    process.stderr.write(`dashboard desktop failure: ${String(error?.message || error).slice(0, 500)}\n`);
+    process.stderr.write(`perch desktop failure: ${String(error?.message || error).slice(0, 500)}\n`);
     app.exit(1);
   });
 
   app.on("activate", () => {
     if (!BrowserWindow.getAllWindows().length) createWindow().catch((error) => {
-      process.stderr.write(`dashboard desktop window failure: ${String(error?.message || error).slice(0, 500)}\n`);
+      process.stderr.write(`perch desktop window failure: ${String(error?.message || error).slice(0, 500)}\n`);
     });
   });
 

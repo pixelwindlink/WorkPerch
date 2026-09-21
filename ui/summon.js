@@ -63,7 +63,7 @@ function renderHits() {
   const root = list();
   if (!root) return;
   if (!currentHits.length) {
-    root.innerHTML = `<div class="summon-empty">${state.connected ? "没有匹配的路径或项目" : "请先连接 Dashboard Engine"}</div>`;
+    root.innerHTML = `<div class="summon-empty">${state.connected ? "没有匹配的路径或项目" : "请先连接 WorkPerch"}</div>`;
     return;
   }
   root.innerHTML = currentHits.map((entry, index) => {
@@ -166,8 +166,8 @@ export function bindSummonPalette() {
     }
   }, true);
 
-  if (typeof window.dashboardDesktop?.onSummon === "function") {
-    window.dashboardDesktop.onSummon(() => openSummonPalette());
+  if (typeof window.perchDesktop?.onSummon === "function") {
+    window.perchDesktop.onSummon(() => openSummonPalette());
     const hint = document.querySelector("#summonHotkeyHint");
     if (hint) {
       const isMac = /Mac|iPhone|iPad/.test(navigator.platform || "");

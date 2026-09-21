@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { StateOwnershipLockPort } from "../application/ports/state-ownership-lock.mjs";
-import { dashboardError } from "../domain/errors.mjs";
+import { perchError } from "../domain/errors.mjs";
 
 function processIsAlive(pid) {
   if (!Number.isInteger(pid) || pid <= 0) return false;
@@ -22,7 +22,7 @@ export class StateOwnershipLock extends StateOwnershipLockPort {
     this.runtimeDir = runtimeDir;
     this.ownerMode = ownerMode;
     this.clock = clock;
-    this.lockPath = path.join(runtimeDir, ".dashboard-owner.lock");
+    this.lockPath = path.join(runtimeDir, ".perch-owner.lock");
     this.token = null;
   }
 
@@ -55,7 +55,7 @@ export class StateOwnershipLock extends StateOwnershipLockPort {
         if (error?.code !== "EEXIST") throw error;
         const removed = attempt === 0 && await this.#removeConfirmedStaleLock();
         if (removed) continue;
-        throw dashboardError("STATE_OWNERSHIP_CONFLICT", `状态目录已由其他 Dashboard 写入者占用：${this.runtimeDir}`);
+        throw perchError("STATE_OWNERSHIP_CONFLICT", `状态目录已由其他 Perch 写入者占用：${this.runtimeDir}`);
       }
     }
   }

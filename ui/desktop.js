@@ -3,9 +3,9 @@ import { elements, storageGet, storageSet, icon, showToast, finderFailureMessage
 import { recordUsage } from "./engine-client.js";
 
 export async function openLocalPathInFinder(localPath, label, usage = null) {
-  const openPath = window.dashboardDesktop?.openPathInFinder;
+  const openPath = window.perchDesktop?.openPathInFinder;
   if (typeof openPath !== "function") {
-    showToast("普通浏览器不能打开本机访达，请使用 Dashboard 桌面应用", 2800);
+    showToast("普通浏览器不能打开本机访达，请使用 Perch 桌面应用", 2800);
     return false;
   }
   try {
@@ -39,7 +39,7 @@ export function renderAlwaysOnTopButton(active) {
 
 export async function setAlwaysOnTopPreference(enabled, { persist = true, notify = true } = {}) {
   try {
-    const active = await window.dashboardDesktop.setAlwaysOnTop(Boolean(enabled));
+    const active = await window.perchDesktop.setAlwaysOnTop(Boolean(enabled));
     renderAlwaysOnTopButton(active);
     if (persist) storageSet(STORAGE_KEYS.alwaysOnTop, String(active));
     if (notify) showToast(active ? "窗口已全局置顶" : "窗口已取消全局置顶");
@@ -51,7 +51,7 @@ export async function setAlwaysOnTopPreference(enabled, { persist = true, notify
 }
 
 export async function initializeDesktopWindowControls() {
-  const bridge = window.dashboardDesktop;
+  const bridge = window.perchDesktop;
   if (typeof bridge?.getAlwaysOnTop !== "function" || typeof bridge?.setAlwaysOnTop !== "function") return;
   document.documentElement.dataset.desktop = "true";
   try {

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://perch.local/schemas/actions/perch.path.preflight/2.0/success-payload.json",
+  "title": "perch.path.preflight success payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["checkedAt", "candidates"],
+  "properties": {
+    "checkedAt": { "type": "string", "minLength": 20, "maxLength": 40 },
+    "candidates": { "type": "array", "maxItems": 50 }
+  }
+}

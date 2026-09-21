@@ -1,7 +1,7 @@
 import http from "node:http";
 import https from "node:https";
 import { EndpointProbePort } from "../application/ports/endpoint-probe.mjs";
-import { dashboardError } from "../domain/errors.mjs";
+import { perchError } from "../domain/errors.mjs";
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 
@@ -20,7 +20,7 @@ export function assertProbeEndpoint(endpoint) {
     return null;
   }
   if (!["http:", "https:"].includes(url.protocol) || !LOOPBACK_HOSTS.has(url.hostname)) {
-    throw dashboardError("DASHBOARD_PROBE_FORBIDDEN", `禁止探测非 loopback endpoint：${endpoint}`);
+    throw perchError("PERCH_PROBE_FORBIDDEN", `禁止探测非 loopback endpoint：${endpoint}`);
   }
   return url;
 }

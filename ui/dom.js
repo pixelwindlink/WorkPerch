@@ -109,7 +109,7 @@ export function parseTagNames(value) {
 }
 
 export function messageId() {
-  return `dashboard-ui-${crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`}`.slice(0, 128);
+  return `perch-ui-${crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`}`.slice(0, 128);
 }
 
 export function safeHttpUrl(value) {

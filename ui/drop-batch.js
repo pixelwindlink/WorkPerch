@@ -7,7 +7,7 @@ import { openPathEditor } from "./dialogs-path.js";
 
 export function desktopDroppedPath(file) {
   try {
-    return normalizeDroppedPath(window.dashboardDesktop?.getPathForFile?.(file) || "");
+    return normalizeDroppedPath(window.perchDesktop?.getPathForFile?.(file) || "");
   } catch {
     return "";
   }
@@ -62,7 +62,7 @@ export function processNextDroppedCandidate() {
     openPathEditor({ name: candidate.name || pathName(candidate.path), path: candidate.path, group: candidate.isDirectory ? "文件夹" : "文件", description: "" }, {
       fromDrop: true,
       notice: candidate.path
-        ? (window.dashboardDesktop ? "Desktop Shell 已识别真实绝对路径，请确认后添加。" : "已从拖放内容中识别到绝对路径，请确认后添加。")
+        ? (window.perchDesktop ? "Desktop Shell 已识别真实绝对路径，请确认后添加。" : "已从拖放内容中识别到绝对路径，请确认后添加。")
         : "普通浏览器不会暴露本机绝对路径。文件名已识别；可在 Finder 按 ⌥⌘C 复制路径后粘贴到 VALUE。",
     });
     return;
@@ -108,7 +108,7 @@ export async function revealExistingEntry(kind, id) {
 
 export async function openDropBatch(paths) {
   try {
-    const result = await engineAction("dashboard.path.preflight", { paths });
+    const result = await engineAction("perch.path.preflight", { paths });
     state.dropPlan = result.candidates;
     renderDropBatchPlan();
     document.querySelector("#dropBatchTags").value = "";
@@ -134,7 +134,7 @@ export async function saveDropBatch() {
     return false;
   }
   try {
-    await engineAction("dashboard.path.batch-upsert", { expectedRevision: state.aggregateRevision, items });
+    await engineAction("perch.path.batch-upsert", { expectedRevision: state.aggregateRevision, items });
     await afterWrite(`已原子添加 ${items.length} 个入口`, { probe: true });
     return true;
   } catch (error) {
@@ -147,7 +147,7 @@ export async function handleDrop(event) {
   event.preventDefault();
   document.body.classList.remove("is-dragging");
   if (!state.connected) {
-    showToast("请先连接 Dashboard Engine Server");
+    showToast("请先连接 WorkPerch Server");
     return;
   }
   switchTab("paths");

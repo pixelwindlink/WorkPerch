@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
-  acquireDashboardServer,
-  isDashboardServerReady,
+  acquirePerchServer,
+  isPerchServerReady,
   resolveDesktopGenericEnginesRoot,
   resolveDesktopServerUrl,
   resolveProjectLauncherRoot
 } from "../../electron/server-coordinator.mjs";
 import { LocalEngineClient } from "../../electron/local-engine-client.mjs";
-import { DASHBOARD_ROOT } from "../helpers.mjs";
+import { PERCH_ROOT } from "../helpers.mjs";
 
 function response(payload, ok = true) {
   return { ok, async json() { return payload; } };
@@ -22,34 +22,34 @@ function describeResponse() {
     version: "1.0",
     kind: "response",
     id: "desktop-test",
-    engine: "dashboard",
+    engine: "perch",
     action: "engine.describe",
     status: "ok",
-    payload: { id: "dashboard" }
+    payload: { id: "perch" }
   });
 }
 
 test("Desktop URL accepts only credential-free loopback HTTP roots", () => {
-  assert.deepEqual(resolveDesktopServerUrl({ DASHBOARD_DESKTOP_URL: "http://127.0.0.1:4173" }), {
+  assert.deepEqual(resolveDesktopServerUrl({ PERCH_DESKTOP_URL: "http://127.0.0.1:4173" }), {
     baseUrl: "http://127.0.0.1:4173",
     host: "127.0.0.1",
     port: 4173
   });
-  assert.throws(() => resolveDesktopServerUrl({ DASHBOARD_DESKTOP_URL: "https://example.com" }));
-  assert.throws(() => resolveDesktopServerUrl({ DASHBOARD_DESKTOP_URL: "http://localhost:4173/private" }));
-  assert.throws(() => resolveDesktopServerUrl({ DASHBOARD_DESKTOP_URL: "http://user:pass@localhost:4173" }));
+  assert.throws(() => resolveDesktopServerUrl({ PERCH_DESKTOP_URL: "https://example.com" }));
+  assert.throws(() => resolveDesktopServerUrl({ PERCH_DESKTOP_URL: "http://localhost:4173/private" }));
+  assert.throws(() => resolveDesktopServerUrl({ PERCH_DESKTOP_URL: "http://user:pass@localhost:4173" }));
 });
 
 test("Packaged Desktop resolves external governance before bundled resources", () => {
   const available = new Set([
     "/explicit/governance/protocol/engine-message/v1.0/envelope.schema.json",
-    "/Applications/Dashboard.app/Contents/Resources/governance/protocol/engine-message/v1.0/envelope.schema.json"
+    "/Applications/Perch.app/Contents/Resources/governance/protocol/engine-message/v1.0/envelope.schema.json"
   ]);
   const exists = (value) => available.has(value);
   assert.equal(resolveDesktopGenericEnginesRoot({
     environment: { GENERIC_ENGINES_ROOT: "/explicit" },
     homeDir: "/Users/test",
-    resourcesPath: "/Applications/Dashboard.app/Contents/Resources",
+    resourcesPath: "/Applications/Perch.app/Contents/Resources",
     developmentRoot: "/workspace/generic_engines",
     isPackaged: true,
     exists
@@ -57,11 +57,11 @@ test("Packaged Desktop resolves external governance before bundled resources", (
   assert.equal(resolveDesktopGenericEnginesRoot({
     environment: {},
     homeDir: "/Users/test",
-    resourcesPath: "/Applications/Dashboard.app/Contents/Resources",
+    resourcesPath: "/Applications/Perch.app/Contents/Resources",
     developmentRoot: "/workspace/generic_engines",
     isPackaged: true,
     exists
-  }), "/Applications/Dashboard.app/Contents/Resources");
+  }), "/Applications/Perch.app/Contents/Resources");
   assert.throws(() => resolveDesktopGenericEnginesRoot({
     environment: {}, homeDir: "/Users/test", resourcesPath: "/missing", developmentRoot: "/missing", isPackaged: true, exists
   }));
@@ -69,16 +69,16 @@ test("Packaged Desktop resolves external governance before bundled resources", (
 
 test("Desktop resolves the packaged Project Launcher as a separate readonly resource", () => {
   const files = new Set([
-    "/Applications/Dashboard.app/Contents/Resources/project-launcher/engine.manifest.json",
-    "/Applications/Dashboard.app/Contents/Resources/project-launcher/src/composition/create-project-launcher-engine.mjs"
+    "/Applications/Perch.app/Contents/Resources/project-launcher/engine.manifest.json",
+    "/Applications/Perch.app/Contents/Resources/project-launcher/src/composition/create-project-launcher-engine.mjs"
   ]);
   assert.equal(resolveProjectLauncherRoot({
     environment: {},
-    resourcesPath: "/Applications/Dashboard.app/Contents/Resources",
+    resourcesPath: "/Applications/Perch.app/Contents/Resources",
     developmentRoot: "/workspace/generic_engines/engine_projects/project-launcher",
     isPackaged: true,
     exists: (value) => files.has(value)
-  }), "/Applications/Dashboard.app/Contents/Resources/project-launcher");
+  }), "/Applications/Perch.app/Contents/Resources/project-launcher");
 });
 
 test("Local EngineClient forwards only allowlisted complete Project Launcher messages", async () => {
@@ -99,22 +99,22 @@ test("Local EngineClient forwards only allowlisted complete Project Launcher mes
   await assert.rejects(() => client.send({ engine: "project-launcher", action: "launcher.runtime.get" }), /complete EngineMessage/);
 });
 
-test("Desktop readiness probe recognizes only Dashboard engine.describe", async () => {
-  assert.equal(await isDashboardServerReady("http://127.0.0.1:4173", { fetchImpl: async () => describeResponse() }), true);
-  assert.equal(await isDashboardServerReady("http://127.0.0.1:4173", { fetchImpl: async () => response({ status: "ok", payload: { id: "other" } }) }), false);
-  assert.equal(await isDashboardServerReady("http://127.0.0.1:4173", { fetchImpl: async () => { throw new Error("offline"); } }), false);
+test("Desktop readiness probe recognizes only Perch engine.describe", async () => {
+  assert.equal(await isPerchServerReady("http://127.0.0.1:4173", { fetchImpl: async () => describeResponse() }), true);
+  assert.equal(await isPerchServerReady("http://127.0.0.1:4173", { fetchImpl: async () => response({ status: "ok", payload: { id: "other" } }) }), false);
+  assert.equal(await isPerchServerReady("http://127.0.0.1:4173", { fetchImpl: async () => { throw new Error("offline"); } }), false);
 });
 
 test("Desktop reuses an existing Server and owns only a Server it starts", async () => {
   let createCalls = 0;
-  const reused = await acquireDashboardServer({
+  const reused = await acquirePerchServer({
     baseUrl: "http://127.0.0.1:4173",
     fetchImpl: async () => describeResponse(),
     createServer: async () => { createCalls += 1; }
   });
   assert.equal(reused.owned, false);
   assert.equal(createCalls, 0);
-  await assert.rejects(() => acquireDashboardServer({
+  await assert.rejects(() => acquirePerchServer({
     baseUrl: "http://127.0.0.1:4173",
     allowReuse: false,
     fetchImpl: async () => describeResponse(),
@@ -123,7 +123,7 @@ test("Desktop reuses an existing Server and owns only a Server it starts", async
 
   let starts = 0;
   const server = { async start() { starts += 1; }, async stop() {} };
-  const owned = await acquireDashboardServer({
+  const owned = await acquirePerchServer({
     baseUrl: "http://127.0.0.1:4173",
     fetchImpl: async () => { throw new Error("offline"); },
     createServer: async () => server
@@ -134,13 +134,13 @@ test("Desktop reuses an existing Server and owns only a Server it starts", async
 });
 
 test("Desktop compact window and Finder opening keep IPC and bundle capabilities narrow", async () => {
-  const uiDir = path.join(DASHBOARD_ROOT, "ui");
+  const uiDir = path.join(PERCH_ROOT, "ui");
   const [preload, main, finder, windowState, appEntry, desktopUi, summonUi, eventsUi, renderPaths, renderProjects, dropBatch, stateUi, packaging, release] = await Promise.all([
-    fs.readFile(path.join(DASHBOARD_ROOT, "electron/preload.cjs"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "electron/main.mjs"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "electron/finder-path-controller.mjs"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "electron/window-state.mjs"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "app.js"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "electron/preload.cjs"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "electron/main.mjs"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "electron/finder-path-controller.mjs"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "electron/window-state.mjs"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "app.js"), "utf8"),
     fs.readFile(path.join(uiDir, "desktop.js"), "utf8"),
     fs.readFile(path.join(uiDir, "summon.js"), "utf8"),
     fs.readFile(path.join(uiDir, "events.js"), "utf8"),
@@ -148,11 +148,11 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
     fs.readFile(path.join(uiDir, "render-projects.js"), "utf8"),
     fs.readFile(path.join(uiDir, "drop-batch.js"), "utf8"),
     fs.readFile(path.join(uiDir, "state.js"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "scripts/package-desktop.mjs"), "utf8"),
-    fs.readFile(path.join(DASHBOARD_ROOT, "scripts/build-release.mjs"), "utf8")
+    fs.readFile(path.join(PERCH_ROOT, "scripts/package-desktop.mjs"), "utf8"),
+    fs.readFile(path.join(PERCH_ROOT, "scripts/build-release.mjs"), "utf8")
   ]);
   const renderer = [appEntry, desktopUi, summonUi, eventsUi, renderPaths, renderProjects, dropBatch, stateUi].join("\n");
-  assert.match(preload, /contextBridge\.exposeInMainWorld\("dashboardDesktop"/);
+  assert.match(preload, /contextBridge\.exposeInMainWorld\("perchDesktop"/);
   assert.match(preload, /webUtils\.getPathForFile/);
   assert.match(preload, /ipcRenderer\.invoke\(WINDOW_GET_ALWAYS_ON_TOP\)/);
   assert.match(preload, /ipcRenderer\.invoke\(WINDOW_SET_ALWAYS_ON_TOP, enabled\)/);
@@ -180,16 +180,16 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.match(main, /allowReuse:\s*false/);
   assert.match(main, /createRuntimeHost/);
   assert.match(main, /startMonitorHall/);
-  assert.match(main, /sourceEngine:\s*"dashboard"/);
-  assert.match(main, /Project Launcher unavailable; Dashboard CRUD remains available/);
-  assert.match(main, /currentDashboardWindow\(event\)/);
+  assert.match(main, /sourceEngine:\s*"perch"/);
+  assert.match(main, /Project Launcher unavailable; Perch CRUD remains available/);
+  assert.match(main, /currentPerchWindow\(event\)/);
   assert.match(main, /openDirectory:\s*\(value\) => shell\.openPath\(value\)/);
   assert.match(main, /showItemInFolder:\s*\(value\) => shell\.showItemInFolder\(value\)/);
   assert.match(finder, /path\.isAbsolute\(value\)/);
   assert.match(finder, /entry\.isDirectory\(\)/);
   assert.match(finder, /showItemInFolder\(localPath\)/);
-  assert.match(renderer, /dashboardDesktop\?\.getPathForFile/);
-  assert.match(renderer, /dashboardDesktop\?\.openPathInFinder/);
+  assert.match(renderer, /perchDesktop\?\.getPathForFile/);
+  assert.match(renderer, /perchDesktop\?\.openPathInFinder/);
   assert.match(renderer, /onSummon/);
   assert.match(renderer, /open-path-in-finder/);
   assert.match(renderer, /open-project-path-in-finder/);
@@ -209,7 +209,7 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.match(packaging, /extraResource:\s*\[governanceRoot, launcherResourceRoot\]/);
   assert.match(packaging, /engineProviderSpiRoot/);
   assert.match(packaging, /afterCopyExtraResources/);
-  assert.match(packaging, /"Dashboard\.app", "Contents", "common_components"/);
+  assert.match(packaging, /"Perch\.app", "Contents", "common_components"/);
   assert.match(packaging, /engineProviderSpiRoot, "src"/);
   assert.match(packaging, /engineProviderSpiRoot, "package\.json"/);
   assert.match(packaging, /engineProviderSpiRoot, "component\.manifest\.json"/);

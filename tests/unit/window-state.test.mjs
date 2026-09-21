@@ -35,7 +35,7 @@ test("boundsVisibleOnDisplays uses window center against work areas", () => {
 });
 
 test("window state round-trips through disk and prefers normal bounds when maximized", () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "dashboard-window-state-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "perch-window-state-"));
   const filePath = windowStatePath(root);
   writeWindowState(filePath, sanitizeWindowState({ x: 40, y: 50, width: 1100, height: 800, maximized: false }));
   const loaded = readWindowState(filePath, { displays: [{ workArea: { x: 0, y: 0, width: 1800, height: 1200 } }] });

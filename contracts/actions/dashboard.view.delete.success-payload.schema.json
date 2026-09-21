@@ -1,3 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://dashboard.local/schemas/actions/dashboard.view.delete/2.0/success-payload.json", "title": "dashboard.view.delete success payload", "type": "object", "additionalProperties": false, "required": ["aggregateRevision", "deletedId"], "properties": { "aggregateRevision": { "type": "integer", "minimum": 1 }, "deletedId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,95}$" } }
-}

@@ -1,0 +1,1 @@
+使用 `$seshat-remediate-skill-conformance` 审查目标工程中新建或存量 Skill 的平台无关 Agent/OpenSpec 对齐情况。若我只要求审查或建议，请保持只读；若我明确要求整改，请在确认 Skill 属于当前工程且写入范围清晰后，实际修改目标 Skill，随后重新 lint、更新 behavior digest、执行 provenance 登记并运行 skills review 与 verify。对 outside 或消费工程中的 Seshat bundled Skill 不得原地修改，只返回升级、上游修复、wrapper、显式 fork、禁用或移除路线。始终区分静态兼容证据与真实 Agent forward-test 证据。

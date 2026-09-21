@@ -1,0 +1,1 @@
+使用 `$seshat-remediate-project-readme` 审查指定工程的 `README.md`。若我只要求审查或建议，请保持只读并列出消费者缺口；若我明确要求整改，请先预览逐文件计划，再只增量补齐有真实证据支持的 Quick Start、Agent 下一步、终端/chat 边界、平台调用、更新、卸载、brownfield、排错、限制和 Authority 导航。保留项目原有业务内容与语气，把无法确认的产品定位或所有权交给 Owner，完成后重新运行 review、audit 和 verify，并确认第二次执行无机械变化。

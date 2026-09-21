@@ -1,0 +1,4 @@
+interface:
+  display_name: "规划 Authority 迁移"
+  short_description: "只读预览显式 Authority 路径迁移及其前置条件"
+  default_prompt: "使用 $seshat-plan-authority-migration 预览一个显式 Authority 路径迁移，不修改目标工程。"

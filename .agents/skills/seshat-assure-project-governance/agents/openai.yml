@@ -1,0 +1,4 @@
+interface:
+  display_name: "保障工程治理收敛"
+  short_description: "自动发现、整改并验证工程治理，只留下最小 Owner 决策"
+  default_prompt: "使用 $seshat-assure-project-governance 审查目标工程；获得写入授权后执行治理整改并验证第二次检查收敛。"

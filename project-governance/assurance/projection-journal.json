@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "seshat-skill-projection-journal",
+  "target": "/Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch",
+  "agentId": "agents",
+  "profile": "full",
+  "delivery": {
+    "requested": "auto",
+    "effective": "skills",
+    "fallback": false,
+    "reason": null
+  },
+  "operationDigest": "sha256:aeeb721ea7bae1ef260a7f34864c3086c462189bf4ffea6a835ad560f7aac23e",
+  "status": "completed",
+  "operationPaths": [
+    ".agents/.seshat-agent-owner"
+  ],
+  "operations": [
+    {
+      "action": "create",
+      "path": ".agents/.seshat-agent-owner",
+      "expectedHash": null,
+      "expectedIdentity": null,
+      "desiredHash": "sha256:7354e21c87f0115bdea0c5793c14fd80574754dd23a081cd27874e971ecdd75c",
+      "canonicalDigest": null
+    }
+  ],
+  "completedPaths": [
+    ".agents/.seshat-agent-owner"
+  ],
+  "recovery": {
+    "forwardOnly": true,
+    "stalePlanBlocks": true,
+    "command": "seshat skills projection plan --target /Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch --agent agents --profile full --delivery auto --apply --json"
+  },
+  "completedAt": "2026-09-21T10:33:19.410Z"
+}

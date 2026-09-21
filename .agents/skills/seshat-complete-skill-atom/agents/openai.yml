@@ -1,0 +1,4 @@
+interface:
+  display_name: "补齐 Skill 原子"
+  short_description: "只补缺失伴随文件，并可组合预检语义化中文 UI 元数据"
+  default_prompt: "使用 $seshat-complete-skill-atom 预览并补齐已有 Skill；需要中文 UI 时执行统一组合预检。"

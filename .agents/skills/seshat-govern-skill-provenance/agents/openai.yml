@@ -1,0 +1,4 @@
+interface:
+  display_name: "治理 Skill 分类与来源"
+  short_description: "审查并登记 Skill 四分类、来源、依赖、暴露与行为摘要证据"
+  default_prompt: "使用 $seshat-govern-skill-provenance 在 Skill 变更前完成 public、inner、private、outside 分类及来源治理。"

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "2.0",
+  "skillId": "register-project-entry",
+  "namespace": "register",
+  "source": {
+    "kind": "project-repository"
+  },
+  "owner": {
+    "maintainer": "pixelwindlink"
+  },
+  "authority": ".agents/skills/register-project-entry/SKILL.md",
+  "behaviorDigest": "sha256:9e4af5a2aed5a4b32ebc0c6277935fa463aaca0d7d7705db32e99d4c15900942",
+  "capabilities": [
+    "project-registration"
+  ],
+  "lifecycle": "proposed",
+  "exposure": "project-internal",
+  "skillClass": "public",
+  "consumedBy": [],
+  "usedBy": [],
+  "consumerSurfaces": [
+    "agent"
+  ],
+  "approval": null,
+  "license": null,
+  "coexistsWith": [],
+  "replaces": []
+}

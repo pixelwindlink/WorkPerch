@@ -40,6 +40,7 @@ test("manifest 1.2 consumers match Perch-owned facts", async () => {
     const skill = await fs.readFile(path.join(PERCH_ROOT, ".agents/skills", entry.name, "SKILL.md"), "utf8");
     const name = skill.match(/^name:\s*(.+)$/m)?.[1]?.trim();
     assert.ok(name);
+    if (name.startsWith("seshat-")) continue;
     canonicalSkills.push({ name, path: `.agents/skills/${entry.name}/SKILL.md` });
   }
   assert.deepEqual(

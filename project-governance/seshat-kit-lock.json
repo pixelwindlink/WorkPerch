@@ -1,0 +1,1625 @@
+{
+  "agentConfiguration": {
+    "profile": "full",
+    "requestedDelivery": "auto",
+    "resolvedDeliveries": [
+      {
+        "agentId": "agents",
+        "consumerAgentIds": [
+          "agents"
+        ],
+        "effective": "skills",
+        "fallback": false,
+        "requested": "auto"
+      }
+    ],
+    "selectedAgents": [
+      "agents"
+    ],
+    "selectedSkillIds": [
+      "seshat-assure-project-governance",
+      "seshat-audit-information-assets",
+      "seshat-check-external-compatibility",
+      "seshat-compare-governance-baselines",
+      "seshat-complete-skill-atom",
+      "seshat-consult-asset-placement",
+      "seshat-diagnose-information-governance",
+      "seshat-explain-audit-findings",
+      "seshat-govern-skill-provenance",
+      "seshat-install-skill-kit",
+      "seshat-persist-governance-evidence",
+      "seshat-plan-authority-migration",
+      "seshat-publish-external-adoption-entry",
+      "seshat-remediate-project-readme",
+      "seshat-remediate-skill-conformance",
+      "seshat-review-contract-capability-closure",
+      "seshat-review-information-changes",
+      "seshat-standardize-information-assets",
+      "seshat-submit-framework-feedback",
+      "seshat-trace-asset-authority",
+      "seshat-validate-governance-results",
+      "seshat-verify-governance-readiness"
+    ]
+  },
+  "agentReloadRequired": true,
+  "claims": {
+    "behaviorAuthority": "SKILL.md",
+    "manifestIsNotBehaviorAuthority": true,
+    "targetModifiedByReceipt": true
+  },
+  "compatibility": {
+    "node": ">=18.18"
+  },
+  "files": [
+    {
+      "digest": "sha256:141a18840f733cbbdacaf303fd39b8a88db1a943b63d18200e6e3ccb295c86dc",
+      "path": ".agents/skills/seshat-assure-project-governance/agents/openai.yml",
+      "providerDigest": "sha256:141a18840f733cbbdacaf303fd39b8a88db1a943b63d18200e6e3ccb295c86dc",
+      "providerPresent": true,
+      "size": 306,
+      "skillId": "seshat-assure-project-governance"
+    },
+    {
+      "digest": "sha256:dd4a8d3e561fa1456a35388f3e6816025402f7d05784c1c43cec2a1e7207086f",
+      "path": ".agents/skills/seshat-assure-project-governance/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:dd4a8d3e561fa1456a35388f3e6816025402f7d05784c1c43cec2a1e7207086f",
+      "providerPresent": true,
+      "size": 969,
+      "skillId": "seshat-assure-project-governance"
+    },
+    {
+      "digest": "sha256:c550e59b269ab85e85a40a872243e0ebc142fe34861ea59625cffdb66502f8fd",
+      "path": ".agents/skills/seshat-assure-project-governance/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:c550e59b269ab85e85a40a872243e0ebc142fe34861ea59625cffdb66502f8fd",
+      "providerPresent": true,
+      "size": 638,
+      "skillId": "seshat-assure-project-governance"
+    },
+    {
+      "digest": "sha256:37765d9246bc6b6cd8d7547d3a8846b712345991aaf1b3be39d6d6f7d10bc465",
+      "path": ".agents/skills/seshat-assure-project-governance/references/assurance-checklist.md",
+      "providerDigest": "sha256:37765d9246bc6b6cd8d7547d3a8846b712345991aaf1b3be39d6d6f7d10bc465",
+      "providerPresent": true,
+      "size": 756,
+      "skillId": "seshat-assure-project-governance"
+    },
+    {
+      "digest": "sha256:343cf6ebdffe961a620079f74734d6ab65ff445af3d77c591237ea64549de6f3",
+      "path": ".agents/skills/seshat-assure-project-governance/references/assurance-contract.md",
+      "providerDigest": "sha256:343cf6ebdffe961a620079f74734d6ab65ff445af3d77c591237ea64549de6f3",
+      "providerPresent": true,
+      "size": 1712,
+      "skillId": "seshat-assure-project-governance"
+    },
+    {
+      "digest": "sha256:36d45c167dccbcbef94567ea4cc6ecbe30607c98e77b7ea51549adcef46d3f3d",
+      "path": ".agents/skills/seshat-assure-project-governance/SKILL.md",
+      "providerDigest": "sha256:36d45c167dccbcbef94567ea4cc6ecbe30607c98e77b7ea51549adcef46d3f3d",
+      "providerPresent": true,
+      "size": 4520,
+      "skillId": "seshat-assure-project-governance"
+    },
+    {
+      "digest": "sha256:68eaae816213fa97f38feccbe7ce802d26883f2dde39794b7cf409a799e94b8c",
+      "path": ".agents/skills/seshat-audit-information-assets/agents/openai.yml",
+      "providerDigest": "sha256:68eaae816213fa97f38feccbe7ce802d26883f2dde39794b7cf409a799e94b8c",
+      "providerPresent": true,
+      "size": 293,
+      "skillId": "seshat-audit-information-assets"
+    },
+    {
+      "digest": "sha256:af660f2cda256dcf3aa251a6be135390a1a5a517631efa3a62485af5e9f2aec9",
+      "path": ".agents/skills/seshat-audit-information-assets/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:af660f2cda256dcf3aa251a6be135390a1a5a517631efa3a62485af5e9f2aec9",
+      "providerPresent": true,
+      "size": 1179,
+      "skillId": "seshat-audit-information-assets"
+    },
+    {
+      "digest": "sha256:acfbacb5b657ce9ff2f66d7189acaedf73c074e79c97c373864c38484f5d130b",
+      "path": ".agents/skills/seshat-audit-information-assets/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:acfbacb5b657ce9ff2f66d7189acaedf73c074e79c97c373864c38484f5d130b",
+      "providerPresent": true,
+      "size": 965,
+      "skillId": "seshat-audit-information-assets"
+    },
+    {
+      "digest": "sha256:1743a1a1be4f0c6b8766441bc56eeea38e6b8c05b153e058b21b064560b8fb0e",
+      "path": ".agents/skills/seshat-audit-information-assets/SKILL.md",
+      "providerDigest": "sha256:1743a1a1be4f0c6b8766441bc56eeea38e6b8c05b153e058b21b064560b8fb0e",
+      "providerPresent": true,
+      "size": 3499,
+      "skillId": "seshat-audit-information-assets"
+    },
+    {
+      "digest": "sha256:86ed58a263adebf77585819334d3c373b1e1ca442d79157257f79302557b8e0e",
+      "path": ".agents/skills/seshat-check-external-compatibility/agents/openai.yml",
+      "providerDigest": "sha256:86ed58a263adebf77585819334d3c373b1e1ca442d79157257f79302557b8e0e",
+      "providerPresent": true,
+      "size": 297,
+      "skillId": "seshat-check-external-compatibility"
+    },
+    {
+      "digest": "sha256:13255b902f5689a480ec3c1bfb701e8473f4630ff19fdd93a11d6cf0f6b3715a",
+      "path": ".agents/skills/seshat-check-external-compatibility/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:13255b902f5689a480ec3c1bfb701e8473f4630ff19fdd93a11d6cf0f6b3715a",
+      "providerPresent": true,
+      "size": 637,
+      "skillId": "seshat-check-external-compatibility"
+    },
+    {
+      "digest": "sha256:be6a5d79dd958380bd71e160684e5a43042f6e9c4f71fdd4b4420c73232ed18c",
+      "path": ".agents/skills/seshat-check-external-compatibility/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:be6a5d79dd958380bd71e160684e5a43042f6e9c4f71fdd4b4420c73232ed18c",
+      "providerPresent": true,
+      "size": 487,
+      "skillId": "seshat-check-external-compatibility"
+    },
+    {
+      "digest": "sha256:2e7101928e2a2104f039aca67bc0c8e708185d121c8f3cdd51d7b072daf101fa",
+      "path": ".agents/skills/seshat-check-external-compatibility/SKILL.md",
+      "providerDigest": "sha256:2e7101928e2a2104f039aca67bc0c8e708185d121c8f3cdd51d7b072daf101fa",
+      "providerPresent": true,
+      "size": 1793,
+      "skillId": "seshat-check-external-compatibility"
+    },
+    {
+      "digest": "sha256:d76abf48478d7a3896927df552ff75994226df1f69b6d87c80990fbbc3518d8e",
+      "path": ".agents/skills/seshat-compare-governance-baselines/agents/openai.yml",
+      "providerDigest": "sha256:d76abf48478d7a3896927df552ff75994226df1f69b6d87c80990fbbc3518d8e",
+      "providerPresent": true,
+      "size": 254,
+      "skillId": "seshat-compare-governance-baselines"
+    },
+    {
+      "digest": "sha256:d71a5f3b699731ccc22c08125de8904c11924cfd439c5ace31a53dac29f14749",
+      "path": ".agents/skills/seshat-compare-governance-baselines/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:d71a5f3b699731ccc22c08125de8904c11924cfd439c5ace31a53dac29f14749",
+      "providerPresent": true,
+      "size": 486,
+      "skillId": "seshat-compare-governance-baselines"
+    },
+    {
+      "digest": "sha256:eb82bb9ef63e0d1921311efdd8b0dbf27e09355497f27b2046d622541c059cc8",
+      "path": ".agents/skills/seshat-compare-governance-baselines/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:eb82bb9ef63e0d1921311efdd8b0dbf27e09355497f27b2046d622541c059cc8",
+      "providerPresent": true,
+      "size": 412,
+      "skillId": "seshat-compare-governance-baselines"
+    },
+    {
+      "digest": "sha256:9871131a6038180d4007061e1954410285a9d338f54a17309533ef919ecd4aff",
+      "path": ".agents/skills/seshat-compare-governance-baselines/SKILL.md",
+      "providerDigest": "sha256:9871131a6038180d4007061e1954410285a9d338f54a17309533ef919ecd4aff",
+      "providerPresent": true,
+      "size": 1823,
+      "skillId": "seshat-compare-governance-baselines"
+    },
+    {
+      "digest": "sha256:1ca1e606e30cb3bf35634c0d203c6e99b2b8defccaac7c376eb5aa36a0f86377",
+      "path": ".agents/skills/seshat-complete-skill-atom/agents/openai.yml",
+      "providerDigest": "sha256:1ca1e606e30cb3bf35634c0d203c6e99b2b8defccaac7c376eb5aa36a0f86377",
+      "providerPresent": true,
+      "size": 278,
+      "skillId": "seshat-complete-skill-atom"
+    },
+    {
+      "digest": "sha256:70c908d356ca7b472ab2f366410a01bd37922fa92fa281c3aa72a0f465c3b640",
+      "path": ".agents/skills/seshat-complete-skill-atom/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:70c908d356ca7b472ab2f366410a01bd37922fa92fa281c3aa72a0f465c3b640",
+      "providerPresent": true,
+      "size": 2011,
+      "skillId": "seshat-complete-skill-atom"
+    },
+    {
+      "digest": "sha256:d1c2630ad913f2d97dfc97bedf80886579a54ccf6fa048067f64fb85b2f5ce15",
+      "path": ".agents/skills/seshat-complete-skill-atom/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:d1c2630ad913f2d97dfc97bedf80886579a54ccf6fa048067f64fb85b2f5ce15",
+      "providerPresent": true,
+      "size": 2137,
+      "skillId": "seshat-complete-skill-atom"
+    },
+    {
+      "digest": "sha256:3940fbf327c102f72fc2c9f43fe7cbc449bc6610467e210bf85693c353b80c7b",
+      "path": ".agents/skills/seshat-complete-skill-atom/SKILL.md",
+      "providerDigest": "sha256:3940fbf327c102f72fc2c9f43fe7cbc449bc6610467e210bf85693c353b80c7b",
+      "providerPresent": true,
+      "size": 5654,
+      "skillId": "seshat-complete-skill-atom"
+    },
+    {
+      "digest": "sha256:116c1430c05302d505136c4d3a3ea09245adba28bf5c9bbcc2032dd410b91bbf",
+      "path": ".agents/skills/seshat-consult-asset-placement/agents/openai.yml",
+      "providerDigest": "sha256:116c1430c05302d505136c4d3a3ea09245adba28bf5c9bbcc2032dd410b91bbf",
+      "providerPresent": true,
+      "size": 284,
+      "skillId": "seshat-consult-asset-placement"
+    },
+    {
+      "digest": "sha256:a72b63e497421493c6f1741c0c6ea9a2f229d0483e23b2c52bc18370521a2855",
+      "path": ".agents/skills/seshat-consult-asset-placement/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:a72b63e497421493c6f1741c0c6ea9a2f229d0483e23b2c52bc18370521a2855",
+      "providerPresent": true,
+      "size": 1034,
+      "skillId": "seshat-consult-asset-placement"
+    },
+    {
+      "digest": "sha256:dfc097e88f90ccf4eb33c9e1573015ca681b8146b415f0f45bdb5f6da6f49123",
+      "path": ".agents/skills/seshat-consult-asset-placement/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:dfc097e88f90ccf4eb33c9e1573015ca681b8146b415f0f45bdb5f6da6f49123",
+      "providerPresent": true,
+      "size": 929,
+      "skillId": "seshat-consult-asset-placement"
+    },
+    {
+      "digest": "sha256:f115a2526a21f1555409fe21c9cf6ab6c2149ec22422ff6a4b545e1d938fc4cf",
+      "path": ".agents/skills/seshat-consult-asset-placement/SKILL.md",
+      "providerDigest": "sha256:f115a2526a21f1555409fe21c9cf6ab6c2149ec22422ff6a4b545e1d938fc4cf",
+      "providerPresent": true,
+      "size": 3548,
+      "skillId": "seshat-consult-asset-placement"
+    },
+    {
+      "digest": "sha256:7224dea4ce31a85d86d835b1ce4d398e3c1084e236850e09ec77a13dac5369b1",
+      "path": ".agents/skills/seshat-diagnose-information-governance/agents/openai.yml",
+      "providerDigest": "sha256:7224dea4ce31a85d86d835b1ce4d398e3c1084e236850e09ec77a13dac5369b1",
+      "providerPresent": true,
+      "size": 255,
+      "skillId": "seshat-diagnose-information-governance"
+    },
+    {
+      "digest": "sha256:e97df90112beaf3f0dcea6d6e5186e11b231715d5d6b1463b1dc7b0af1217a49",
+      "path": ".agents/skills/seshat-diagnose-information-governance/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:e97df90112beaf3f0dcea6d6e5186e11b231715d5d6b1463b1dc7b0af1217a49",
+      "providerPresent": true,
+      "size": 2074,
+      "skillId": "seshat-diagnose-information-governance"
+    },
+    {
+      "digest": "sha256:ec7548654930d2079bf5a1617911f06491c3e2452e32c44af76ba13091841be0",
+      "path": ".agents/skills/seshat-diagnose-information-governance/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:ec7548654930d2079bf5a1617911f06491c3e2452e32c44af76ba13091841be0",
+      "providerPresent": true,
+      "size": 335,
+      "skillId": "seshat-diagnose-information-governance"
+    },
+    {
+      "digest": "sha256:94792c667edb7896511d9d9c0f22fb2740a5e9a3644635351e743733d96fae5b",
+      "path": ".agents/skills/seshat-diagnose-information-governance/SKILL.md",
+      "providerDigest": "sha256:94792c667edb7896511d9d9c0f22fb2740a5e9a3644635351e743733d96fae5b",
+      "providerPresent": true,
+      "size": 5486,
+      "skillId": "seshat-diagnose-information-governance"
+    },
+    {
+      "digest": "sha256:7ce09f7a4a11bb1fe9523c59966d0ad4332b77715db38e2da94c2ea6c7133d40",
+      "path": ".agents/skills/seshat-explain-audit-findings/agents/openai.yml",
+      "providerDigest": "sha256:7ce09f7a4a11bb1fe9523c59966d0ad4332b77715db38e2da94c2ea6c7133d40",
+      "providerPresent": true,
+      "size": 270,
+      "skillId": "seshat-explain-audit-findings"
+    },
+    {
+      "digest": "sha256:1e81176b60cf56d2272dd6aa4f28883d313a133ae15928de93a049deecf7b61a",
+      "path": ".agents/skills/seshat-explain-audit-findings/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:1e81176b60cf56d2272dd6aa4f28883d313a133ae15928de93a049deecf7b61a",
+      "providerPresent": true,
+      "size": 416,
+      "skillId": "seshat-explain-audit-findings"
+    },
+    {
+      "digest": "sha256:d48857574df337a3f874b88380efcfe9b99837fc47ee4f28c66b1c2134968444",
+      "path": ".agents/skills/seshat-explain-audit-findings/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:d48857574df337a3f874b88380efcfe9b99837fc47ee4f28c66b1c2134968444",
+      "providerPresent": true,
+      "size": 355,
+      "skillId": "seshat-explain-audit-findings"
+    },
+    {
+      "digest": "sha256:f26c1acfe38db583f2e3bd821e24b671946514116f17b8c6928ec854fa7e41b0",
+      "path": ".agents/skills/seshat-explain-audit-findings/SKILL.md",
+      "providerDigest": "sha256:f26c1acfe38db583f2e3bd821e24b671946514116f17b8c6928ec854fa7e41b0",
+      "providerPresent": true,
+      "size": 1318,
+      "skillId": "seshat-explain-audit-findings"
+    },
+    {
+      "digest": "sha256:2dfc29564f5a712beb5689a25d4d75a4dfb58ab08a25f22f32a4da3174f715f8",
+      "path": ".agents/skills/seshat-govern-skill-provenance/agents/openai.yml",
+      "providerDigest": "sha256:2dfc29564f5a712beb5689a25d4d75a4dfb58ab08a25f22f32a4da3174f715f8",
+      "providerPresent": true,
+      "size": 306,
+      "skillId": "seshat-govern-skill-provenance"
+    },
+    {
+      "digest": "sha256:7d762f892ce38c8311ae24f0a612c1a643fe06347d8f14152d70706d409ced30",
+      "path": ".agents/skills/seshat-govern-skill-provenance/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:7d762f892ce38c8311ae24f0a612c1a643fe06347d8f14152d70706d409ced30",
+      "providerPresent": true,
+      "size": 2200,
+      "skillId": "seshat-govern-skill-provenance"
+    },
+    {
+      "digest": "sha256:c1dc4804835763e2a2d169fc532b1c71d43dea5429e22d767856d3f3e7f06ac2",
+      "path": ".agents/skills/seshat-govern-skill-provenance/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:c1dc4804835763e2a2d169fc532b1c71d43dea5429e22d767856d3f3e7f06ac2",
+      "providerPresent": true,
+      "size": 1398,
+      "skillId": "seshat-govern-skill-provenance"
+    },
+    {
+      "digest": "sha256:8ee2e9833db3b22feecb44d8e986e113f66d61d0d4ad4acc6b3c3f75c5cf67b9",
+      "path": ".agents/skills/seshat-govern-skill-provenance/SKILL.md",
+      "providerDigest": "sha256:8ee2e9833db3b22feecb44d8e986e113f66d61d0d4ad4acc6b3c3f75c5cf67b9",
+      "providerPresent": true,
+      "size": 3989,
+      "skillId": "seshat-govern-skill-provenance"
+    },
+    {
+      "digest": "sha256:6f3eb70b16d21983e18539eeb4b1f1d577a2b6b4d37883179f6dc938a50b6dd1",
+      "path": ".agents/skills/seshat-install-skill-kit/agents/openai.yml",
+      "providerDigest": "sha256:6f3eb70b16d21983e18539eeb4b1f1d577a2b6b4d37883179f6dc938a50b6dd1",
+      "providerPresent": true,
+      "size": 309,
+      "skillId": "seshat-install-skill-kit"
+    },
+    {
+      "digest": "sha256:8cbf54ca7dfa3c5c0aeedb31998acb76c0b261d0cac45145376b98198b40ebb3",
+      "path": ".agents/skills/seshat-install-skill-kit/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:8cbf54ca7dfa3c5c0aeedb31998acb76c0b261d0cac45145376b98198b40ebb3",
+      "providerPresent": true,
+      "size": 2886,
+      "skillId": "seshat-install-skill-kit"
+    },
+    {
+      "digest": "sha256:7cacdcdba2f1bc1aa7feb09cf1a571cb098518f38c978802191a5ff83ea48101",
+      "path": ".agents/skills/seshat-install-skill-kit/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:7cacdcdba2f1bc1aa7feb09cf1a571cb098518f38c978802191a5ff83ea48101",
+      "providerPresent": true,
+      "size": 1892,
+      "skillId": "seshat-install-skill-kit"
+    },
+    {
+      "digest": "sha256:905a2714571c48fb5c8c2dbf895948853475570ef61bcd86952aa02418441c73",
+      "path": ".agents/skills/seshat-install-skill-kit/SKILL.md",
+      "providerDigest": "sha256:905a2714571c48fb5c8c2dbf895948853475570ef61bcd86952aa02418441c73",
+      "providerPresent": true,
+      "size": 8541,
+      "skillId": "seshat-install-skill-kit"
+    },
+    {
+      "digest": "sha256:e529f32028d548499563b928bec9d660db9164042aa21bbed64318bef2b43831",
+      "path": ".agents/skills/seshat-persist-governance-evidence/agents/openai.yml",
+      "providerDigest": "sha256:e529f32028d548499563b928bec9d660db9164042aa21bbed64318bef2b43831",
+      "providerPresent": true,
+      "size": 281,
+      "skillId": "seshat-persist-governance-evidence"
+    },
+    {
+      "digest": "sha256:3efe6d79cddb2288fd71880a67691d02b537704369aa996922849976f93627fa",
+      "path": ".agents/skills/seshat-persist-governance-evidence/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:3efe6d79cddb2288fd71880a67691d02b537704369aa996922849976f93627fa",
+      "providerPresent": true,
+      "size": 829,
+      "skillId": "seshat-persist-governance-evidence"
+    },
+    {
+      "digest": "sha256:45dc64091d07e388d0ba8adbe077987787bf42866e181105d655fdad7776b0b5",
+      "path": ".agents/skills/seshat-persist-governance-evidence/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:45dc64091d07e388d0ba8adbe077987787bf42866e181105d655fdad7776b0b5",
+      "providerPresent": true,
+      "size": 623,
+      "skillId": "seshat-persist-governance-evidence"
+    },
+    {
+      "digest": "sha256:1701fbf3822d9a534d6aa8b60826e21a12dcd6569cd0efaca03c820efaf09a3a",
+      "path": ".agents/skills/seshat-persist-governance-evidence/SKILL.md",
+      "providerDigest": "sha256:1701fbf3822d9a534d6aa8b60826e21a12dcd6569cd0efaca03c820efaf09a3a",
+      "providerPresent": true,
+      "size": 2427,
+      "skillId": "seshat-persist-governance-evidence"
+    },
+    {
+      "digest": "sha256:96e8585e516a56d3e851dbd17c3506debbf51f6849f64fb1137e54df90f1bd74",
+      "path": ".agents/skills/seshat-plan-authority-migration/agents/openai.yml",
+      "providerDigest": "sha256:96e8585e516a56d3e851dbd17c3506debbf51f6849f64fb1137e54df90f1bd74",
+      "providerPresent": true,
+      "size": 265,
+      "skillId": "seshat-plan-authority-migration"
+    },
+    {
+      "digest": "sha256:67a3c03ffc2d976f45da6baf0bc52b6cbc6c5bf1b309893b3a5d73f0f0d6c8f5",
+      "path": ".agents/skills/seshat-plan-authority-migration/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:67a3c03ffc2d976f45da6baf0bc52b6cbc6c5bf1b309893b3a5d73f0f0d6c8f5",
+      "providerPresent": true,
+      "size": 591,
+      "skillId": "seshat-plan-authority-migration"
+    },
+    {
+      "digest": "sha256:b8fe5fd16ff41ee1be134961789ce96ec0af204b1cf8fc36303f17a3c0044614",
+      "path": ".agents/skills/seshat-plan-authority-migration/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:b8fe5fd16ff41ee1be134961789ce96ec0af204b1cf8fc36303f17a3c0044614",
+      "providerPresent": true,
+      "size": 475,
+      "skillId": "seshat-plan-authority-migration"
+    },
+    {
+      "digest": "sha256:96f003f27303aefbe3086e221f0b3ac3f18b6be80d8ca5640a574d61ed906714",
+      "path": ".agents/skills/seshat-plan-authority-migration/SKILL.md",
+      "providerDigest": "sha256:96f003f27303aefbe3086e221f0b3ac3f18b6be80d8ca5640a574d61ed906714",
+      "providerPresent": true,
+      "size": 2406,
+      "skillId": "seshat-plan-authority-migration"
+    },
+    {
+      "digest": "sha256:169aa3fe3141f5450fa744c7966daf0528987809ee9c1c3fac9cd359dbec3e3f",
+      "path": ".agents/skills/seshat-publish-external-adoption-entry/agents/openai.yml",
+      "providerDigest": "sha256:169aa3fe3141f5450fa744c7966daf0528987809ee9c1c3fac9cd359dbec3e3f",
+      "providerPresent": true,
+      "size": 306,
+      "skillId": "seshat-publish-external-adoption-entry"
+    },
+    {
+      "digest": "sha256:df5f106a3014bb447e08a7570977a059a988131da0ef65dd7be4544c943503b0",
+      "path": ".agents/skills/seshat-publish-external-adoption-entry/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:df5f106a3014bb447e08a7570977a059a988131da0ef65dd7be4544c943503b0",
+      "providerPresent": true,
+      "size": 1631,
+      "skillId": "seshat-publish-external-adoption-entry"
+    },
+    {
+      "digest": "sha256:07ffb3f900b38cc347cb41ea502eaeb918965b6353de4951e1a2fa56c3e7c518",
+      "path": ".agents/skills/seshat-publish-external-adoption-entry/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:07ffb3f900b38cc347cb41ea502eaeb918965b6353de4951e1a2fa56c3e7c518",
+      "providerPresent": true,
+      "size": 1133,
+      "skillId": "seshat-publish-external-adoption-entry"
+    },
+    {
+      "digest": "sha256:fd3eb5636603a79523166b522f1f418c1d16e2ea2ecc9304b4be97f0a5b276fa",
+      "path": ".agents/skills/seshat-publish-external-adoption-entry/SKILL.md",
+      "providerDigest": "sha256:fd3eb5636603a79523166b522f1f418c1d16e2ea2ecc9304b4be97f0a5b276fa",
+      "providerPresent": true,
+      "size": 2634,
+      "skillId": "seshat-publish-external-adoption-entry"
+    },
+    {
+      "digest": "sha256:1636545c2f0e3dddd87c7736230895b720389c59ac4d96edf33a89da0961b35b",
+      "path": ".agents/skills/seshat-remediate-project-readme/agents/openai.yml",
+      "providerDigest": "sha256:1636545c2f0e3dddd87c7736230895b720389c59ac4d96edf33a89da0961b35b",
+      "providerPresent": true,
+      "size": 278,
+      "skillId": "seshat-remediate-project-readme"
+    },
+    {
+      "digest": "sha256:f363b45f34a881cab073d18c2685594a1288fbe5d4511195173cf52ccfce7cb0",
+      "path": ".agents/skills/seshat-remediate-project-readme/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:f363b45f34a881cab073d18c2685594a1288fbe5d4511195173cf52ccfce7cb0",
+      "providerPresent": true,
+      "size": 1017,
+      "skillId": "seshat-remediate-project-readme"
+    },
+    {
+      "digest": "sha256:e89138da87d36bda11fb1e8af274224f7266fe506d6df0bc1b97f5992c6b35e9",
+      "path": ".agents/skills/seshat-remediate-project-readme/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:e89138da87d36bda11fb1e8af274224f7266fe506d6df0bc1b97f5992c6b35e9",
+      "providerPresent": true,
+      "size": 582,
+      "skillId": "seshat-remediate-project-readme"
+    },
+    {
+      "digest": "sha256:a0ffadd70ae864b3a27ab6df55d79643fd81f6fa12c5a5ede82b32384afb5df7",
+      "path": ".agents/skills/seshat-remediate-project-readme/SKILL.md",
+      "providerDigest": "sha256:a0ffadd70ae864b3a27ab6df55d79643fd81f6fa12c5a5ede82b32384afb5df7",
+      "providerPresent": true,
+      "size": 2797,
+      "skillId": "seshat-remediate-project-readme"
+    },
+    {
+      "digest": "sha256:660881bc97b5ed69bf8a08752b47e24e9853a89cc144084066d963c31d7c0a96",
+      "path": ".agents/skills/seshat-remediate-skill-conformance/agents/openai.yml",
+      "providerDigest": "sha256:660881bc97b5ed69bf8a08752b47e24e9853a89cc144084066d963c31d7c0a96",
+      "providerPresent": true,
+      "size": 291,
+      "skillId": "seshat-remediate-skill-conformance"
+    },
+    {
+      "digest": "sha256:4985212528b31082111a74929ca803b4fda49f8be2a071e8ad11afdeea419935",
+      "path": ".agents/skills/seshat-remediate-skill-conformance/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:4985212528b31082111a74929ca803b4fda49f8be2a071e8ad11afdeea419935",
+      "providerPresent": true,
+      "size": 1320,
+      "skillId": "seshat-remediate-skill-conformance"
+    },
+    {
+      "digest": "sha256:47b2b992f8d600bad23d1afc929cfba3159a7c1ba8254b7e81a6c39eaa0a7ab5",
+      "path": ".agents/skills/seshat-remediate-skill-conformance/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:47b2b992f8d600bad23d1afc929cfba3159a7c1ba8254b7e81a6c39eaa0a7ab5",
+      "providerPresent": true,
+      "size": 635,
+      "skillId": "seshat-remediate-skill-conformance"
+    },
+    {
+      "digest": "sha256:913c943971da12b8125d73d62845d0781a8cf3a1abe221f134953691c550bb71",
+      "path": ".agents/skills/seshat-remediate-skill-conformance/SKILL.md",
+      "providerDigest": "sha256:913c943971da12b8125d73d62845d0781a8cf3a1abe221f134953691c550bb71",
+      "providerPresent": true,
+      "size": 3967,
+      "skillId": "seshat-remediate-skill-conformance"
+    },
+    {
+      "digest": "sha256:1a9f4dfd54a9f1911dd93c755853e495f7b4dd7eaeb519e5a709e42360225469",
+      "path": ".agents/skills/seshat-review-contract-capability-closure/agents/openai.yml",
+      "providerDigest": "sha256:1a9f4dfd54a9f1911dd93c755853e495f7b4dd7eaeb519e5a709e42360225469",
+      "providerPresent": true,
+      "size": 335,
+      "skillId": "seshat-review-contract-capability-closure"
+    },
+    {
+      "digest": "sha256:c671784641ca6861ddec3d873e05a49d3fe40e69b9cd6b366673baa5742a64f2",
+      "path": ".agents/skills/seshat-review-contract-capability-closure/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:c671784641ca6861ddec3d873e05a49d3fe40e69b9cd6b366673baa5742a64f2",
+      "providerPresent": true,
+      "size": 607,
+      "skillId": "seshat-review-contract-capability-closure"
+    },
+    {
+      "digest": "sha256:c0f1a56ed0fcc99860164fb34453ee13d02157e39849c1034cc63d2fcb8516f1",
+      "path": ".agents/skills/seshat-review-contract-capability-closure/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:c0f1a56ed0fcc99860164fb34453ee13d02157e39849c1034cc63d2fcb8516f1",
+      "providerPresent": true,
+      "size": 442,
+      "skillId": "seshat-review-contract-capability-closure"
+    },
+    {
+      "digest": "sha256:d5070732953d037ce2d6b0aa89dd0ac83b79ddfdb98184708d6ce968a36b13d6",
+      "path": ".agents/skills/seshat-review-contract-capability-closure/SKILL.md",
+      "providerDigest": "sha256:d5070732953d037ce2d6b0aa89dd0ac83b79ddfdb98184708d6ce968a36b13d6",
+      "providerPresent": true,
+      "size": 2424,
+      "skillId": "seshat-review-contract-capability-closure"
+    },
+    {
+      "digest": "sha256:5ebd68fc3fbcb7b1f149c2369edf1d35d42de76593d0620373cbe18664018b19",
+      "path": ".agents/skills/seshat-review-information-changes/agents/openai.yml",
+      "providerDigest": "sha256:5ebd68fc3fbcb7b1f149c2369edf1d35d42de76593d0620373cbe18664018b19",
+      "providerPresent": true,
+      "size": 276,
+      "skillId": "seshat-review-information-changes"
+    },
+    {
+      "digest": "sha256:c24b8604cce1b0a9eee5dbadbe0650a80542c88a7df7b194b9a138ac53fb2588",
+      "path": ".agents/skills/seshat-review-information-changes/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:c24b8604cce1b0a9eee5dbadbe0650a80542c88a7df7b194b9a138ac53fb2588",
+      "providerPresent": true,
+      "size": 473,
+      "skillId": "seshat-review-information-changes"
+    },
+    {
+      "digest": "sha256:5120316be6fe736ab86cddc2efb924ccf9251a6dfb5e2e27b6f447a17c0112f3",
+      "path": ".agents/skills/seshat-review-information-changes/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:5120316be6fe736ab86cddc2efb924ccf9251a6dfb5e2e27b6f447a17c0112f3",
+      "providerPresent": true,
+      "size": 412,
+      "skillId": "seshat-review-information-changes"
+    },
+    {
+      "digest": "sha256:6ab366b1a83ec024436f15004338b9199f4a2bfe05e94dd67cfe1767e9db41b6",
+      "path": ".agents/skills/seshat-review-information-changes/SKILL.md",
+      "providerDigest": "sha256:6ab366b1a83ec024436f15004338b9199f4a2bfe05e94dd67cfe1767e9db41b6",
+      "providerPresent": true,
+      "size": 1427,
+      "skillId": "seshat-review-information-changes"
+    },
+    {
+      "digest": "sha256:ea79341aabc115b66935347caa285aabcf7f33c3b6726f2d13fa7afcc1e87ac9",
+      "path": ".agents/skills/seshat-standardize-information-assets/agents/openai.yml",
+      "providerDigest": "sha256:ea79341aabc115b66935347caa285aabcf7f33c3b6726f2d13fa7afcc1e87ac9",
+      "providerPresent": true,
+      "size": 292,
+      "skillId": "seshat-standardize-information-assets"
+    },
+    {
+      "digest": "sha256:ee470a2dd715f873778cae68a76d3a81ea3daf2c854f1496d4cb0d6e0c467922",
+      "path": ".agents/skills/seshat-standardize-information-assets/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:ee470a2dd715f873778cae68a76d3a81ea3daf2c854f1496d4cb0d6e0c467922",
+      "providerPresent": true,
+      "size": 1286,
+      "skillId": "seshat-standardize-information-assets"
+    },
+    {
+      "digest": "sha256:ca570f6a57070d764fb5a7afc2675325331db01f30cf74d90e46609256ab8d78",
+      "path": ".agents/skills/seshat-standardize-information-assets/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:ca570f6a57070d764fb5a7afc2675325331db01f30cf74d90e46609256ab8d78",
+      "providerPresent": true,
+      "size": 1122,
+      "skillId": "seshat-standardize-information-assets"
+    },
+    {
+      "digest": "sha256:b46c12d9b254c2cb8eaf45a1d631e3b2fbded2fdf2e113a96e07bed895c0486f",
+      "path": ".agents/skills/seshat-standardize-information-assets/SKILL.md",
+      "providerDigest": "sha256:b46c12d9b254c2cb8eaf45a1d631e3b2fbded2fdf2e113a96e07bed895c0486f",
+      "providerPresent": true,
+      "size": 4909,
+      "skillId": "seshat-standardize-information-assets"
+    },
+    {
+      "digest": "sha256:616597ca4402ce3fbc9053749cf9c3d576884fd8336d639dd71f9f9ae724dfd3",
+      "path": ".agents/skills/seshat-submit-framework-feedback/agents/openai.yml",
+      "providerDigest": "sha256:616597ca4402ce3fbc9053749cf9c3d576884fd8336d639dd71f9f9ae724dfd3",
+      "providerPresent": true,
+      "size": 257,
+      "skillId": "seshat-submit-framework-feedback"
+    },
+    {
+      "digest": "sha256:e07a43780f683b8db680c5aafd0ce30bc8603315d36fcc2ec8199f2b848f6b73",
+      "path": ".agents/skills/seshat-submit-framework-feedback/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:e07a43780f683b8db680c5aafd0ce30bc8603315d36fcc2ec8199f2b848f6b73",
+      "providerPresent": true,
+      "size": 1687,
+      "skillId": "seshat-submit-framework-feedback"
+    },
+    {
+      "digest": "sha256:a1384e1b34358f66d10f140bec710e02d36427937dca857743c8bbfd24c0c9cb",
+      "path": ".agents/skills/seshat-submit-framework-feedback/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:a1384e1b34358f66d10f140bec710e02d36427937dca857743c8bbfd24c0c9cb",
+      "providerPresent": true,
+      "size": 330,
+      "skillId": "seshat-submit-framework-feedback"
+    },
+    {
+      "digest": "sha256:4f08cf9717d815316430a78de2d552bdea69836c391d8a66b54a7bc9a0981630",
+      "path": ".agents/skills/seshat-submit-framework-feedback/SKILL.md",
+      "providerDigest": "sha256:4f08cf9717d815316430a78de2d552bdea69836c391d8a66b54a7bc9a0981630",
+      "providerPresent": true,
+      "size": 5053,
+      "skillId": "seshat-submit-framework-feedback"
+    },
+    {
+      "digest": "sha256:7abec7cfdc5902fb19f88be91ea0f10892f284af662d2080b45364cce7bfe823",
+      "path": ".agents/skills/seshat-trace-asset-authority/agents/openai.yml",
+      "providerDigest": "sha256:7abec7cfdc5902fb19f88be91ea0f10892f284af662d2080b45364cce7bfe823",
+      "providerPresent": true,
+      "size": 286,
+      "skillId": "seshat-trace-asset-authority"
+    },
+    {
+      "digest": "sha256:b33cc8f03c4c51a9026949e88516a8de327dc344c7e64b46621e946735c0f17f",
+      "path": ".agents/skills/seshat-trace-asset-authority/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:b33cc8f03c4c51a9026949e88516a8de327dc344c7e64b46621e946735c0f17f",
+      "providerPresent": true,
+      "size": 443,
+      "skillId": "seshat-trace-asset-authority"
+    },
+    {
+      "digest": "sha256:89c43c4ddd58d311164773b9c2bb3ae90d0982a4acf2c7e1d36d52970d3528bd",
+      "path": ".agents/skills/seshat-trace-asset-authority/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:89c43c4ddd58d311164773b9c2bb3ae90d0982a4acf2c7e1d36d52970d3528bd",
+      "providerPresent": true,
+      "size": 375,
+      "skillId": "seshat-trace-asset-authority"
+    },
+    {
+      "digest": "sha256:fc117555c800bad8e0cfb9eab4c41f42f63c12278c440668106059b2491f68e0",
+      "path": ".agents/skills/seshat-trace-asset-authority/SKILL.md",
+      "providerDigest": "sha256:fc117555c800bad8e0cfb9eab4c41f42f63c12278c440668106059b2491f68e0",
+      "providerPresent": true,
+      "size": 1339,
+      "skillId": "seshat-trace-asset-authority"
+    },
+    {
+      "digest": "sha256:bd452da3ef9e47f1368f3495b8d7ffb018dd65b8a217db7abcd6d9c766c8512f",
+      "path": ".agents/skills/seshat-validate-governance-results/agents/openai.yml",
+      "providerDigest": "sha256:bd452da3ef9e47f1368f3495b8d7ffb018dd65b8a217db7abcd6d9c766c8512f",
+      "providerPresent": true,
+      "size": 278,
+      "skillId": "seshat-validate-governance-results"
+    },
+    {
+      "digest": "sha256:37478c359612925176c2b0ceee864777ab61954e598d8d0d695b265497da712a",
+      "path": ".agents/skills/seshat-validate-governance-results/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:37478c359612925176c2b0ceee864777ab61954e598d8d0d695b265497da712a",
+      "providerPresent": true,
+      "size": 602,
+      "skillId": "seshat-validate-governance-results"
+    },
+    {
+      "digest": "sha256:297ab3b2f728799eb51f12c8302d97ac277defa0614795d9fd7489b7e0ae2315",
+      "path": ".agents/skills/seshat-validate-governance-results/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:297ab3b2f728799eb51f12c8302d97ac277defa0614795d9fd7489b7e0ae2315",
+      "providerPresent": true,
+      "size": 534,
+      "skillId": "seshat-validate-governance-results"
+    },
+    {
+      "digest": "sha256:6ca105fca05fdaf8133d40eed5c75a99375d96cedeacdb1345ae2d6af577fb23",
+      "path": ".agents/skills/seshat-validate-governance-results/SKILL.md",
+      "providerDigest": "sha256:6ca105fca05fdaf8133d40eed5c75a99375d96cedeacdb1345ae2d6af577fb23",
+      "providerPresent": true,
+      "size": 2174,
+      "skillId": "seshat-validate-governance-results"
+    },
+    {
+      "digest": "sha256:7ce20a859cee6d6251281eec4eb62b7b3e1acb517cf77ce209170f2b73a944c7",
+      "path": ".agents/skills/seshat-verify-governance-readiness/agents/openai.yml",
+      "providerDigest": "sha256:7ce20a859cee6d6251281eec4eb62b7b3e1acb517cf77ce209170f2b73a944c7",
+      "providerPresent": true,
+      "size": 272,
+      "skillId": "seshat-verify-governance-readiness"
+    },
+    {
+      "digest": "sha256:a792fe1bd0e311f97c72857230ac5fdd7a446d9e823130d4c41c87d380e9e8ba",
+      "path": ".agents/skills/seshat-verify-governance-readiness/MANUAL.zh-CN.md",
+      "providerDigest": "sha256:a792fe1bd0e311f97c72857230ac5fdd7a446d9e823130d4c41c87d380e9e8ba",
+      "providerPresent": true,
+      "size": 638,
+      "skillId": "seshat-verify-governance-readiness"
+    },
+    {
+      "digest": "sha256:62488d28873b759c9614efe6660087dd1c68238eaf511ad6a05cc2cd55846455",
+      "path": ".agents/skills/seshat-verify-governance-readiness/PROMPT.zh-CN.md",
+      "providerDigest": "sha256:62488d28873b759c9614efe6660087dd1c68238eaf511ad6a05cc2cd55846455",
+      "providerPresent": true,
+      "size": 524,
+      "skillId": "seshat-verify-governance-readiness"
+    },
+    {
+      "digest": "sha256:0f3403ca5580f3841df72d1070b7096a6c0f7e9f79158fb758281a1cc2da84c1",
+      "path": ".agents/skills/seshat-verify-governance-readiness/SKILL.md",
+      "providerDigest": "sha256:0f3403ca5580f3841df72d1070b7096a6c0f7e9f79158fb758281a1cc2da84c1",
+      "providerPresent": true,
+      "size": 2282,
+      "skillId": "seshat-verify-governance-readiness"
+    }
+  ],
+  "installedAt": "2026-09-21T10:33:17.977Z",
+  "inventoryEvidenceVersion": "byte-size-bound/v1",
+  "kind": "seshat-skill-kit-lock",
+  "managedRoot": ".agents/skills/",
+  "projections": [
+    {
+      "adapterProfile": "agent-discoverable-skill/adapter/shared-agents/v1",
+      "agentId": "agents",
+      "consumerAgentIds": [
+        "agents"
+      ],
+      "deliveryFallback": false,
+      "generatorVersion": "seshat-projection/1.0",
+      "managedFiles": [
+        {
+          "canonicalDigest": "sha256:9050e8a3e3ffc533b621ac636020c1caa3f4aa55b58b58b30d3427e6c96ff454",
+          "digest": "sha256:141a18840f733cbbdacaf303fd39b8a88db1a943b63d18200e6e3ccb295c86dc",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-assure-project-governance/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-assure-project-governance",
+          "sourceDigest": "sha256:141a18840f733cbbdacaf303fd39b8a88db1a943b63d18200e6e3ccb295c86dc"
+        },
+        {
+          "canonicalDigest": "sha256:9050e8a3e3ffc533b621ac636020c1caa3f4aa55b58b58b30d3427e6c96ff454",
+          "digest": "sha256:dd4a8d3e561fa1456a35388f3e6816025402f7d05784c1c43cec2a1e7207086f",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-assure-project-governance/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-assure-project-governance",
+          "sourceDigest": "sha256:dd4a8d3e561fa1456a35388f3e6816025402f7d05784c1c43cec2a1e7207086f"
+        },
+        {
+          "canonicalDigest": "sha256:9050e8a3e3ffc533b621ac636020c1caa3f4aa55b58b58b30d3427e6c96ff454",
+          "digest": "sha256:c550e59b269ab85e85a40a872243e0ebc142fe34861ea59625cffdb66502f8fd",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-assure-project-governance/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-assure-project-governance",
+          "sourceDigest": "sha256:c550e59b269ab85e85a40a872243e0ebc142fe34861ea59625cffdb66502f8fd"
+        },
+        {
+          "canonicalDigest": "sha256:9050e8a3e3ffc533b621ac636020c1caa3f4aa55b58b58b30d3427e6c96ff454",
+          "digest": "sha256:37765d9246bc6b6cd8d7547d3a8846b712345991aaf1b3be39d6d6f7d10bc465",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-assure-project-governance/references/assurance-checklist.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-assure-project-governance",
+          "sourceDigest": "sha256:37765d9246bc6b6cd8d7547d3a8846b712345991aaf1b3be39d6d6f7d10bc465"
+        },
+        {
+          "canonicalDigest": "sha256:9050e8a3e3ffc533b621ac636020c1caa3f4aa55b58b58b30d3427e6c96ff454",
+          "digest": "sha256:343cf6ebdffe961a620079f74734d6ab65ff445af3d77c591237ea64549de6f3",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-assure-project-governance/references/assurance-contract.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-assure-project-governance",
+          "sourceDigest": "sha256:343cf6ebdffe961a620079f74734d6ab65ff445af3d77c591237ea64549de6f3"
+        },
+        {
+          "canonicalDigest": "sha256:9050e8a3e3ffc533b621ac636020c1caa3f4aa55b58b58b30d3427e6c96ff454",
+          "digest": "sha256:36d45c167dccbcbef94567ea4cc6ecbe30607c98e77b7ea51549adcef46d3f3d",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-assure-project-governance/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-assure-project-governance",
+          "sourceDigest": "sha256:36d45c167dccbcbef94567ea4cc6ecbe30607c98e77b7ea51549adcef46d3f3d"
+        },
+        {
+          "canonicalDigest": "sha256:f8fed2f6d60852c0a9542148df9ee786ca4ace56ea4f5c4c329c7b56cbb9c8d9",
+          "digest": "sha256:68eaae816213fa97f38feccbe7ce802d26883f2dde39794b7cf409a799e94b8c",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-audit-information-assets/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-audit-information-assets",
+          "sourceDigest": "sha256:68eaae816213fa97f38feccbe7ce802d26883f2dde39794b7cf409a799e94b8c"
+        },
+        {
+          "canonicalDigest": "sha256:f8fed2f6d60852c0a9542148df9ee786ca4ace56ea4f5c4c329c7b56cbb9c8d9",
+          "digest": "sha256:af660f2cda256dcf3aa251a6be135390a1a5a517631efa3a62485af5e9f2aec9",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-audit-information-assets/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-audit-information-assets",
+          "sourceDigest": "sha256:af660f2cda256dcf3aa251a6be135390a1a5a517631efa3a62485af5e9f2aec9"
+        },
+        {
+          "canonicalDigest": "sha256:f8fed2f6d60852c0a9542148df9ee786ca4ace56ea4f5c4c329c7b56cbb9c8d9",
+          "digest": "sha256:acfbacb5b657ce9ff2f66d7189acaedf73c074e79c97c373864c38484f5d130b",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-audit-information-assets/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-audit-information-assets",
+          "sourceDigest": "sha256:acfbacb5b657ce9ff2f66d7189acaedf73c074e79c97c373864c38484f5d130b"
+        },
+        {
+          "canonicalDigest": "sha256:f8fed2f6d60852c0a9542148df9ee786ca4ace56ea4f5c4c329c7b56cbb9c8d9",
+          "digest": "sha256:1743a1a1be4f0c6b8766441bc56eeea38e6b8c05b153e058b21b064560b8fb0e",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-audit-information-assets/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-audit-information-assets",
+          "sourceDigest": "sha256:1743a1a1be4f0c6b8766441bc56eeea38e6b8c05b153e058b21b064560b8fb0e"
+        },
+        {
+          "canonicalDigest": "sha256:674bdd956faeaa21b66d9c51ee786e1dfe3009df4846fe99275042db98bdc411",
+          "digest": "sha256:86ed58a263adebf77585819334d3c373b1e1ca442d79157257f79302557b8e0e",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-check-external-compatibility/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-check-external-compatibility",
+          "sourceDigest": "sha256:86ed58a263adebf77585819334d3c373b1e1ca442d79157257f79302557b8e0e"
+        },
+        {
+          "canonicalDigest": "sha256:674bdd956faeaa21b66d9c51ee786e1dfe3009df4846fe99275042db98bdc411",
+          "digest": "sha256:13255b902f5689a480ec3c1bfb701e8473f4630ff19fdd93a11d6cf0f6b3715a",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-check-external-compatibility/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-check-external-compatibility",
+          "sourceDigest": "sha256:13255b902f5689a480ec3c1bfb701e8473f4630ff19fdd93a11d6cf0f6b3715a"
+        },
+        {
+          "canonicalDigest": "sha256:674bdd956faeaa21b66d9c51ee786e1dfe3009df4846fe99275042db98bdc411",
+          "digest": "sha256:be6a5d79dd958380bd71e160684e5a43042f6e9c4f71fdd4b4420c73232ed18c",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-check-external-compatibility/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-check-external-compatibility",
+          "sourceDigest": "sha256:be6a5d79dd958380bd71e160684e5a43042f6e9c4f71fdd4b4420c73232ed18c"
+        },
+        {
+          "canonicalDigest": "sha256:674bdd956faeaa21b66d9c51ee786e1dfe3009df4846fe99275042db98bdc411",
+          "digest": "sha256:2e7101928e2a2104f039aca67bc0c8e708185d121c8f3cdd51d7b072daf101fa",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-check-external-compatibility/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-check-external-compatibility",
+          "sourceDigest": "sha256:2e7101928e2a2104f039aca67bc0c8e708185d121c8f3cdd51d7b072daf101fa"
+        },
+        {
+          "canonicalDigest": "sha256:b29a074287dd70b8ae18204305e4872532bdc6e712be20f86627280cb11f1bee",
+          "digest": "sha256:d76abf48478d7a3896927df552ff75994226df1f69b6d87c80990fbbc3518d8e",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-compare-governance-baselines/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-compare-governance-baselines",
+          "sourceDigest": "sha256:d76abf48478d7a3896927df552ff75994226df1f69b6d87c80990fbbc3518d8e"
+        },
+        {
+          "canonicalDigest": "sha256:b29a074287dd70b8ae18204305e4872532bdc6e712be20f86627280cb11f1bee",
+          "digest": "sha256:d71a5f3b699731ccc22c08125de8904c11924cfd439c5ace31a53dac29f14749",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-compare-governance-baselines/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-compare-governance-baselines",
+          "sourceDigest": "sha256:d71a5f3b699731ccc22c08125de8904c11924cfd439c5ace31a53dac29f14749"
+        },
+        {
+          "canonicalDigest": "sha256:b29a074287dd70b8ae18204305e4872532bdc6e712be20f86627280cb11f1bee",
+          "digest": "sha256:eb82bb9ef63e0d1921311efdd8b0dbf27e09355497f27b2046d622541c059cc8",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-compare-governance-baselines/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-compare-governance-baselines",
+          "sourceDigest": "sha256:eb82bb9ef63e0d1921311efdd8b0dbf27e09355497f27b2046d622541c059cc8"
+        },
+        {
+          "canonicalDigest": "sha256:b29a074287dd70b8ae18204305e4872532bdc6e712be20f86627280cb11f1bee",
+          "digest": "sha256:9871131a6038180d4007061e1954410285a9d338f54a17309533ef919ecd4aff",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-compare-governance-baselines/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-compare-governance-baselines",
+          "sourceDigest": "sha256:9871131a6038180d4007061e1954410285a9d338f54a17309533ef919ecd4aff"
+        },
+        {
+          "canonicalDigest": "sha256:2fd6c5002e595aeff89ce4f08fb10313bb399abb085052eff1c106fbc0c828f0",
+          "digest": "sha256:1ca1e606e30cb3bf35634c0d203c6e99b2b8defccaac7c376eb5aa36a0f86377",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-complete-skill-atom/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-complete-skill-atom",
+          "sourceDigest": "sha256:1ca1e606e30cb3bf35634c0d203c6e99b2b8defccaac7c376eb5aa36a0f86377"
+        },
+        {
+          "canonicalDigest": "sha256:2fd6c5002e595aeff89ce4f08fb10313bb399abb085052eff1c106fbc0c828f0",
+          "digest": "sha256:70c908d356ca7b472ab2f366410a01bd37922fa92fa281c3aa72a0f465c3b640",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-complete-skill-atom/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-complete-skill-atom",
+          "sourceDigest": "sha256:70c908d356ca7b472ab2f366410a01bd37922fa92fa281c3aa72a0f465c3b640"
+        },
+        {
+          "canonicalDigest": "sha256:2fd6c5002e595aeff89ce4f08fb10313bb399abb085052eff1c106fbc0c828f0",
+          "digest": "sha256:d1c2630ad913f2d97dfc97bedf80886579a54ccf6fa048067f64fb85b2f5ce15",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-complete-skill-atom/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-complete-skill-atom",
+          "sourceDigest": "sha256:d1c2630ad913f2d97dfc97bedf80886579a54ccf6fa048067f64fb85b2f5ce15"
+        },
+        {
+          "canonicalDigest": "sha256:2fd6c5002e595aeff89ce4f08fb10313bb399abb085052eff1c106fbc0c828f0",
+          "digest": "sha256:3940fbf327c102f72fc2c9f43fe7cbc449bc6610467e210bf85693c353b80c7b",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-complete-skill-atom/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-complete-skill-atom",
+          "sourceDigest": "sha256:3940fbf327c102f72fc2c9f43fe7cbc449bc6610467e210bf85693c353b80c7b"
+        },
+        {
+          "canonicalDigest": "sha256:53f094a33bcb703ac7fa7434f052e6fddb90b84e95571c393433419d7cc0147b",
+          "digest": "sha256:116c1430c05302d505136c4d3a3ea09245adba28bf5c9bbcc2032dd410b91bbf",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-consult-asset-placement/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-consult-asset-placement",
+          "sourceDigest": "sha256:116c1430c05302d505136c4d3a3ea09245adba28bf5c9bbcc2032dd410b91bbf"
+        },
+        {
+          "canonicalDigest": "sha256:53f094a33bcb703ac7fa7434f052e6fddb90b84e95571c393433419d7cc0147b",
+          "digest": "sha256:a72b63e497421493c6f1741c0c6ea9a2f229d0483e23b2c52bc18370521a2855",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-consult-asset-placement/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-consult-asset-placement",
+          "sourceDigest": "sha256:a72b63e497421493c6f1741c0c6ea9a2f229d0483e23b2c52bc18370521a2855"
+        },
+        {
+          "canonicalDigest": "sha256:53f094a33bcb703ac7fa7434f052e6fddb90b84e95571c393433419d7cc0147b",
+          "digest": "sha256:dfc097e88f90ccf4eb33c9e1573015ca681b8146b415f0f45bdb5f6da6f49123",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-consult-asset-placement/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-consult-asset-placement",
+          "sourceDigest": "sha256:dfc097e88f90ccf4eb33c9e1573015ca681b8146b415f0f45bdb5f6da6f49123"
+        },
+        {
+          "canonicalDigest": "sha256:53f094a33bcb703ac7fa7434f052e6fddb90b84e95571c393433419d7cc0147b",
+          "digest": "sha256:f115a2526a21f1555409fe21c9cf6ab6c2149ec22422ff6a4b545e1d938fc4cf",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-consult-asset-placement/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-consult-asset-placement",
+          "sourceDigest": "sha256:f115a2526a21f1555409fe21c9cf6ab6c2149ec22422ff6a4b545e1d938fc4cf"
+        },
+        {
+          "canonicalDigest": "sha256:ae23fb956969ea763e5b0eba349dc3fb17ec5f304d098c47377569c4b4575173",
+          "digest": "sha256:7224dea4ce31a85d86d835b1ce4d398e3c1084e236850e09ec77a13dac5369b1",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-diagnose-information-governance/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-diagnose-information-governance",
+          "sourceDigest": "sha256:7224dea4ce31a85d86d835b1ce4d398e3c1084e236850e09ec77a13dac5369b1"
+        },
+        {
+          "canonicalDigest": "sha256:ae23fb956969ea763e5b0eba349dc3fb17ec5f304d098c47377569c4b4575173",
+          "digest": "sha256:e97df90112beaf3f0dcea6d6e5186e11b231715d5d6b1463b1dc7b0af1217a49",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-diagnose-information-governance/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-diagnose-information-governance",
+          "sourceDigest": "sha256:e97df90112beaf3f0dcea6d6e5186e11b231715d5d6b1463b1dc7b0af1217a49"
+        },
+        {
+          "canonicalDigest": "sha256:ae23fb956969ea763e5b0eba349dc3fb17ec5f304d098c47377569c4b4575173",
+          "digest": "sha256:ec7548654930d2079bf5a1617911f06491c3e2452e32c44af76ba13091841be0",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-diagnose-information-governance/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-diagnose-information-governance",
+          "sourceDigest": "sha256:ec7548654930d2079bf5a1617911f06491c3e2452e32c44af76ba13091841be0"
+        },
+        {
+          "canonicalDigest": "sha256:ae23fb956969ea763e5b0eba349dc3fb17ec5f304d098c47377569c4b4575173",
+          "digest": "sha256:94792c667edb7896511d9d9c0f22fb2740a5e9a3644635351e743733d96fae5b",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-diagnose-information-governance/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-diagnose-information-governance",
+          "sourceDigest": "sha256:94792c667edb7896511d9d9c0f22fb2740a5e9a3644635351e743733d96fae5b"
+        },
+        {
+          "canonicalDigest": "sha256:5df4def0944216fae86186b92400f4978352c405557bc98b4f7a6f47ea34b657",
+          "digest": "sha256:7ce09f7a4a11bb1fe9523c59966d0ad4332b77715db38e2da94c2ea6c7133d40",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-explain-audit-findings/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-explain-audit-findings",
+          "sourceDigest": "sha256:7ce09f7a4a11bb1fe9523c59966d0ad4332b77715db38e2da94c2ea6c7133d40"
+        },
+        {
+          "canonicalDigest": "sha256:5df4def0944216fae86186b92400f4978352c405557bc98b4f7a6f47ea34b657",
+          "digest": "sha256:1e81176b60cf56d2272dd6aa4f28883d313a133ae15928de93a049deecf7b61a",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-explain-audit-findings/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-explain-audit-findings",
+          "sourceDigest": "sha256:1e81176b60cf56d2272dd6aa4f28883d313a133ae15928de93a049deecf7b61a"
+        },
+        {
+          "canonicalDigest": "sha256:5df4def0944216fae86186b92400f4978352c405557bc98b4f7a6f47ea34b657",
+          "digest": "sha256:d48857574df337a3f874b88380efcfe9b99837fc47ee4f28c66b1c2134968444",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-explain-audit-findings/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-explain-audit-findings",
+          "sourceDigest": "sha256:d48857574df337a3f874b88380efcfe9b99837fc47ee4f28c66b1c2134968444"
+        },
+        {
+          "canonicalDigest": "sha256:5df4def0944216fae86186b92400f4978352c405557bc98b4f7a6f47ea34b657",
+          "digest": "sha256:f26c1acfe38db583f2e3bd821e24b671946514116f17b8c6928ec854fa7e41b0",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-explain-audit-findings/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-explain-audit-findings",
+          "sourceDigest": "sha256:f26c1acfe38db583f2e3bd821e24b671946514116f17b8c6928ec854fa7e41b0"
+        },
+        {
+          "canonicalDigest": "sha256:c43709df2e9b01f9025b821b36d2b2360b010658db72b3784caa1056f2e86a32",
+          "digest": "sha256:2dfc29564f5a712beb5689a25d4d75a4dfb58ab08a25f22f32a4da3174f715f8",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-govern-skill-provenance/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-govern-skill-provenance",
+          "sourceDigest": "sha256:2dfc29564f5a712beb5689a25d4d75a4dfb58ab08a25f22f32a4da3174f715f8"
+        },
+        {
+          "canonicalDigest": "sha256:c43709df2e9b01f9025b821b36d2b2360b010658db72b3784caa1056f2e86a32",
+          "digest": "sha256:7d762f892ce38c8311ae24f0a612c1a643fe06347d8f14152d70706d409ced30",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-govern-skill-provenance/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-govern-skill-provenance",
+          "sourceDigest": "sha256:7d762f892ce38c8311ae24f0a612c1a643fe06347d8f14152d70706d409ced30"
+        },
+        {
+          "canonicalDigest": "sha256:c43709df2e9b01f9025b821b36d2b2360b010658db72b3784caa1056f2e86a32",
+          "digest": "sha256:c1dc4804835763e2a2d169fc532b1c71d43dea5429e22d767856d3f3e7f06ac2",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-govern-skill-provenance/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-govern-skill-provenance",
+          "sourceDigest": "sha256:c1dc4804835763e2a2d169fc532b1c71d43dea5429e22d767856d3f3e7f06ac2"
+        },
+        {
+          "canonicalDigest": "sha256:c43709df2e9b01f9025b821b36d2b2360b010658db72b3784caa1056f2e86a32",
+          "digest": "sha256:8ee2e9833db3b22feecb44d8e986e113f66d61d0d4ad4acc6b3c3f75c5cf67b9",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-govern-skill-provenance/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-govern-skill-provenance",
+          "sourceDigest": "sha256:8ee2e9833db3b22feecb44d8e986e113f66d61d0d4ad4acc6b3c3f75c5cf67b9"
+        },
+        {
+          "canonicalDigest": "sha256:278ad09a904625bded743a0f7dff46aee1256089ff332c2b27c08837d1efe35b",
+          "digest": "sha256:6f3eb70b16d21983e18539eeb4b1f1d577a2b6b4d37883179f6dc938a50b6dd1",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-install-skill-kit/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-install-skill-kit",
+          "sourceDigest": "sha256:6f3eb70b16d21983e18539eeb4b1f1d577a2b6b4d37883179f6dc938a50b6dd1"
+        },
+        {
+          "canonicalDigest": "sha256:278ad09a904625bded743a0f7dff46aee1256089ff332c2b27c08837d1efe35b",
+          "digest": "sha256:8cbf54ca7dfa3c5c0aeedb31998acb76c0b261d0cac45145376b98198b40ebb3",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-install-skill-kit/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-install-skill-kit",
+          "sourceDigest": "sha256:8cbf54ca7dfa3c5c0aeedb31998acb76c0b261d0cac45145376b98198b40ebb3"
+        },
+        {
+          "canonicalDigest": "sha256:278ad09a904625bded743a0f7dff46aee1256089ff332c2b27c08837d1efe35b",
+          "digest": "sha256:7cacdcdba2f1bc1aa7feb09cf1a571cb098518f38c978802191a5ff83ea48101",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-install-skill-kit/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-install-skill-kit",
+          "sourceDigest": "sha256:7cacdcdba2f1bc1aa7feb09cf1a571cb098518f38c978802191a5ff83ea48101"
+        },
+        {
+          "canonicalDigest": "sha256:278ad09a904625bded743a0f7dff46aee1256089ff332c2b27c08837d1efe35b",
+          "digest": "sha256:905a2714571c48fb5c8c2dbf895948853475570ef61bcd86952aa02418441c73",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-install-skill-kit/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-install-skill-kit",
+          "sourceDigest": "sha256:905a2714571c48fb5c8c2dbf895948853475570ef61bcd86952aa02418441c73"
+        },
+        {
+          "canonicalDigest": "sha256:969abe8ed25682af4b450af31f018c244ad9a8279c03393b59625636142f1faf",
+          "digest": "sha256:e529f32028d548499563b928bec9d660db9164042aa21bbed64318bef2b43831",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-persist-governance-evidence/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-persist-governance-evidence",
+          "sourceDigest": "sha256:e529f32028d548499563b928bec9d660db9164042aa21bbed64318bef2b43831"
+        },
+        {
+          "canonicalDigest": "sha256:969abe8ed25682af4b450af31f018c244ad9a8279c03393b59625636142f1faf",
+          "digest": "sha256:3efe6d79cddb2288fd71880a67691d02b537704369aa996922849976f93627fa",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-persist-governance-evidence/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-persist-governance-evidence",
+          "sourceDigest": "sha256:3efe6d79cddb2288fd71880a67691d02b537704369aa996922849976f93627fa"
+        },
+        {
+          "canonicalDigest": "sha256:969abe8ed25682af4b450af31f018c244ad9a8279c03393b59625636142f1faf",
+          "digest": "sha256:45dc64091d07e388d0ba8adbe077987787bf42866e181105d655fdad7776b0b5",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-persist-governance-evidence/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-persist-governance-evidence",
+          "sourceDigest": "sha256:45dc64091d07e388d0ba8adbe077987787bf42866e181105d655fdad7776b0b5"
+        },
+        {
+          "canonicalDigest": "sha256:969abe8ed25682af4b450af31f018c244ad9a8279c03393b59625636142f1faf",
+          "digest": "sha256:1701fbf3822d9a534d6aa8b60826e21a12dcd6569cd0efaca03c820efaf09a3a",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-persist-governance-evidence/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-persist-governance-evidence",
+          "sourceDigest": "sha256:1701fbf3822d9a534d6aa8b60826e21a12dcd6569cd0efaca03c820efaf09a3a"
+        },
+        {
+          "canonicalDigest": "sha256:a4498d68f44aa4f41d999ab076ece8c5a9fc27859be000b0aef9df009e039621",
+          "digest": "sha256:96e8585e516a56d3e851dbd17c3506debbf51f6849f64fb1137e54df90f1bd74",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-plan-authority-migration/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-plan-authority-migration",
+          "sourceDigest": "sha256:96e8585e516a56d3e851dbd17c3506debbf51f6849f64fb1137e54df90f1bd74"
+        },
+        {
+          "canonicalDigest": "sha256:a4498d68f44aa4f41d999ab076ece8c5a9fc27859be000b0aef9df009e039621",
+          "digest": "sha256:67a3c03ffc2d976f45da6baf0bc52b6cbc6c5bf1b309893b3a5d73f0f0d6c8f5",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-plan-authority-migration/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-plan-authority-migration",
+          "sourceDigest": "sha256:67a3c03ffc2d976f45da6baf0bc52b6cbc6c5bf1b309893b3a5d73f0f0d6c8f5"
+        },
+        {
+          "canonicalDigest": "sha256:a4498d68f44aa4f41d999ab076ece8c5a9fc27859be000b0aef9df009e039621",
+          "digest": "sha256:b8fe5fd16ff41ee1be134961789ce96ec0af204b1cf8fc36303f17a3c0044614",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-plan-authority-migration/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-plan-authority-migration",
+          "sourceDigest": "sha256:b8fe5fd16ff41ee1be134961789ce96ec0af204b1cf8fc36303f17a3c0044614"
+        },
+        {
+          "canonicalDigest": "sha256:a4498d68f44aa4f41d999ab076ece8c5a9fc27859be000b0aef9df009e039621",
+          "digest": "sha256:96f003f27303aefbe3086e221f0b3ac3f18b6be80d8ca5640a574d61ed906714",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-plan-authority-migration/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-plan-authority-migration",
+          "sourceDigest": "sha256:96f003f27303aefbe3086e221f0b3ac3f18b6be80d8ca5640a574d61ed906714"
+        },
+        {
+          "canonicalDigest": "sha256:9febff0034203dcdbbd3f300a761390bdd58ad61105ca4d76bf9be73f7a36926",
+          "digest": "sha256:169aa3fe3141f5450fa744c7966daf0528987809ee9c1c3fac9cd359dbec3e3f",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-publish-external-adoption-entry/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-publish-external-adoption-entry",
+          "sourceDigest": "sha256:169aa3fe3141f5450fa744c7966daf0528987809ee9c1c3fac9cd359dbec3e3f"
+        },
+        {
+          "canonicalDigest": "sha256:9febff0034203dcdbbd3f300a761390bdd58ad61105ca4d76bf9be73f7a36926",
+          "digest": "sha256:df5f106a3014bb447e08a7570977a059a988131da0ef65dd7be4544c943503b0",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-publish-external-adoption-entry/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-publish-external-adoption-entry",
+          "sourceDigest": "sha256:df5f106a3014bb447e08a7570977a059a988131da0ef65dd7be4544c943503b0"
+        },
+        {
+          "canonicalDigest": "sha256:9febff0034203dcdbbd3f300a761390bdd58ad61105ca4d76bf9be73f7a36926",
+          "digest": "sha256:07ffb3f900b38cc347cb41ea502eaeb918965b6353de4951e1a2fa56c3e7c518",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-publish-external-adoption-entry/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-publish-external-adoption-entry",
+          "sourceDigest": "sha256:07ffb3f900b38cc347cb41ea502eaeb918965b6353de4951e1a2fa56c3e7c518"
+        },
+        {
+          "canonicalDigest": "sha256:9febff0034203dcdbbd3f300a761390bdd58ad61105ca4d76bf9be73f7a36926",
+          "digest": "sha256:fd3eb5636603a79523166b522f1f418c1d16e2ea2ecc9304b4be97f0a5b276fa",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-publish-external-adoption-entry/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-publish-external-adoption-entry",
+          "sourceDigest": "sha256:fd3eb5636603a79523166b522f1f418c1d16e2ea2ecc9304b4be97f0a5b276fa"
+        },
+        {
+          "canonicalDigest": "sha256:7bf783ac67236308541e14062442f2ff852848823e4a0cf37071315c41d5c01a",
+          "digest": "sha256:1636545c2f0e3dddd87c7736230895b720389c59ac4d96edf33a89da0961b35b",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-project-readme/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-project-readme",
+          "sourceDigest": "sha256:1636545c2f0e3dddd87c7736230895b720389c59ac4d96edf33a89da0961b35b"
+        },
+        {
+          "canonicalDigest": "sha256:7bf783ac67236308541e14062442f2ff852848823e4a0cf37071315c41d5c01a",
+          "digest": "sha256:f363b45f34a881cab073d18c2685594a1288fbe5d4511195173cf52ccfce7cb0",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-project-readme/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-project-readme",
+          "sourceDigest": "sha256:f363b45f34a881cab073d18c2685594a1288fbe5d4511195173cf52ccfce7cb0"
+        },
+        {
+          "canonicalDigest": "sha256:7bf783ac67236308541e14062442f2ff852848823e4a0cf37071315c41d5c01a",
+          "digest": "sha256:e89138da87d36bda11fb1e8af274224f7266fe506d6df0bc1b97f5992c6b35e9",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-project-readme/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-project-readme",
+          "sourceDigest": "sha256:e89138da87d36bda11fb1e8af274224f7266fe506d6df0bc1b97f5992c6b35e9"
+        },
+        {
+          "canonicalDigest": "sha256:7bf783ac67236308541e14062442f2ff852848823e4a0cf37071315c41d5c01a",
+          "digest": "sha256:a0ffadd70ae864b3a27ab6df55d79643fd81f6fa12c5a5ede82b32384afb5df7",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-project-readme/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-project-readme",
+          "sourceDigest": "sha256:a0ffadd70ae864b3a27ab6df55d79643fd81f6fa12c5a5ede82b32384afb5df7"
+        },
+        {
+          "canonicalDigest": "sha256:1b1d7cfe52569971f6bb54ba91973adfae3a3d8f3da7d0a39e6ff596bd2e42fe",
+          "digest": "sha256:660881bc97b5ed69bf8a08752b47e24e9853a89cc144084066d963c31d7c0a96",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-skill-conformance/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-skill-conformance",
+          "sourceDigest": "sha256:660881bc97b5ed69bf8a08752b47e24e9853a89cc144084066d963c31d7c0a96"
+        },
+        {
+          "canonicalDigest": "sha256:1b1d7cfe52569971f6bb54ba91973adfae3a3d8f3da7d0a39e6ff596bd2e42fe",
+          "digest": "sha256:4985212528b31082111a74929ca803b4fda49f8be2a071e8ad11afdeea419935",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-skill-conformance/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-skill-conformance",
+          "sourceDigest": "sha256:4985212528b31082111a74929ca803b4fda49f8be2a071e8ad11afdeea419935"
+        },
+        {
+          "canonicalDigest": "sha256:1b1d7cfe52569971f6bb54ba91973adfae3a3d8f3da7d0a39e6ff596bd2e42fe",
+          "digest": "sha256:47b2b992f8d600bad23d1afc929cfba3159a7c1ba8254b7e81a6c39eaa0a7ab5",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-skill-conformance/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-skill-conformance",
+          "sourceDigest": "sha256:47b2b992f8d600bad23d1afc929cfba3159a7c1ba8254b7e81a6c39eaa0a7ab5"
+        },
+        {
+          "canonicalDigest": "sha256:1b1d7cfe52569971f6bb54ba91973adfae3a3d8f3da7d0a39e6ff596bd2e42fe",
+          "digest": "sha256:913c943971da12b8125d73d62845d0781a8cf3a1abe221f134953691c550bb71",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-remediate-skill-conformance/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-remediate-skill-conformance",
+          "sourceDigest": "sha256:913c943971da12b8125d73d62845d0781a8cf3a1abe221f134953691c550bb71"
+        },
+        {
+          "canonicalDigest": "sha256:0ad33ff1c9d2ea5b61fb4675de6313a1ff0da8aaa1d91856c29a441ed8f49f76",
+          "digest": "sha256:1a9f4dfd54a9f1911dd93c755853e495f7b4dd7eaeb519e5a709e42360225469",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-contract-capability-closure/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-contract-capability-closure",
+          "sourceDigest": "sha256:1a9f4dfd54a9f1911dd93c755853e495f7b4dd7eaeb519e5a709e42360225469"
+        },
+        {
+          "canonicalDigest": "sha256:0ad33ff1c9d2ea5b61fb4675de6313a1ff0da8aaa1d91856c29a441ed8f49f76",
+          "digest": "sha256:c671784641ca6861ddec3d873e05a49d3fe40e69b9cd6b366673baa5742a64f2",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-contract-capability-closure/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-contract-capability-closure",
+          "sourceDigest": "sha256:c671784641ca6861ddec3d873e05a49d3fe40e69b9cd6b366673baa5742a64f2"
+        },
+        {
+          "canonicalDigest": "sha256:0ad33ff1c9d2ea5b61fb4675de6313a1ff0da8aaa1d91856c29a441ed8f49f76",
+          "digest": "sha256:c0f1a56ed0fcc99860164fb34453ee13d02157e39849c1034cc63d2fcb8516f1",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-contract-capability-closure/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-contract-capability-closure",
+          "sourceDigest": "sha256:c0f1a56ed0fcc99860164fb34453ee13d02157e39849c1034cc63d2fcb8516f1"
+        },
+        {
+          "canonicalDigest": "sha256:0ad33ff1c9d2ea5b61fb4675de6313a1ff0da8aaa1d91856c29a441ed8f49f76",
+          "digest": "sha256:d5070732953d037ce2d6b0aa89dd0ac83b79ddfdb98184708d6ce968a36b13d6",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-contract-capability-closure/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-contract-capability-closure",
+          "sourceDigest": "sha256:d5070732953d037ce2d6b0aa89dd0ac83b79ddfdb98184708d6ce968a36b13d6"
+        },
+        {
+          "canonicalDigest": "sha256:8509bcb1411661e53c8f974e6986e1b2a8de68d2c6efb39704b87f6c05f3bb23",
+          "digest": "sha256:5ebd68fc3fbcb7b1f149c2369edf1d35d42de76593d0620373cbe18664018b19",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-information-changes/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-information-changes",
+          "sourceDigest": "sha256:5ebd68fc3fbcb7b1f149c2369edf1d35d42de76593d0620373cbe18664018b19"
+        },
+        {
+          "canonicalDigest": "sha256:8509bcb1411661e53c8f974e6986e1b2a8de68d2c6efb39704b87f6c05f3bb23",
+          "digest": "sha256:c24b8604cce1b0a9eee5dbadbe0650a80542c88a7df7b194b9a138ac53fb2588",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-information-changes/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-information-changes",
+          "sourceDigest": "sha256:c24b8604cce1b0a9eee5dbadbe0650a80542c88a7df7b194b9a138ac53fb2588"
+        },
+        {
+          "canonicalDigest": "sha256:8509bcb1411661e53c8f974e6986e1b2a8de68d2c6efb39704b87f6c05f3bb23",
+          "digest": "sha256:5120316be6fe736ab86cddc2efb924ccf9251a6dfb5e2e27b6f447a17c0112f3",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-information-changes/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-information-changes",
+          "sourceDigest": "sha256:5120316be6fe736ab86cddc2efb924ccf9251a6dfb5e2e27b6f447a17c0112f3"
+        },
+        {
+          "canonicalDigest": "sha256:8509bcb1411661e53c8f974e6986e1b2a8de68d2c6efb39704b87f6c05f3bb23",
+          "digest": "sha256:6ab366b1a83ec024436f15004338b9199f4a2bfe05e94dd67cfe1767e9db41b6",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-review-information-changes/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-review-information-changes",
+          "sourceDigest": "sha256:6ab366b1a83ec024436f15004338b9199f4a2bfe05e94dd67cfe1767e9db41b6"
+        },
+        {
+          "canonicalDigest": "sha256:a11bc14b628319febc2a4e97f6df75d6dde3d15535facaf7b993c204981634b3",
+          "digest": "sha256:ea79341aabc115b66935347caa285aabcf7f33c3b6726f2d13fa7afcc1e87ac9",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-standardize-information-assets/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-standardize-information-assets",
+          "sourceDigest": "sha256:ea79341aabc115b66935347caa285aabcf7f33c3b6726f2d13fa7afcc1e87ac9"
+        },
+        {
+          "canonicalDigest": "sha256:a11bc14b628319febc2a4e97f6df75d6dde3d15535facaf7b993c204981634b3",
+          "digest": "sha256:ee470a2dd715f873778cae68a76d3a81ea3daf2c854f1496d4cb0d6e0c467922",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-standardize-information-assets/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-standardize-information-assets",
+          "sourceDigest": "sha256:ee470a2dd715f873778cae68a76d3a81ea3daf2c854f1496d4cb0d6e0c467922"
+        },
+        {
+          "canonicalDigest": "sha256:a11bc14b628319febc2a4e97f6df75d6dde3d15535facaf7b993c204981634b3",
+          "digest": "sha256:ca570f6a57070d764fb5a7afc2675325331db01f30cf74d90e46609256ab8d78",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-standardize-information-assets/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-standardize-information-assets",
+          "sourceDigest": "sha256:ca570f6a57070d764fb5a7afc2675325331db01f30cf74d90e46609256ab8d78"
+        },
+        {
+          "canonicalDigest": "sha256:a11bc14b628319febc2a4e97f6df75d6dde3d15535facaf7b993c204981634b3",
+          "digest": "sha256:b46c12d9b254c2cb8eaf45a1d631e3b2fbded2fdf2e113a96e07bed895c0486f",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-standardize-information-assets/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-standardize-information-assets",
+          "sourceDigest": "sha256:b46c12d9b254c2cb8eaf45a1d631e3b2fbded2fdf2e113a96e07bed895c0486f"
+        },
+        {
+          "canonicalDigest": "sha256:39d7404d22a2a9779146e211750f2ae083d7d70b62e6b9417322ad852ad8a3f6",
+          "digest": "sha256:616597ca4402ce3fbc9053749cf9c3d576884fd8336d639dd71f9f9ae724dfd3",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-submit-framework-feedback/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-submit-framework-feedback",
+          "sourceDigest": "sha256:616597ca4402ce3fbc9053749cf9c3d576884fd8336d639dd71f9f9ae724dfd3"
+        },
+        {
+          "canonicalDigest": "sha256:39d7404d22a2a9779146e211750f2ae083d7d70b62e6b9417322ad852ad8a3f6",
+          "digest": "sha256:e07a43780f683b8db680c5aafd0ce30bc8603315d36fcc2ec8199f2b848f6b73",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-submit-framework-feedback/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-submit-framework-feedback",
+          "sourceDigest": "sha256:e07a43780f683b8db680c5aafd0ce30bc8603315d36fcc2ec8199f2b848f6b73"
+        },
+        {
+          "canonicalDigest": "sha256:39d7404d22a2a9779146e211750f2ae083d7d70b62e6b9417322ad852ad8a3f6",
+          "digest": "sha256:a1384e1b34358f66d10f140bec710e02d36427937dca857743c8bbfd24c0c9cb",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-submit-framework-feedback/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-submit-framework-feedback",
+          "sourceDigest": "sha256:a1384e1b34358f66d10f140bec710e02d36427937dca857743c8bbfd24c0c9cb"
+        },
+        {
+          "canonicalDigest": "sha256:39d7404d22a2a9779146e211750f2ae083d7d70b62e6b9417322ad852ad8a3f6",
+          "digest": "sha256:4f08cf9717d815316430a78de2d552bdea69836c391d8a66b54a7bc9a0981630",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-submit-framework-feedback/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-submit-framework-feedback",
+          "sourceDigest": "sha256:4f08cf9717d815316430a78de2d552bdea69836c391d8a66b54a7bc9a0981630"
+        },
+        {
+          "canonicalDigest": "sha256:2fa910fc97d41763d3d4cfe43912f5d028016e2b0b17ee9d28367811b5067e18",
+          "digest": "sha256:7abec7cfdc5902fb19f88be91ea0f10892f284af662d2080b45364cce7bfe823",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-trace-asset-authority/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-trace-asset-authority",
+          "sourceDigest": "sha256:7abec7cfdc5902fb19f88be91ea0f10892f284af662d2080b45364cce7bfe823"
+        },
+        {
+          "canonicalDigest": "sha256:2fa910fc97d41763d3d4cfe43912f5d028016e2b0b17ee9d28367811b5067e18",
+          "digest": "sha256:b33cc8f03c4c51a9026949e88516a8de327dc344c7e64b46621e946735c0f17f",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-trace-asset-authority/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-trace-asset-authority",
+          "sourceDigest": "sha256:b33cc8f03c4c51a9026949e88516a8de327dc344c7e64b46621e946735c0f17f"
+        },
+        {
+          "canonicalDigest": "sha256:2fa910fc97d41763d3d4cfe43912f5d028016e2b0b17ee9d28367811b5067e18",
+          "digest": "sha256:89c43c4ddd58d311164773b9c2bb3ae90d0982a4acf2c7e1d36d52970d3528bd",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-trace-asset-authority/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-trace-asset-authority",
+          "sourceDigest": "sha256:89c43c4ddd58d311164773b9c2bb3ae90d0982a4acf2c7e1d36d52970d3528bd"
+        },
+        {
+          "canonicalDigest": "sha256:2fa910fc97d41763d3d4cfe43912f5d028016e2b0b17ee9d28367811b5067e18",
+          "digest": "sha256:fc117555c800bad8e0cfb9eab4c41f42f63c12278c440668106059b2491f68e0",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-trace-asset-authority/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-trace-asset-authority",
+          "sourceDigest": "sha256:fc117555c800bad8e0cfb9eab4c41f42f63c12278c440668106059b2491f68e0"
+        },
+        {
+          "canonicalDigest": "sha256:a4c8de46c07cc8e362f93fe8e21ef3fe8449f9639414e8bb4765961fc22d0ea8",
+          "digest": "sha256:bd452da3ef9e47f1368f3495b8d7ffb018dd65b8a217db7abcd6d9c766c8512f",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-validate-governance-results/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-validate-governance-results",
+          "sourceDigest": "sha256:bd452da3ef9e47f1368f3495b8d7ffb018dd65b8a217db7abcd6d9c766c8512f"
+        },
+        {
+          "canonicalDigest": "sha256:a4c8de46c07cc8e362f93fe8e21ef3fe8449f9639414e8bb4765961fc22d0ea8",
+          "digest": "sha256:37478c359612925176c2b0ceee864777ab61954e598d8d0d695b265497da712a",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-validate-governance-results/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-validate-governance-results",
+          "sourceDigest": "sha256:37478c359612925176c2b0ceee864777ab61954e598d8d0d695b265497da712a"
+        },
+        {
+          "canonicalDigest": "sha256:a4c8de46c07cc8e362f93fe8e21ef3fe8449f9639414e8bb4765961fc22d0ea8",
+          "digest": "sha256:297ab3b2f728799eb51f12c8302d97ac277defa0614795d9fd7489b7e0ae2315",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-validate-governance-results/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-validate-governance-results",
+          "sourceDigest": "sha256:297ab3b2f728799eb51f12c8302d97ac277defa0614795d9fd7489b7e0ae2315"
+        },
+        {
+          "canonicalDigest": "sha256:a4c8de46c07cc8e362f93fe8e21ef3fe8449f9639414e8bb4765961fc22d0ea8",
+          "digest": "sha256:6ca105fca05fdaf8133d40eed5c75a99375d96cedeacdb1345ae2d6af577fb23",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-validate-governance-results/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-validate-governance-results",
+          "sourceDigest": "sha256:6ca105fca05fdaf8133d40eed5c75a99375d96cedeacdb1345ae2d6af577fb23"
+        },
+        {
+          "canonicalDigest": "sha256:aa58455da09f6b385a81499e6eacd000536c57ab12ab8b41b34895175261a74b",
+          "digest": "sha256:7ce20a859cee6d6251281eec4eb62b7b3e1acb517cf77ce209170f2b73a944c7",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-verify-governance-readiness/agents/openai.yml",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-verify-governance-readiness",
+          "sourceDigest": "sha256:7ce20a859cee6d6251281eec4eb62b7b3e1acb517cf77ce209170f2b73a944c7"
+        },
+        {
+          "canonicalDigest": "sha256:aa58455da09f6b385a81499e6eacd000536c57ab12ab8b41b34895175261a74b",
+          "digest": "sha256:a792fe1bd0e311f97c72857230ac5fdd7a446d9e823130d4c41c87d380e9e8ba",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-verify-governance-readiness/MANUAL.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-verify-governance-readiness",
+          "sourceDigest": "sha256:a792fe1bd0e311f97c72857230ac5fdd7a446d9e823130d4c41c87d380e9e8ba"
+        },
+        {
+          "canonicalDigest": "sha256:aa58455da09f6b385a81499e6eacd000536c57ab12ab8b41b34895175261a74b",
+          "digest": "sha256:62488d28873b759c9614efe6660087dd1c68238eaf511ad6a05cc2cd55846455",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-verify-governance-readiness/PROMPT.zh-CN.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-verify-governance-readiness",
+          "sourceDigest": "sha256:62488d28873b759c9614efe6660087dd1c68238eaf511ad6a05cc2cd55846455"
+        },
+        {
+          "canonicalDigest": "sha256:aa58455da09f6b385a81499e6eacd000536c57ab12ab8b41b34895175261a74b",
+          "digest": "sha256:0f3403ca5580f3841df72d1070b7096a6c0f7e9f79158fb758281a1cc2da84c1",
+          "kind": "skill",
+          "path": ".agents/skills/seshat-verify-governance-readiness/SKILL.md",
+          "rendererId": "shared-agents",
+          "skillId": "seshat-verify-governance-readiness",
+          "sourceDigest": "sha256:0f3403ca5580f3841df72d1070b7096a6c0f7e9f79158fb758281a1cc2da84c1"
+        }
+      ],
+      "profile": "full",
+      "projectionReceiptPath": ".agents/skills/.seshat-projection.json",
+      "projectionRoot": ".agents/skills",
+      "requestedDelivery": "auto",
+      "resolvedDelivery": "skills",
+      "state": "canonical-direct"
+    }
+  ],
+  "provider": {
+    "bundleDigest": "sha256:e83765131f800a0e87833713b4132c2fffd8bd9d3d53113827c8abd48d2ab643",
+    "locator": "explicit-local-path",
+    "name": "seshat",
+    "root": "/Users/ugreen/workspace/projects/engineering_governance/seshat",
+    "version": "0.4.0"
+  },
+  "schemaVersion": "1.0",
+  "sharedRootOwnership": {
+    "consumerAgentIds": [
+      "agents"
+    ],
+    "managedRoot": ".agents/skills",
+    "ownerAgentId": "agents",
+    "path": ".agents/.seshat-agent-owner"
+  },
+  "updatedAt": "2026-09-21T10:34:27.387Z"
+}

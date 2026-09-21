@@ -1,0 +1,4 @@
+interface:
+  display_name: "标准化工程信息资产"
+  short_description: "仅对无歧义的强制治理资产预览并执行安全、幂等标准化"
+  default_prompt: "使用 $seshat-standardize-information-assets 预览并应用只面向强制治理资产的幂等标准化计划。"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "诊断工程信息治理"
+  short_description: "生成工程信息治理诊断 Markdown 表格详细报告"
+  default_prompt: "使用 $seshat-diagnose-information-governance 诊断工程文件、目录和规范遵循情况。"

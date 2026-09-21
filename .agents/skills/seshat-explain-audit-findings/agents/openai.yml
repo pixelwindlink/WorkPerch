@@ -1,0 +1,4 @@
+interface:
+  display_name: "解释审计 Finding"
+  short_description: "解释 Finding 语义、责任归属、阻断范围与安全下一步"
+  default_prompt: "使用 $seshat-explain-audit-findings 解释一个 Seshat Finding code，不重新审计或写入文件。"

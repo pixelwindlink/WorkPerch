@@ -1,0 +1,4 @@
+interface:
+  display_name: "咨询信息资产落盘"
+  short_description: "选择路径前判定资产类型、治理等级与 Authority"
+  default_prompt: "使用 $seshat-consult-asset-placement 判定工程信息资产的类型、治理等级、Authority 和安全落盘建议。"

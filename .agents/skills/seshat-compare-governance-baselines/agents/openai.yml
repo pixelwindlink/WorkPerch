@@ -1,0 +1,4 @@
+interface:
+  display_name: "比较 Seshat 治理基线"
+  short_description: "只读比较两份治理结果的状态、Finding 与计数变化"
+  default_prompt: "使用 $seshat-compare-governance-baselines 比较两份已有的 Seshat 治理结果。"

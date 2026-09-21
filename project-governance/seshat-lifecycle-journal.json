@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "seshat-skill-kit-lifecycle-journal",
+  "command": "bootstrap",
+  "target": "/Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch",
+  "operationDigest": "sha256:e4e7d9fbf70a6d5b98e06b0822a79247914a9f9d370a4b12d748b3d5611d53f5",
+  "status": "completed",
+  "operations": [
+    {
+      "operationId": "op-130d1f209c54a899eb7d",
+      "command": "bootstrap",
+      "action": "update",
+      "path": "AGENTS.md",
+      "source": null,
+      "destination": null,
+      "expectedHash": "sha256:0d149b29e3ed5d5509643df262f02e3be059658914ee80d2e6dbde9c20ccdb7f",
+      "desiredHash": "sha256:30ee23f5cba216f17a9d5620c89a47e0616c4e5ba10d33c0d873cf3558eb283d",
+      "semanticDesiredHash": null,
+      "expectedIdentity": {
+        "kind": "file",
+        "device": "16777231",
+        "inode": "33624841"
+      },
+      "expectedSourceIdentity": null,
+      "expectedTargetIdentity": null,
+      "desiredKind": "file"
+    }
+  ],
+  "completedOperationIds": [
+    "op-130d1f209c54a899eb7d"
+  ],
+  "pendingOperationIds": [],
+  "blockedOperations": [],
+  "recoveredOperations": [],
+  "startedAt": "2026-09-21T10:34:27.203Z",
+  "recovery": {
+    "forwardOnly": true,
+    "stalePlanBlocks": true,
+    "required": false,
+    "command": "seshat bootstrap --target /Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch --provider-root /Users/ugreen/workspace/projects/engineering_governance/seshat --json"
+  },
+  "completedAt": "2026-09-21T10:34:27.225Z"
+}

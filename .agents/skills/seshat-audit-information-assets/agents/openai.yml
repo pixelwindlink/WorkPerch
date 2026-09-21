@@ -1,0 +1,4 @@
+interface:
+  display_name: "审计工程信息资产"
+  short_description: "只读审计资产类型、治理等级、路径与 Authority 边界"
+  default_prompt: "使用 $seshat-audit-information-assets 只读审计目标工程的资产类型、治理等级、路径和 Authority 边界。"

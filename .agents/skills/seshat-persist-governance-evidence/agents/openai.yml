@@ -1,0 +1,4 @@
+interface:
+  display_name: "留存 Seshat 治理证据"
+  short_description: "以可预览、幂等且严格禁止覆盖的方式保存已生成治理结果"
+  default_prompt: "使用 $seshat-persist-governance-evidence 预览并安全留存一份已有的 Seshat 治理结果。"

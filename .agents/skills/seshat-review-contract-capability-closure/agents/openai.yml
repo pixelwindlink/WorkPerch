@@ -1,0 +1,4 @@
+interface:
+  display_name: "审查 Contract 能力闭环"
+  short_description: "仅检查 Seshat Provider Contract 的发现、执行、验证和偏差修复能力"
+  default_prompt: "使用 $seshat-review-contract-capability-closure 检查 Seshat Provider 自身 Contract 的完整可执行闭环，不审查外部工程 Contract。"

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "seshat-shared-agent-root-owner",
+  "ownerAgentId": "agents",
+  "consumerAgentIds": [
+    "agents"
+  ],
+  "managedRoot": ".agents/skills"
+}

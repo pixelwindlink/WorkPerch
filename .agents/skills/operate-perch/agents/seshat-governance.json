@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "2.0",
+  "skillId": "operate-perch",
+  "namespace": "operate",
+  "source": {
+    "kind": "project-repository"
+  },
+  "owner": {
+    "maintainer": "pixelwindlink"
+  },
+  "authority": ".agents/skills/operate-perch/SKILL.md",
+  "behaviorDigest": "sha256:381e5b695379f2cde5e33e825e75ad79d6f4f5616ed4b1e90416a79b66467adc",
+  "capabilities": [
+    "diagnostics",
+    "engine-operations"
+  ],
+  "lifecycle": "proposed",
+  "exposure": "project-internal",
+  "skillClass": "inner",
+  "consumedBy": [],
+  "usedBy": [],
+  "consumerSurfaces": [
+    "agent"
+  ],
+  "approval": null,
+  "license": null,
+  "coexistsWith": [],
+  "replaces": []
+}

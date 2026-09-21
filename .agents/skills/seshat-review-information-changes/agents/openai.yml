@@ -1,0 +1,4 @@
+interface:
+  display_name: "审查工程信息变更"
+  short_description: "按路径审查 Git 变更的治理等级、资产类型与风险"
+  default_prompt: "使用 $seshat-review-information-changes 审查 Git 变更路径，不读取 diff 正文或修改 Git 状态。"

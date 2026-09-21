@@ -1,5 +1,12 @@
 # WorkPerch
 
+**上帝规则承认**
+
+本规范的上帝规则永远只有以下两条，且不可被任何工程、项目、Agent 或其他文件覆盖、削弱或改写：
+
+- **GOD-1**：`README.md` 是工程的唯一第一入口。
+- **GOD-2**：`AGENTS.md` 是工程治理与 Agent 执行 Contract 的入口；它必须承认并路由工程权威信息，但不承担工程内全部事实的存储职责。
+
 人在并行推进多件事时，散落各处的工程目录、知识库目录和剪贴片段需要一个集中的登记处 —— 一个能落脚、也能再出发的地方。这个工程提供的就是这一层：登记入口、感知状态、把人送过去。
 
 WorkPerch 2.0（Engine ID：`perch`）通过 EngineMessage 管理本地开发工作区的文件路径、速记和项目入口目录，并提供路径状态感知、共享多标签、使用排序、保存视图、版本化备份，以及通过独立 Project Launcher Engine 实现的安全项目启动/停止。
@@ -8,25 +15,34 @@ WorkPerch 2.0（Engine ID：`perch`）通过 EngineMessage 管理本地开发工
 
 ## 项目定位与职责
 
-- 项目 ID：`perch`
+- 产品名：`WorkPerch`。项目 ID：`perch`
 - 分类：`engine`
+- 目的：登记本地路径、速记和项目入口，感知状态，再把人送到对应入口。
 - 负责：本地路径、速记、项目入口、保存视图和备份聚合，以及通过注入 EngineClient 委托 Project Launcher。
 - 不负责：Runtime/Router/Observability、任意 Shell 执行、其他 Engine 状态或健康权威。
 - 状态所有者：Perch Server，或使用不同绝对 Runtime Root 的 Standalone Exclusive CLI；同一状态根只允许一个写者。
 
 ## 人类快速开始
 
-1. 读取 `AGENT.md`、`engine.manifest.json` 和 `architecture/README.md`。
-2. 本地检查运行 `npm run check && npm test`。
-3. Server 使用 `npm start`；完整 EngineMessage CLI 使用 `node cli.mjs`。
-4. 已有 Server owner 时使用 Server Client；Standalone 必须指定隔离绝对 `PERCH_RUNTIME_DIR`。
-5. 只依据实际命令、退出码和 EngineMessage 响应报告运行状态。
+前置：Node.js ≥ 22.13.0。下面的命令都在本工程根目录执行。
+
+```bash
+npm run check
+npm test
+PERCH_RUNTIME_DIR=/absolute/path/to/perch-runtime npm start
+```
+
+默认绑定 `127.0.0.1:4173`。已经有 Server 在写同一份状态时，用 `PERCH_SERVER_URL` 当客户端，不要再启动第二个写者。Standalone 必须另给一份绝对 `PERCH_RUNTIME_DIR`。
+
+1. 人先读本 README，再读 `AGENTS.md`、`engine.manifest.json` 和 `architecture/README.md`。
+2. 完整 EngineMessage CLI 使用 `node cli.mjs`。
+3. 只依据实际命令、退出码和 EngineMessage 响应报告运行状态。
 
 ## 消费者面
 
 | 消费者 | 公开入口 | 适用目的 | Contract / 权威 | 证据边界 |
 |---|---|---|---|---|
-| 人类 | `README.md`、`architecture/README.md` | 理解能力、启动和状态边界 | `AGENT.md`、OpenSpec | 文档完整不等于运行通过 |
+| 人类 | `README.md`、`architecture/README.md` | 理解能力、启动和状态边界 | `AGENTS.md`、OpenSpec | 文档完整不等于运行通过 |
 | Agent | `.agents/skills/` | 操作 Perch 或登记项目入口 | canonical `SKILL.md` | Manual/Prompt 不自动运行 |
 | Program | `cli.mjs`、HTTP、Provider | EngineMessage 调用 | `contracts/action-catalog.json` 与 payload Schema | 文件存在不等于 Instance online |
 | Operator / Platform | `server.mjs`、Electron | Server/Desktop 生命周期 | manifest、Composition Root | Server/Standalone ownership 分别验证 |
@@ -73,7 +89,7 @@ WorkPerch 2.0（Engine ID：`perch`）通过 EngineMessage 管理本地开发工
 |---|---|---|---|
 | `.agents/` | agent-capability | canonical Skills 与受治理资源 | tracked；Prompt/Manual 仅供人类 |
 | `.gitignore` | tooling | 本地与 Runtime 忽略边界 | tracked |
-| `AGENT.md` | agent-contract | Agent、安全和状态所有权约束 | tracked |
+| `AGENTS.md` | agent-contract | Agent、安全和状态所有权约束 | tracked |
 | `README.md` | human-guide | 人类入口和项目说明 | tracked |
 | `app.js` | presentation | Web UI 组合入口 | tracked |
 | `architecture/` | architecture | 项目架构说明 | tracked |
@@ -175,7 +191,6 @@ backups/revision-XXXXXXXX.json
 ## 启动 Server 与 Web UI
 
 ```bash
-cd /Users/ugreen/workspace/generic_engines/engine_projects/engine-perch
 PERCH_RUNTIME_DIR=/absolute/path/to/perch-runtime npm start
 ```
 
@@ -323,3 +338,42 @@ node conformance/runner.mjs --engine perch --json
 ## 回滚
 
 停止 Perch Server，保留 `PERCH_RUNTIME_DIR` 中的 aggregate 与 revision 备份。恢复旧 UI 版本后，未手动清理的 legacy localStorage 仍可使用。回滚不需要修改其他 Engine 或删除 Engine 状态。
+
+<!-- seshat:readme-consumer-entry:v1 -->
+### Seshat 消费者接入与下一步（Quick Start）
+
+#### 终端：安装、检查与验证
+
+安装前，目标工程中的 Agent 无法自动发现尚未安装的 Seshat Skill。必须从可信 Provider checkout、PATH 中已发布的可信 `seshat` CLI、`SESHAT_PROVIDER_ROOT` 或显式 `--provider-root` 开始；源码 checkout 用 `node /绝对路径/seshat/bin/seshat.mjs`，已在 PATH 中时用 `seshat`：
+
+```bash
+node /绝对路径/seshat/bin/seshat.mjs bootstrap --target /绝对路径/工程 --provider-root /绝对路径/seshat --dry-run --json
+node /绝对路径/seshat/bin/seshat.mjs bootstrap --target /绝对路径/工程 --provider-root /绝对路径/seshat --agent agents --profile full --delivery auto --json
+node /绝对路径/seshat/bin/seshat.mjs assure --target /绝对路径/工程 --review --json
+node /绝对路径/seshat/bin/seshat.mjs verify --target /绝对路径/工程 --json
+```
+
+#### Shared .agents skills 对话：安装完成后
+
+也可以直接用自然语言告诉 Agent：
+
+- 检查当前工程是否已经正确接入 Seshat。
+- 审查当前 README 是否足以让新开发者和 AI 开始工作。
+- 审查所有 Skill 的跨 Agent 发现和触发条件。
+- 整改这个工程自己拥有的不合格 Skill。
+- 升级 Seshat Skill Kit，并保留本地自定义内容。
+- 运行完整治理收敛并告诉我还有哪些 Owner 决策。
+
+终端命令由 CLI 执行；以上句子和 Skill 调用写在 Agent chat 中。当前限制：安装或静态检查通过不等于当前 Agent 已实际加载 Skill，也不证明自然语言自动触发已经通过 forward evaluation；按 Registry 的 setup/restart 提示刷新或开启新会话。
+
+#### 更新、brownfield 与安全移除
+
+```bash
+node /绝对路径/seshat/bin/seshat.mjs upgrade --target /绝对路径/工程 --provider-root /绝对路径/seshat --dry-run --json
+node /绝对路径/seshat/bin/seshat.mjs uninstall --target /绝对路径/工程 --agent agents --dry-run --json
+```
+
+存量工程不需要先人工重建目录：先 discover/review，再只应用无歧义的机械整改。upgrade 和 uninstall 只处理 receipt 仍能证明未被本地修改的 managed 文件；分歧文件、未知目录、源码、Runtime、凭据与用户数据保持原位。
+
+文档与 Authority 路由：人从 `README.md` 进入，AI 再读 `AGENTS.md`，程序使用 `seshat commands list --json`、`seshat agents list --json` 和 `seshat skills list --json`，运维从 README、CLI 帮助和审计/验证结果确认治理状态，稳定规格与 Contract 位于 `openspec/specs/`。配置、安装、升级与排错见项目 `docs/`；框架问题通过项目声明的反馈入口提交。
+<!-- /seshat:readme-consumer-entry:v1 -->

@@ -1,0 +1,4 @@
+interface:
+  display_name: "向 Seshat 提交问题"
+  short_description: "逐一访谈并向 Seshat 持久审查路径提交框架问题"
+  default_prompt: "使用 $seshat-submit-framework-feedback 逐一询问并提交一个疑似 Seshat 框架问题。"

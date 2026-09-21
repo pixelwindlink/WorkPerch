@@ -1,10 +1,18 @@
 # WorkPerch 工程约束
 
+**上帝规则承认**
+
+本规范的上帝规则永远只有以下两条，且不可被任何工程、项目、Agent 或其他文件覆盖、削弱或改写：
+
+- **GOD-1**：`README.md` 是工程的唯一第一入口。
+- **GOD-2**：`AGENTS.md` 是工程治理与 Agent 执行 Contract 的入口；它必须承认并路由工程权威信息，但不承担工程内全部事实的存储职责。
+
+
 本工程是稳定 Engine ID `perch`、名称 `WorkPerch` 的独立有状态 Engine。它拥有本地开发工作区的路径、速记和项目入口目录，以及这些目录的查询、修改、备份、恢复和受限 registered loopback endpoint liveness 探测。
 
 ## 必须保持的边界
 
-- 服从 Generic Engines 根 `AGENT.md`、EngineMessage v1.0 和 `openspec/architecture/generic-engine-runtime-architecture.md`。
+- 服从 Generic Engines 根 `AGENTS.md`、EngineMessage v1.0 和 `openspec/architecture/generic-engine-runtime-architecture.md`。
 - 不修改、复制演进或向 EngineMessage v1.0 顶层加入自定义字段。
 - 保持 Inbound Boundary → Business Core → Outbound Boundary：Domain/Application 不得依赖 HTTP、DOM、CLI、文件系统、数据库、浏览器 `localStorage` 或具体 Probe Client。
 - 只有 Composition Root 可以认识具体 Adapter；Port 必须窄且由 Business Core 声明。
@@ -61,3 +69,40 @@
 - 使用 `.agents/skills/register-project-entry/SKILL.md` 将其他工程接入 Perch 项目入口。
 - `skills/register-project-entry/SKILL.md` 是旧路径兼容 Adapter，必须先委托 canonical Skill，不能维护第二份注册流程。
 - Skill 必须通过 `engine.manifest.json` 且 `id=perch` 发现工程根，不得依赖固定父目录层数。
+
+## Skill 生命周期治理门禁
+
+<!-- seshat:skill-governance-gate:v2 -->
+当任务涉及新增、AI 生成、复制、安装、升级、拆分、合并或实质修改任何 Skill 时，即使用户没有指定治理 Skill 名称，责任 Agent 也必须：
+
+1. 检测并使用当前平台可用的官方或可信 `skill-creator`；若不存在则如实报告 `creatorUnavailable`，但不得阻断已授权的 Seshat 整改；
+2. 使用 `seshat-remediate-skill-conformance` 审查并在授权后规范化新建或修改后的 Skill；
+3. 使用 `seshat-govern-skill-provenance` 和 `seshat skills register --dry-run` 完成 schemaVersion 2.0 的 `skillClass`、`consumedBy`、来源、命名空间、Authority、behavior digest、能力和 exposure 登记；
+4. 运行 `seshat audit`、`seshat skills lint --profile agent-discoverable-skill/core/v1`、选定 adapter 检查、`seshat skills review`、适用的 forward evaluation 和 `seshat verify`；
+5. 只有通过正式启用门禁后，才能把 Skill 视为正式工程能力。
+
+未对齐 Finding 是整改输入，不阻断 audit、lint、review、companion 补齐、授权整改、proposed/blocked 登记或重新验证；但它阻断 enabled、组织共享/公开分发、稳定自动触发和最终 readiness 声明。`skill-creator`、remediation 与 provenance 是组合关系。outside Skill 不得原地修改；应选择升级、上游修复、project-owned wrapper、显式 fork、禁用或移除。安装器不承诺已启动的 Agent 会话热加载新 Skill。
+
+## Seshat Skill Kit 安装与升级门禁
+
+<!-- seshat:provider-lifecycle-gate:v1 -->
+首次接入前，责任 Agent 不能假设本工程已经能自动发现尚未安装的 Seshat Skill；必须从可信的 `seshat` 命令、源码 checkout、`SESHAT_PROVIDER_ROOT` 或显式 `--provider-root` 开始，并先执行 `seshat bootstrap --target <project> --dry-run --json`。Provider 更新后必须执行 `seshat upgrade --target <project> --dry-run --json`，通过 `project-governance/seshat-kit-lock.json` 对旧 receipt、目标 bytes 和当前 Provider bytes 做三方比较。普通 `init` 不覆盖差异 atom；`--prune` 和 `--allow-downgrade` 需要明确授权。安装或升级后必须运行 skills list/review、audit、verify 和第二次 dry-run，并提示当前 Agent 会话可能需要刷新或重新开始。Provider bootstrap/upgrade 不要求 Git remote 或网络。
+
+## Seshat 自治治理保障门禁
+
+<!-- seshat:governance-assurance-gate:v1 -->
+在引入 Seshat 后，责任 Agent 应优先运行 `seshat assure --target <project> --review --json` 获取统一治理状态；获得写入授权后，使用 `--dry-run` 审查完整计划，再使用 `--apply` 执行确定性整改并要求第二次检查收敛到 `no-changes`。Owner 只处理业务意图、Authority/所有权冲突、outside 的升级/wrapper/fork/license、删除/降级和公开暴露等真实决策。
+
+assure 只编排现有 audit、standardize、Skill evaluator、provenance、Contract review 和 verify，不扩大任何底层写入边界。未对齐 Skill 仍允许审计、review 和授权整改，但在通过对齐与来源门禁前不得声明 enabled、public exposure、稳定自动触发或最终 readiness。中断或并发变化必须依据 `project-governance/assurance/journal.json` 的 digest 前置条件恢复，不得覆盖更新后的用户内容。
+
+## 对外接入指引门禁
+
+<!-- seshat:external-adoption-gate:v1 -->
+当本工程对外提供能力（Skill、CLI、SDK 等需要外部工程先安装、后使用的东西）时，即使用户没有提出要求，责任 Agent 也必须在接入治理收敛后使用 `seshat-publish-external-adoption-entry`，判断本工程是否属于 Provider，并据此补充 `README.md` 的外部接入指引。
+
+判断只能基于真实证据：`.agents/skills/` 中对外提供的能力、manifest 中对外注册的命令或包、面向外部使用者的 `docs/`。证据不足时不得写入该区块，也不得编造接入路径；未知的分类、所有权与分发范围进入 Owner 队列。
+
+指引必须让外部工程的责任 Agent 只读 `README.md` 就能回答三件事：本工程提供什么、如何装进外部工程、装上之后遵守什么规则。安装步骤必须是确切步骤；对以文件形式分发的 Skill，应写明源目录、目标目录与复制方式，并提示外部工程把它登记为 `outside` 并记录来源与行为 digest，使后续版本变化可由 `SKILL_DIGEST_DRIFT` 检出。
+
+本门禁只要求撰写接入指引，不发布、不打包、不分发能力本身，也不代替外部工程完成安装或登记。该区块只属于本工程自己的 README；不得把本工程的接入指引写入任何被治理工程。
+

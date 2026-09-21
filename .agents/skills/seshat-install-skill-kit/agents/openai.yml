@@ -1,0 +1,4 @@
+interface:
+  display_name: "安装 Seshat Skill Kit"
+  short_description: "从可信 Provider 安装、升级并恢复带字节证据的 Seshat Skill Kit"
+  default_prompt: "使用 $seshat-install-skill-kit 验证可信 Provider，并为明确目标预览或执行可恢复的 bootstrap、安装与升级。"

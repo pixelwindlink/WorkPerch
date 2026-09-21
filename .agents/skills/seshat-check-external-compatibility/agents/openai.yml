@@ -1,0 +1,4 @@
+interface:
+  display_name: "检查外部工程兼容性"
+  short_description: "写入前验证所选 Provider 的 Node、CLI、完整 Skill 与 Schema"
+  default_prompt: "使用 $seshat-check-external-compatibility 在外部工程接入前检查显式所选 Seshat Provider 的完整兼容性。"

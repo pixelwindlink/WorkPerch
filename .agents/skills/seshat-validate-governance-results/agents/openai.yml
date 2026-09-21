@@ -1,0 +1,4 @@
+interface:
+  display_name: "验证治理结果结构"
+  short_description: "只读校验既有 Seshat JSON 结果与 Schema 的结构相容性"
+  default_prompt: "使用 $seshat-validate-governance-results 校验一份既有 Seshat JSON 结果，不重新运行来源命令。"

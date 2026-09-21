@@ -1,0 +1,4 @@
+interface:
+  display_name: "整改工程 README"
+  short_description: "审查并增量整改 README 消费者入口与真实调用路径"
+  default_prompt: "使用 $seshat-remediate-project-readme 审查目标工程 README，并在明确授权后增量补齐消费者入口。"

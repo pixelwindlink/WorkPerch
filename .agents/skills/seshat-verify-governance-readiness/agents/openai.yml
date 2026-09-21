@@ -1,0 +1,4 @@
+interface:
+  display_name: "验证工程治理就绪"
+  short_description: "组合审计、标准化预览与 Skill 发现生成只读就绪结论"
+  default_prompt: "使用 $seshat-verify-governance-readiness 只读验证明确目标的工程信息治理就绪状态。"

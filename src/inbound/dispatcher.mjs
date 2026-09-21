@@ -4,7 +4,7 @@ import { validateJsonSchema } from "./json-schema-validator.mjs";
 
 const PROTOCOL = "generic-engines/engine-message";
 const VERSION = "1.0";
-const ENGINE_ID = "perch";
+const ENGINE_ID = "work-perch";
 const ACTION_PATTERN = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+$/;
 const ENGINE_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -58,7 +58,7 @@ export class PerchDispatcher {
       if (envelopeErrors.length || request?.kind !== "request") {
         return errorResponse(request, "INVALID_PAYLOAD", envelopeErrors[0]?.message || "只接受 EngineMessage request。");
       }
-      if (request.engine !== ENGINE_ID) return errorResponse(request, "WRONG_ENGINE", `请求目标 ${request.engine} 不是 perch。`);
+      if (request.engine !== ENGINE_ID) return errorResponse(request, "WRONG_ENGINE", `请求目标 ${request.engine} 不是 work-perch。`);
       if (!this.lifecycle.canDispatch() && request.action !== "system.health" && request.action !== "engine.describe") {
         return errorResponse(request, "ENGINE_NOT_READY", "WorkPerch 当前不可接收业务请求。");
       }

@@ -13,7 +13,7 @@ export function request(action, payload = {}, options = {}) {
     version: "1.0",
     kind: "request",
     id: options.id || `test-${action}`,
-    engine: options.engine || "perch",
+    engine: options.engine || "work-perch",
     action,
     payload,
   };

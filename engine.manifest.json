@@ -1,7 +1,7 @@
 {
   "$schema": "https://generic-engines.local/schemas/governance/engine-manifest-1.2.json",
   "schemaVersion": "1.2",
-  "id": "perch",
+  "id": "work-perch",
   "name": "WorkPerch",
   "version": "2.2.0",
   "classification": "engine",

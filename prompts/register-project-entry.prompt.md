@@ -2,9 +2,9 @@
 
 读取并严格使用以下 Skill：
 
-`/Users/ugreen/workspace/generic_engines/engine_projects/engine-perch/.agents/skills/register-project-entry/SKILL.md`
+`/Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch/.agents/skills/register-project-entry/SKILL.md`
 
-旧路径 `/Users/ugreen/workspace/generic_engines/engine_projects/engine-perch/skills/register-project-entry/SKILL.md` 仍是兼容入口，但必须委托上面的 canonical Skill；不要从旧路径维护或推断第二套流程。
+旧路径 `/Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch/skills/register-project-entry/SKILL.md` 仍是兼容入口，但必须委托上面的 canonical Skill；不要从旧路径维护或推断第二套流程。
 
 ## 目标
 

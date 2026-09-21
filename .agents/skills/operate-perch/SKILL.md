@@ -9,7 +9,7 @@ Preserve Perch's EngineMessage boundary and one state owner.
 
 ## Workflow
 
-1. Locate the Perch Root by finding `engine.manifest.json` with `id=perch`; do not rely on Skill directory depth.
+1. Locate the Perch Root by finding `engine.manifest.json` with `id=work-perch`; do not rely on Skill directory depth.
 2. Read `AGENT.md`, `README.md`, the manifest and [references/operations-contract.md](references/operations-contract.md).
 3. Inspect `git status --short` and current OpenSpec Changes. Preserve unrelated work.
 4. Run `npm run check`, the narrowest tests, `npm test` and local OpenSpec validation before startup diagnostics.

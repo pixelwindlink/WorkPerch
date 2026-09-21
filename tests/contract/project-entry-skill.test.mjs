@@ -57,7 +57,7 @@ test("Perch operations Skill exposes safe state-owner and validation commands", 
   assert.match(skill, /^---\nname: operate-perch\ndescription: .+\n---/);
   for (const marker of ["npm run check", "npm test", "PERCH_RUNTIME_DIR", "STATE_OWNERSHIP_CONFLICT", "Never delete"]) assert.match(skill, new RegExp(marker));
   assert.match(metadata, /\$operate-perch/);
-  for (const marker of ["127.0.0.1:4173", "npm run test:contract", "conformance/runner.mjs --engine perch", "Server Client CLI", "Standalone CLI"]) {
+  for (const marker of ["127.0.0.1:4173", "npm run test:contract", "conformance/runner.mjs --engine work-perch", "Server Client CLI", "Standalone CLI"]) {
     assert.ok(reference.includes(marker), marker);
   }
 });

@@ -9,7 +9,7 @@ Register the project through Perch EngineMessage. Treat Perch aggregate state as
 
 ## Resolve boundaries
 
-1. Starting from this canonical `SKILL.md`, walk upward until finding `engine.manifest.json`; read it and require `id` to equal `perch`. Stop if no unique matching root exists. Do not calculate `PERCH_ROOT` from a fixed number of parent directories.
+1. Starting from this canonical `SKILL.md`, walk upward until finding `engine.manifest.json`; read it and require `id` to equal `work-perch`. Stop if no unique matching root exists. Do not calculate `PERCH_ROOT` from a fixed number of parent directories.
 2. Read these contracts before writing:
    - `PERCH_ROOT/engine.manifest.json`
    - `PERCH_ROOT/contracts/actions/perch.snapshot.get.request-payload.schema.json`

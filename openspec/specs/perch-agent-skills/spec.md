@@ -18,7 +18,7 @@ Perch SHALL publish complete project-local Skills under `.agents/skills/` and SH
 - **THEN** both operations and project-registration capabilities SHALL be available from the canonical directory
 
 ### Requirement: Perch root resolution validates Engine identity
-Perch Skills SHALL resolve the project root by locating `engine.manifest.json` and confirming Engine ID `perch`, and MUST NOT depend on a fixed parent-directory count.
+Perch Skills SHALL resolve the project root by locating `engine.manifest.json` and confirming Engine ID `work-perch`, and MUST NOT depend on a fixed parent-directory count.
 
 #### Scenario: register-project-entry is loaded from the canonical directory
 - **WHEN** it resolves Perch contracts

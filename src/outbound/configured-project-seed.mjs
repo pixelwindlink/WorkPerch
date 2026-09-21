@@ -64,7 +64,7 @@ export class ConfiguredProjectSeed extends ProjectSeedPort {
         pinned: false
       },
       {
-        id: "perch",
+        id: "work-perch",
         name: "WorkPerch",
         type: "engine",
         label: "Engine",

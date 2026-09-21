@@ -4,7 +4,7 @@
 TBD - created by archiving change convert-perch-application-to-engine. Update Purpose after archive.
 ## Requirements
 ### Requirement: Perch exposes one stable Engine identity
-Perch SHALL expose Engine ID `perch`, name `WorkPerch`, manifest 1.2, Action Catalog discovery, Provider-compatible instance creation and human/program/agent consumer declarations while referencing `openspec/architecture/generic-engine-runtime-architecture.md` as the sole architecture authority.
+Perch SHALL expose Engine ID `work-perch`, name `WorkPerch`, manifest 1.2, Action Catalog discovery, Provider-compatible instance creation and human/program/agent consumer declarations while referencing `openspec/architecture/generic-engine-runtime-architecture.md` as the sole architecture authority.
 
 #### Scenario: Runtime discovers Perch
 - **WHEN** a host loads the Perch Provider

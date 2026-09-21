@@ -9,7 +9,7 @@
     "maintainer": "pixelwindlink"
   },
   "authority": ".agents/skills/operate-perch/SKILL.md",
-  "behaviorDigest": "sha256:381e5b695379f2cde5e33e825e75ad79d6f4f5616ed4b1e90416a79b66467adc",
+  "behaviorDigest": "sha256:be1d562487d0a14f4ef8b21a4025170f072b91b1c8a7596a2bee978c60e35f03",
   "capabilities": [
     "diagnostics",
     "engine-operations"

@@ -1,7 +1,7 @@
 {
   "$schema": "https://generic-engines.local/schemas/engine-message/1.0/action-catalog.json",
   "schemaVersion": "1.0",
-  "engine": "perch",
+  "engine": "work-perch",
   "protocol": {
     "name": "generic-engines/engine-message",
     "version": "1.0"

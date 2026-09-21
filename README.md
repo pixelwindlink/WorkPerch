@@ -9,13 +9,13 @@
 
 人在并行推进多件事时，散落各处的工程目录、知识库目录和剪贴片段需要一个集中的登记处 —— 一个能落脚、也能再出发的地方。这个工程提供的就是这一层：登记入口、感知状态、把人送过去。
 
-WorkPerch 2.0（Engine ID：`perch`）通过 EngineMessage 管理本地开发工作区的文件路径、速记和项目入口目录，并提供路径状态感知、共享多标签、使用排序、保存视图、版本化备份，以及通过独立 Project Launcher Engine 实现的安全项目启动/停止。
+WorkPerch 2.0（项目 ID：`work-perch`）通过 EngineMessage 管理本地开发工作区的文件路径、速记和项目入口目录，并提供路径状态感知、共享多标签、使用排序、保存视图、版本化备份，以及通过独立 Project Launcher Engine 实现的安全项目启动/停止。
 
 它不是 Generic Engines Runtime、Message Router、Observability Plane、Shell 执行器、文件管理器、凭据管理器或其他 Engine 的状态/健康权威。Perch 自身不执行项目命令；Desktop 只把结构化 `cwd + executable + args[]` 经注入 EngineClient 发送给独立 `project-launcher`。
 
 ## 项目定位与职责
 
-- 产品名：`WorkPerch`。项目 ID：`perch`
+- 产品名：`WorkPerch`。项目 ID：`work-perch`
 - 分类：`engine`
 - 目的：登记本地路径、速记和项目入口，感知状态，再把人送到对应入口。
 - 负责：本地路径、速记、项目入口、保存视图和备份聚合，以及通过注入 EngineClient 委托 Project Launcher。
@@ -263,7 +263,7 @@ Standalone Exclusive：
 
 ```bash
 export PERCH_RUNTIME_DIR=/absolute/isolated/runtime
-printf '%s\n' '{"protocol":"generic-engines/engine-message","version":"1.0","kind":"request","id":"demo","engine":"perch","action":"perch.snapshot.get","payload":{}}' | node cli.mjs
+printf '%s\n' '{"protocol":"generic-engines/engine-message","version":"1.0","kind":"request","id":"demo","engine":"work-perch","action":"perch.snapshot.get","payload":{}}' | node cli.mjs
 node cli.mjs --message-file request.json
 ```
 
@@ -330,7 +330,7 @@ openspec validate --all --json
 npm test
 npm run conformance
 node conformance/runner.mjs --static-only
-node conformance/runner.mjs --engine perch --json
+node conformance/runner.mjs --engine work-perch --json
 ```
 
 若沙箱禁止本地监听，HTTP E2E 会明确以 `listen EPERM` 跳过；这属于环境限制，必须在允许 loopback listen 的环境补跑，不能据此宣称 HTTP 已通过。

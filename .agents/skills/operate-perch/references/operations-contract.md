@@ -4,7 +4,7 @@ Generic Engines architecture authority: `openspec/architecture/generic-engine-ru
 
 ## Identity and boundaries
 
-- Engine ID: `perch` from `engine.manifest.json`.
+- Engine ID: `work-perch` from `engine.manifest.json`.
 - Default loopback Server: `http://127.0.0.1:4173`.
 - Message endpoint: `POST /engine-message`.
 - State mode: single writer.
@@ -29,7 +29,7 @@ node cli.mjs --server-url http://127.0.0.1:4173 --message-file <request.json>
 From the Generic Engines root:
 
 ```bash
-node conformance/runner.mjs --engine perch --json
+node conformance/runner.mjs --engine work-perch --json
 ```
 
 ## State ownership

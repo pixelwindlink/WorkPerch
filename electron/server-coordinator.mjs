@@ -81,7 +81,7 @@ export async function isPerchServerReady(baseUrl, { fetchImpl = fetch, timeoutMs
         version: VERSION,
         kind: "request",
         id: requestId(),
-        engine: "perch",
+        engine: "work-perch",
         action: "engine.describe",
         payload: {}
       }),
@@ -92,10 +92,10 @@ export async function isPerchServerReady(baseUrl, { fetchImpl = fetch, timeoutMs
     return message?.protocol === PROTOCOL
       && message?.version === VERSION
       && message?.kind === "response"
-      && message?.engine === "perch"
+      && message?.engine === "work-perch"
       && message?.action === "engine.describe"
       && message?.status === "ok"
-      && message?.payload?.id === "perch";
+      && message?.payload?.id === "work-perch";
   } catch {
     return false;
   } finally {

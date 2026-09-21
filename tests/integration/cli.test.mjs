@@ -20,7 +20,7 @@ test("CLI stdin emits exactly one success response with isolated stderr", async 
     const response = oneResponse(result);
     assert.equal(response.status, "ok");
     assert.equal(response.id, message.id);
-    assert.equal(response.payload.id, "perch");
+    assert.equal(response.payload.id, "work-perch");
   } finally {
     await removeRuntime(runtimeDir);
   }

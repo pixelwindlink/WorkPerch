@@ -22,10 +22,10 @@ function describeResponse() {
     version: "1.0",
     kind: "response",
     id: "desktop-test",
-    engine: "perch",
+    engine: "work-perch",
     action: "engine.describe",
     status: "ok",
-    payload: { id: "perch" }
+    payload: { id: "work-perch" }
   });
 }
 

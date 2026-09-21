@@ -9,7 +9,7 @@
     "maintainer": "pixelwindlink"
   },
   "authority": ".agents/skills/register-project-entry/SKILL.md",
-  "behaviorDigest": "sha256:9e4af5a2aed5a4b32ebc0c6277935fa463aaca0d7d7705db32e99d4c15900942",
+  "behaviorDigest": "sha256:f4328537c2a8dcedfffe552745031c4b36b1677b05be306cda37b57f0cbcb824",
   "capabilities": [
     "project-registration"
   ],

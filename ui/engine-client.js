@@ -83,7 +83,7 @@ export async function engineAction(action, payload = {}) {
     version: "1.0",
     kind: "request",
     id: messageId(),
-    engine: "perch",
+    engine: "work-perch",
     action,
     payload,
   };

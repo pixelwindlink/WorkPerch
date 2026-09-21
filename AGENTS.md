@@ -8,7 +8,7 @@
 - **GOD-2**：`AGENTS.md` 是工程治理与 Agent 执行 Contract 的入口；它必须承认并路由工程权威信息，但不承担工程内全部事实的存储职责。
 
 
-本工程是稳定 Engine ID `perch`、名称 `WorkPerch` 的独立有状态 Engine。它拥有本地开发工作区的路径、速记和项目入口目录，以及这些目录的查询、修改、备份、恢复和受限 registered loopback endpoint liveness 探测。
+本工程是稳定项目 ID `work-perch`、名称 `WorkPerch` 的独立有状态 Engine。它拥有本地开发工作区的路径、速记和项目入口目录，以及这些目录的查询、修改、备份、恢复和受限 registered loopback endpoint liveness 探测。
 
 ## 必须保持的边界
 
@@ -59,7 +59,7 @@
 - 变更 Business Rule、Action、状态 Schema、Transport 或迁移语义时，先更新仍未归档的 OpenSpec Change，并同步测试与文档。
 - 不降低 Schema、Contract 或 conformance 约束来换取通过。
 - 完成修改后至少运行 `npm run check`、相关分层测试、`npm test` 和 `openspec validate --all --json`。
-- 注册表只有在根黑盒 `node conformance/runner.mjs --engine perch --json` 真正通过后才能标为 `engine/conformant`。
+- 注册表只有在根黑盒 `node conformance/runner.mjs --engine work-perch --json` 真正通过后才能标为 `engine/conformant`。
 - 不自动归档 OpenSpec Change，不创建 Git commit，不清理或覆盖用户已有未提交文件。
 
 ## 项目级 Skills
@@ -68,7 +68,7 @@
 - 使用 `.agents/skills/operate-perch/SKILL.md` 启动、测试、调用或诊断本 Engine；它必须保持 Server/Standalone 单写入者边界。
 - 使用 `.agents/skills/register-project-entry/SKILL.md` 将其他工程接入 Perch 项目入口。
 - `skills/register-project-entry/SKILL.md` 是旧路径兼容 Adapter，必须先委托 canonical Skill，不能维护第二份注册流程。
-- Skill 必须通过 `engine.manifest.json` 且 `id=perch` 发现工程根，不得依赖固定父目录层数。
+- Skill 必须通过 `engine.manifest.json` 且 `id=work-perch` 发现工程根，不得依赖固定父目录层数。
 
 ## Skill 生命周期治理门禁
 

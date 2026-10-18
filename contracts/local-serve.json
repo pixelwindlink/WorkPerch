@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "generic-engines/local-serve-recovery/v1",
+  "engineId": "work-perch",
+  "endpoint": {
+    "host": "127.0.0.1",
+    "port": 4173,
+    "portEnv": "PERCH_SERVER_PORT",
+    "method": "POST",
+    "messagePath": "/engine-message"
+  },
+  "process": { "entrypoint": "server.mjs" }
+}

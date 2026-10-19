@@ -71,7 +71,7 @@ PERCH_RUNTIME_DIR=/absolute/path/to/perch-runtime npm start
 ## 公共 Contract
 
 - 架构权威：`../../openspec/architecture/generic-engine-runtime-architecture.md`
-- 项目 OpenSpec：`openspec/changes/convert-perch-application-to-engine/`
+- 项目 OpenSpec：`openspec/changes/archive/2026-07-28-convert-dashboard-application-to-engine/`
 - 公共协议：根 EngineMessage v1.0；Action Catalog 与 payload Schema 位于 `contracts/`
 - manifest：`engine.manifest.json` 1.2；消费者面和 Provider 声明以该文件为准
 - 错误与并发：结构化 EngineMessage error、`expectedRevision` 和 `PERCH_REVISION_CONFLICT`
@@ -140,7 +140,7 @@ JSON Repository / Lock / Inspector / Probe / EngineClient  Outbound Boundary
 - EngineMessage v1.0 信封从 Generic Engines 根治理目录读取，不在本工程复制或扩展。
 - Desktop Composition Host 向 Perch 注入只允许四个 Launcher Action 的 EngineClient；普通 Server/CLI 未注入时，Launcher Action 返回 `DEPENDENCY_UNAVAILABLE`，其他 CRUD 不受影响。
 
-架构权威：`../../openspec/architecture/generic-engine-runtime-architecture.md`。迁移 Change 保存在 `openspec/changes/convert-perch-application-to-engine/`。
+架构权威：`../../openspec/architecture/generic-engine-runtime-architecture.md`。已归档的迁移 Change 保存在 `openspec/changes/archive/2026-07-28-convert-dashboard-application-to-engine/`。
 
 ## Action Catalog
 
@@ -230,7 +230,7 @@ ui/
 开发模式启动桌面窗口：
 
 ```bash
-cd /Users/ugreen/workspace/generic_engines/engine_projects/engine-perch
+cd /Users/ugreen/workspace/generic_engines/engine_projects/engine-work-perch
 npm run desktop
 ```
 
@@ -255,7 +255,7 @@ ditto dist/desktop/Perch-darwin-arm64/Perch.app /Applications/Perch.app
 
 构建使用 ASAR，排除 Git、测试、OpenSpec、runtime data、导出和 Agent Skill，并把正式 `governance/` Contract、Project Launcher 的 manifest/contracts/src，以及 Perch/Launcher 共享 describe 投影所需的 Engine Provider SPI `package.json`、component manifest 与 `src/` 作为最小只读资源放入 App。Launcher 与 SPI 的 tests、fixtures、OpenSpec 和 runtime_data 不进入安装包。生成物采用本机 ad-hoc 签名，适用于当前 Mac；跨机器公开分发需要 Developer ID 和 notarization。
 
-工程内的本机安装镜像位于 `release/Perch-2.1.0-arm64.dmg`。打开 DMG 后，把 `Perch.app` 拖到其中的 `Applications` 快捷方式即可安装。该镜像不包含 Perch 或 Project Launcher runtime state、锁、备份或用户数据。
+当前已实测的开发构建产物位于 `dist/desktop/Perch-darwin-arm64/Perch.app`，可直接用上面的 `ditto` 命令安装到本机。`release/` 当前只保留历史 `Dashboard-*` 镜像及其校验文件，尚未生成可宣称的 Perch DMG；不要把历史镜像当作 WorkPerch 安装包。无论后续是否生成发布镜像，发布包都不应包含 Perch 或 Project Launcher runtime state、锁、备份或用户数据。
 
 ## CLI
 

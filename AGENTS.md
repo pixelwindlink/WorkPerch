@@ -20,6 +20,7 @@
 - Electron Desktop Shell 是 Perch + Project Launcher 的 Composition Host，同时复用现有 Web/HTTP 边界；必须保持 `nodeIntegration: false`、`contextIsolation: true`，preload 仅允许解析用户主动拖入 File 的绝对路径、通过固定 allowlisted channel 读取/切换当前主窗口 always-on-top、请求 Main Process 在 Finder 中打开已登记绝对目录或定位文件，以及订阅 Main Process 发出的召唤（summon）通知以打开快速面板；禁止任意 IPC、文件执行、Launcher IPC 和 Renderer 文件系统访问。
 - Perch Application 只可通过注入的窄 `EngineClient.send(EngineMessage)` 调用 `project-launcher` 公开 Action；禁止 import Launcher Business Core、读取其 runtime 或向 Renderer 暴露进程对象。
 - Action Catalog 与 `contracts/actions/*.schema.json` 是公开 payload Contract 的唯一事实来源；运行时和测试必须读取这些文件。
+- manifest 1.3 的 `runtime.operatorSurfaces.mode` 当前固定为 `none`：Provider/EngineHandle 不暴露 Runtime/Hall Operator Surface；独立 Web/Electron 入口不得被推断为 Runtime Instance 的在线 Surface 证据。把现有 UI 纳入 EngineHandle 生命周期须另立授权 Change。
 
 ## 状态与运行
 
@@ -105,4 +106,3 @@ assure 只编排现有 audit、standardize、Skill evaluator、provenance、Cont
 指引必须让外部工程的责任 Agent 只读 `README.md` 就能回答三件事：本工程提供什么、如何装进外部工程、装上之后遵守什么规则。安装步骤必须是确切步骤；对以文件形式分发的 Skill，应写明源目录、目标目录与复制方式，并提示外部工程把它登记为 `outside` 并记录来源与行为 digest，使后续版本变化可由 `SKILL_DIGEST_DRIFT` 检出。
 
 本门禁只要求撰写接入指引，不发布、不打包、不分发能力本身，也不代替外部工程完成安装或登记。该区块只属于本工程自己的 README；不得把本工程的接入指引写入任何被治理工程。
-

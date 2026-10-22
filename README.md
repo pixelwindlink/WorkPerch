@@ -73,7 +73,7 @@ PERCH_RUNTIME_DIR=/absolute/path/to/perch-runtime npm start
 - 架构权威：`../../openspec/architecture/generic-engine-runtime-architecture.md`
 - 项目 OpenSpec：`openspec/changes/archive/2026-07-28-convert-dashboard-application-to-engine/`
 - 公共协议：根 EngineMessage v1.0；Action Catalog 与 payload Schema 位于 `contracts/`
-- manifest：`engine.manifest.json` 1.2；消费者面和 Provider 声明以该文件为准
+- manifest：`engine.manifest.json` 1.3；消费者面和 Provider 声明以该文件为准；当前 `runtime.operatorSurfaces.mode` 为 `none`，不向 Runtime/Hall 声明 EngineHandle-owned Operator Surface
 - 错误与并发：结构化 EngineMessage error、`expectedRevision` 和 `PERCH_REVISION_CONFLICT`
 
 ## 状态、安全与运行数据
@@ -163,7 +163,9 @@ JSON Repository / Lock / Inspector / Probe / EngineClient  Outbound Boundary
 
 ## Consumer surfaces
 
-Perch 使用 manifest 1.2 显式发布三类已有入口：人类从 `README.md` / `architecture/README.md` 理解职责；程序通过 EngineMessage 1.0 调用 Action Catalog 的完整 Action 集合；Agent 使用 canonical `operate-perch` 与 `register-project-entry` Skills。旧 `skills/register-project-entry/SKILL.md` 只作为 compatibility path，不是第二个 Skill。
+Perch 使用 manifest 1.3 显式发布三类已有入口：人类从 `README.md` / `architecture/README.md` 理解职责；程序通过 EngineMessage 1.0 调用 Action Catalog 的完整 Action 集合；Agent 使用 canonical `operate-perch` 与 `register-project-entry` Skills。旧 `skills/register-project-entry/SKILL.md` 只作为 compatibility path，不是第二个 Skill。
+
+当前 `runtime.operatorSurfaces.mode` 为 `none`：Provider/EngineHandle 不暴露 Runtime/Hall Operator Surface。现有独立 HTTP Web UI 与 Electron Desktop Composition Host 保持原有入口和生命周期；该声明不把它们冒充为 Runtime Instance 的在线 Surface 证据。
 
 `engine.describe` 返回上述声明的 schema-safe 投影；Skill compatibility path 不进入 describe success payload。consumer declaration 只描述可发现入口，不证明 Runtime Definition 已持久登记或 Instance online。
 

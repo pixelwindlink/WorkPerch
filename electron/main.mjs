@@ -1,11 +1,24 @@
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { app, BrowserWindow, globalShortcut, ipcMain, shell, screen } from "electron";
+import { app, BrowserWindow, clipboard, globalShortcut, ipcMain, shell, screen } from "electron";
+import { clipboardHistoryPath, createClipboardHistoryStore } from "./clipboard-history.mjs";
+import {
+  applyWindowBounds,
+  captureFrontWindowBounds,
+  createExternalWindowLayoutStore,
+  externalWindowLayoutsPath,
+  EXTERNAL_WINDOW_PRESETS,
+} from "./external-window-layout.mjs";
 import { createPerchHttpServer } from "../server.mjs";
 import { openPathInFinder } from "./finder-path-controller.mjs";
 import { LocalEngineClient } from "./local-engine-client.mjs";
 import { acquirePerchServer, resolveDesktopGenericEnginesRoot, resolveDesktopServerUrl, resolveProjectLauncherRoot } from "./server-coordinator.mjs";
-import { createWindowStateTracker, windowStatePath } from "./window-state.mjs";
+import {
+  CLIPBOARD_PANEL_MIN_WINDOW_HEIGHT,
+  createWindowStateTracker,
+  MIN_WINDOW_SIZE,
+  windowStatePath,
+} from "./window-state.mjs";
 
 const ELECTRON_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEVELOPMENT_GENERIC_ENGINES_ROOT = path.resolve(ELECTRON_DIR, "../../..");
@@ -14,6 +27,12 @@ const LAUNCHER_ACTIONS = ["launcher.definition.upsert", "launcher.project.start"
 const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
 const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
 const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
+const CLIPBOARD_LIST = "perch:clipboard:list";
+const CLIPBOARD_GET = "perch:clipboard:get";
+const CLIPBOARD_WRITE = "perch:clipboard:write";
+const EXTERNAL_WINDOW_LIST = "perch:external-window:list";
+const EXTERNAL_WINDOW_CAPTURE = "perch:external-window:capture";
+const EXTERNAL_WINDOW_APPLY = "perch:external-window:apply";
 const SUMMON_CHANNEL = "perch:summon";
 const SUMMON_HOTKEY = process.platform === "darwin" ? "Command+Shift+D" : "Control+Shift+D";
 const serverTarget = resolveDesktopServerUrl(process.env);
@@ -25,6 +44,57 @@ let launcherDiagnostic = null;
 let mainWindow;
 let quitting = false;
 let windowStateTracker = null;
+let clipboardHistoryStore = null;
+let clipboardWatchTimer = null;
+let externalWindowLayoutStore = null;
+
+const EXTERNAL_WINDOW_ERROR_MESSAGES = {
+  EXTERNAL_WINDOW_UNSUPPORTED_PLATFORM: "仅支持 macOS",
+  EXTERNAL_WINDOW_NOT_RUNNING: "目标应用未运行，请先打开对应窗口",
+  EXTERNAL_WINDOW_NO_WINDOW: "目标应用没有可用窗口",
+  EXTERNAL_WINDOW_BOUNDS_INVALID: "无法读取窗口位置",
+  EXTERNAL_WINDOW_APPLY_FAILED: "恢复窗口失败",
+};
+
+function mapExternalWindowError(error) {
+  const code = error?.message || String(error);
+  return EXTERNAL_WINDOW_ERROR_MESSAGES[code] || "窗口操作失败";
+}
+
+function ensureClipboardHistoryStore() {
+  if (!clipboardHistoryStore) {
+    clipboardHistoryStore = createClipboardHistoryStore({
+      filePath: clipboardHistoryPath(app.getPath("userData")),
+    });
+  }
+  return clipboardHistoryStore;
+}
+
+function ensureExternalWindowLayoutStore() {
+  if (!externalWindowLayoutStore) {
+    externalWindowLayoutStore = createExternalWindowLayoutStore(
+      externalWindowLayoutsPath(app.getPath("userData")),
+    );
+  }
+  return externalWindowLayoutStore;
+}
+
+function startClipboardWatcher() {
+  ensureClipboardHistoryStore();
+  if (clipboardWatchTimer) return;
+  clipboardWatchTimer = setInterval(() => {
+    try {
+      clipboardHistoryStore.observeText(clipboard.readText());
+    } catch {
+      /* ignore clipboard read errors */
+    }
+  }, 800);
+}
+
+function stopClipboardWatcher() {
+  if (clipboardWatchTimer) clearInterval(clipboardWatchTimer);
+  clipboardWatchTimer = null;
+}
 
 function currentPerchWindow(event) {
   const sourceWindow = BrowserWindow.fromWebContents(event.sender);
@@ -73,6 +143,55 @@ function registerDesktopIpcHandlers() {
       openDirectory: (value) => shell.openPath(value),
       showItemInFolder: (value) => shell.showItemInFolder(value),
     });
+  });
+  ipcMain.handle(CLIPBOARD_LIST, (event) => {
+    currentPerchWindow(event);
+    return ensureClipboardHistoryStore().list();
+  });
+  ipcMain.handle(CLIPBOARD_GET, (event, id) => {
+    currentPerchWindow(event);
+    if (typeof id !== "string") throw new TypeError("clipboard id must be a string.");
+    const item = ensureClipboardHistoryStore().get(id);
+    if (!item) return null;
+    return { id: item.id, text: item.text, capturedAt: item.capturedAt };
+  });
+  ipcMain.handle(CLIPBOARD_WRITE, (event, id) => {
+    currentPerchWindow(event);
+    if (typeof id !== "string") throw new TypeError("clipboard id must be a string.");
+    const item = ensureClipboardHistoryStore().get(id);
+    if (!item) return null;
+    clipboard.writeText(item.text);
+    return { id: item.id, text: item.text };
+  });
+  ipcMain.handle(EXTERNAL_WINDOW_LIST, (event) => {
+    currentPerchWindow(event);
+    return ensureExternalWindowLayoutStore().list();
+  });
+  ipcMain.handle(EXTERNAL_WINDOW_CAPTURE, async (event, presetId) => {
+    currentPerchWindow(event);
+    if (typeof presetId !== "string") throw new TypeError("preset id must be a string.");
+    const preset = EXTERNAL_WINDOW_PRESETS.find((entry) => entry.id === presetId);
+    if (!preset) throw new Error("EXTERNAL_WINDOW_PRESET_UNKNOWN");
+    try {
+      const bounds = await captureFrontWindowBounds(preset.bundleId);
+      return ensureExternalWindowLayoutStore().save(presetId, bounds);
+    } catch (error) {
+      throw new Error(mapExternalWindowError(error));
+    }
+  });
+  ipcMain.handle(EXTERNAL_WINDOW_APPLY, async (event, presetId) => {
+    currentPerchWindow(event);
+    if (typeof presetId !== "string") throw new TypeError("preset id must be a string.");
+    const saved = ensureExternalWindowLayoutStore().get(presetId);
+    if (!saved) throw new Error("尚未保存该应用的窗口布局");
+    const preset = EXTERNAL_WINDOW_PRESETS.find((entry) => entry.id === presetId);
+    if (!preset) throw new Error("EXTERNAL_WINDOW_PRESET_UNKNOWN");
+    try {
+      await applyWindowBounds(preset.bundleId, saved);
+      return { ok: true };
+    } catch (error) {
+      throw new Error(mapExternalWindowError(error));
+    }
   });
 }
 
@@ -159,8 +278,8 @@ async function createWindow() {
     height: saved.height,
     ...(Number.isFinite(saved.x) ? { x: saved.x } : {}),
     ...(Number.isFinite(saved.y) ? { y: saved.y } : {}),
-    minWidth: 360,
-    minHeight: 320,
+    minWidth: MIN_WINDOW_SIZE.width,
+    minHeight: CLIPBOARD_PANEL_MIN_WINDOW_HEIGHT,
     backgroundColor: "#0b0d10",
     show: false,
     webPreferences: {
@@ -178,6 +297,10 @@ async function createWindow() {
   mainWindow.webContents.on("will-navigate", (event, url) => {
     if (new URL(url).origin !== activeLease.baseUrl) event.preventDefault();
   });
+  mainWindow.webContents.on("page-title-updated", (event) => {
+    event.preventDefault();
+    mainWindow.setTitle("WorkPerch");
+  });
   mainWindow.once("ready-to-show", () => {
     if (!mainWindow || mainWindow.isDestroyed()) return;
     if (saved.fullScreen) mainWindow.setFullScreen(true);
@@ -186,7 +309,8 @@ async function createWindow() {
   });
   mainWindow.on("closed", () => { mainWindow = null; });
   await mainWindow.loadURL(activeLease.baseUrl);
-  const desktopBridgeReady = await mainWindow.webContents.executeJavaScript('["getPathForFile", "getAlwaysOnTop", "setAlwaysOnTop", "openPathInFinder", "onSummon"].every((name) => typeof window.perchDesktop?.[name] === "function")');
+  startClipboardWatcher();
+  const desktopBridgeReady = await mainWindow.webContents.executeJavaScript('["getPathForFile", "getAlwaysOnTop", "setAlwaysOnTop", "openPathInFinder", "onSummon"].every((name) => typeof window.perchDesktop?.[name] === "function") && typeof window.perchDesktop?.clipboard?.list === "function" && typeof window.perchDesktop?.externalWindows?.list === "function"');
   if (!desktopBridgeReady) throw new Error("Perch Desktop preload bridge 未完整加载。");
   registerSummonHotkey();
   process.stderr.write(`Perch Desktop ready at ${activeLease.baseUrl} (owned composition Server; Project Launcher ${launcherEngine ? "ready" : `unavailable: ${launcherDiagnostic}`}; desktop bridge ready)\n`);
@@ -230,6 +354,7 @@ if (!app.requestSingleInstanceLock()) {
 
   app.on("will-quit", () => {
     globalShortcut.unregisterAll();
+    stopClipboardWatcher();
   });
 
   app.on("before-quit", (event) => {

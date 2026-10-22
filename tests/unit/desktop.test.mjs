@@ -163,8 +163,8 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.equal(/node:fs|child_process|shell\./.test(preload), false);
   assert.match(main, /contextIsolation:\s*true/);
   assert.match(main, /nodeIntegration:\s*false/);
-  assert.match(main, /minWidth:\s*360/);
-  assert.match(main, /minHeight:\s*320/);
+  assert.match(main, /minWidth:\s*MIN_WINDOW_SIZE\.width/);
+  assert.match(main, /minHeight:\s*CLIPBOARD_PANEL_MIN_WINDOW_HEIGHT/);
   assert.match(main, /createWindowStateTracker/);
   assert.match(main, /saved\.maximized/);
   assert.match(windowState, /window-state\.json/);

@@ -1,0 +1,17 @@
+export const CLIPBOARD_ROW_HEIGHT_PX = 24;
+export const CLIPBOARD_COLUMN_HEAD_HEIGHT_PX = 22;
+export const CLIPBOARD_LIST_MAX_ROWS = 15;
+export const CLIPBOARD_DETAIL_ROWS = 10;
+export const CLIPBOARD_TOTAL_CONTENT_ROWS = CLIPBOARD_LIST_MAX_ROWS + CLIPBOARD_DETAIL_ROWS;
+
+export const CLIPBOARD_PANEL_BODY_MIN_HEIGHT_PX =
+  CLIPBOARD_COLUMN_HEAD_HEIGHT_PX + CLIPBOARD_TOTAL_CONTENT_ROWS * CLIPBOARD_ROW_HEIGHT_PX;
+
+/** Matches workspace `100vh - 108px` (header + footer). */
+export const WORKSPACE_VIEWPORT_OFFSET_PX = 108;
+/** Sticky bar min-height, padding, margin, border (clipboard tab). */
+export const CLIPBOARD_STICKY_CHROME_PX = 75;
+
+export function minWindowHeightForClipboardPanelPx() {
+  return WORKSPACE_VIEWPORT_OFFSET_PX + CLIPBOARD_STICKY_CHROME_PX + CLIPBOARD_PANEL_BODY_MIN_HEIGHT_PX;
+}

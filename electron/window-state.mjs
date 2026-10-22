@@ -1,8 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+import { minWindowHeightForClipboardPanelPx } from "../clipboard-panel-layout.mjs";
 
 export const DEFAULT_WINDOW_BOUNDS = Object.freeze({ width: 1440, height: 940 });
 export const MIN_WINDOW_SIZE = Object.freeze({ width: 360, height: 320 });
+/** Desktop window cannot shrink below a full clipboard panel (15 list rows + 10 detail rows). */
+export const CLIPBOARD_PANEL_MIN_WINDOW_HEIGHT = minWindowHeightForClipboardPanelPx();
 
 function asFiniteNumber(value) {
   const number = Number(value);

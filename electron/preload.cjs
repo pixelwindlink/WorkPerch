@@ -3,6 +3,12 @@ const { contextBridge, ipcRenderer, webUtils } = require("electron");
 const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
 const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
 const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
+const CLIPBOARD_LIST = "perch:clipboard:list";
+const CLIPBOARD_GET = "perch:clipboard:get";
+const CLIPBOARD_WRITE = "perch:clipboard:write";
+const EXTERNAL_WINDOW_LIST = "perch:external-window:list";
+const EXTERNAL_WINDOW_CAPTURE = "perch:external-window:capture";
+const EXTERNAL_WINDOW_APPLY = "perch:external-window:apply";
 const SUMMON_CHANNEL = "perch:summon";
 
 if (typeof webUtils?.getPathForFile !== "function") {
@@ -36,5 +42,31 @@ contextBridge.exposeInMainWorld("perchDesktop", Object.freeze({
     };
     ipcRenderer.on(SUMMON_CHANNEL, listener);
     return () => ipcRenderer.removeListener(SUMMON_CHANNEL, listener);
-  }
+  },
+  clipboard: Object.freeze({
+    list() {
+      return ipcRenderer.invoke(CLIPBOARD_LIST);
+    },
+    get(id) {
+      if (typeof id !== "string") return Promise.reject(new TypeError("clipboard id must be a string."));
+      return ipcRenderer.invoke(CLIPBOARD_GET, id);
+    },
+    copy(id) {
+      if (typeof id !== "string") return Promise.reject(new TypeError("clipboard id must be a string."));
+      return ipcRenderer.invoke(CLIPBOARD_WRITE, id);
+    },
+  }),
+  externalWindows: Object.freeze({
+    list() {
+      return ipcRenderer.invoke(EXTERNAL_WINDOW_LIST);
+    },
+    capture(presetId) {
+      if (typeof presetId !== "string") return Promise.reject(new TypeError("preset id must be a string."));
+      return ipcRenderer.invoke(EXTERNAL_WINDOW_CAPTURE, presetId);
+    },
+    apply(presetId) {
+      if (typeof presetId !== "string") return Promise.reject(new TypeError("preset id must be a string."));
+      return ipcRenderer.invoke(EXTERNAL_WINDOW_APPLY, presetId);
+    },
+  }),
 }));

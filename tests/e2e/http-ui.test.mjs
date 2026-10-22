@@ -43,6 +43,7 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
     assert.match(await appResponse.text(), /from "\.\/ui\//);
     const engineClientResponse = await fetch(`${baseUrl}/ui/engine-client.js`);
     assert.equal(engineClientResponse.status, 200);
+    assert.equal((await fetch(`${baseUrl}/ui/clipboard-config.js`)).status, 200);
     assert.match(await engineClientResponse.text(), /perch\.snapshot\.get/);
     assert.equal((await fetch(`${baseUrl}/ui/../package.json`)).status, 404);
     assert.equal((await fetch(`${baseUrl}/ui/not-real.js`)).status, 404);
@@ -146,6 +147,9 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.deepEqual(uiFiles.includes("events.js"), true);
   assert.deepEqual(uiFiles.includes("guide.js"), true);
   assert.deepEqual(uiFiles.includes("keyboard.js"), true);
+  assert.deepEqual(uiFiles.includes("clipboard-config.js"), true);
+  assert.match(ui["render-clipboard.js"], /from "\.\/clipboard-config\.js"/);
+  assert.equal(/clipboard-config\.mjs/.test(client), false);
   assert.deepEqual(uiFiles.includes("dialogs-tag-registry.js"), true);
   assert.match(ui["engine-client.js"], /perch\.snapshot\.get/);
   assert.match(ui["dialogs-path.js"], /perch\.path\.upsert/);
@@ -192,7 +196,6 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="abnormalPathsButton"/);
   assert.match(html, /id="cleanupAbnormalPathsButton"/);
   assert.match(html, /id="usageHome"/);
-  assert.match(html, /id="noteUsageHome"/);
   assert.match(html, /id="summonOverlay"/);
   assert.match(html, /id="summonSearch"/);
   assert.match(ui["summon.js"], /onSummon/);
@@ -247,7 +250,7 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(css, /\.usage-home/);
   assert.match(css, /\.usage-home\[hidden\]\s*\{\s*display:\s*none\s*!important/);
   assert.match(ui["render-paths.js"], /from "\.\/usage-home\.js"/);
-  assert.match(ui["render-notes.js"], /from "\.\/usage-home\.js"/);
+  assert.equal(/usage-home/.test(ui["render-notes.js"]), false);
   assert.match(ui["usage-home.js"], /export function bindUsageHomeScroll/);
   assert.match(html, /id="minimalModeButton"/);
   assert.match(ui["minimal.js"], /applyMinimalMode/);
@@ -312,9 +315,8 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(html, /id="noteCategory"/);
   assert.match(html, /id="manageNoteGroupsButton"/);
   assert.match(ui["render-notes.js"], /item\.tagIds\.includes\(state\.noteCategory\)/);
-  assert.match(ui["render-notes.js"], /reveal-usage-note/);
   assert.match(ui["render-notes.js"], /revealExistingNote/);
-  assert.match(ui["render-notes.js"], /\.slice\(0, limit\)/);
+  assert.equal(/noteUsageHome|reveal-usage-note/.test(ui["render-notes.js"]), false);
   assert.match(ui["events.js"], /openGroupRegistry\("", \{ filter: "notes" \}\)/);
   assert.match(ui["events.js"], /state\.noteCategory = "all"/);
   assert.match(ui["render-shared.js"], /scope === "notes" && state\.noteCategory !== "all"/);

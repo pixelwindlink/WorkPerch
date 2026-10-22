@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { allocateAutoNoteTitle, isNoteTitleTaken } from "../../ui/note-auto-key.js";
+import { allocateAutoNoteTitle, isNoteTitleTaken, resolveNoteTitleForSave } from "../../ui/note-auto-key.js";
 
 const notes = [
   { id: "a", title: "1" },
@@ -16,6 +16,12 @@ test("allocateAutoNoteTitle returns next numeric serial", () => {
 test("allocateAutoNoteTitle continues after highest numeric key", () => {
   assert.equal(allocateAutoNoteTitle([{ id: "x", title: "3" }]), "4");
   assert.equal(allocateAutoNoteTitle([{ id: "x", title: "备忘" }]), "1");
+});
+
+test("resolveNoteTitleForSave keeps custom strings or allocates when empty", () => {
+  assert.equal(resolveNoteTitleForSave("  需求-1  ", notes), "需求-1");
+  assert.equal(resolveNoteTitleForSave("", notes), "3");
+  assert.equal(resolveNoteTitleForSave("   ", notes), "3");
 });
 
 test("isNoteTitleTaken is case-insensitive for trimmed titles", () => {

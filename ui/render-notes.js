@@ -4,7 +4,6 @@ import { engineAction, afterWrite, handleWriteError, copyText, switchTab } from 
 import { compareRecords } from "./render-shared.js";
 import { openNoteEditor, noteInput } from "./dialogs-note.js";
 import { requestConfirm } from "./confirm.js";
-import { bindUsageHomeScroll } from "./usage-home.js";
 import { matchesNoteLengthFilter } from "./note-length-filter.js";
 import { syncNoteLengthFilterButtons } from "./note-length-filter-ui.js";
 import { persistNoteLengthFilter } from "./note-length-preferences.js";
@@ -22,38 +21,8 @@ export function renderNoteGroups() {
   if (thresholdInput) thresholdInput.value = String(state.noteShortMaxChars);
 }
 
-function renderNoteUsageHome() {
-  const home = document.querySelector("#noteUsageHome");
-  const limit = 8;
-  const recent = [...state.notes]
-    .filter((item) => item.usage?.lastUsedAt)
-    .sort((a, b) => Date.parse(b.usage.lastUsedAt) - Date.parse(a.usage.lastUsedAt) || a.title.localeCompare(b.title, "zh-CN"))
-    .slice(0, limit);
-  const frequent = [...state.notes]
-    .filter((item) => (item.usage?.count || 0) > 0)
-    .sort((a, b) => (b.usage.count || 0) - (a.usage.count || 0) || Date.parse(b.usage?.lastUsedAt || 0) - Date.parse(a.usage?.lastUsedAt || 0) || a.title.localeCompare(b.title, "zh-CN"))
-    .slice(0, limit);
-  if (!recent.length && !frequent.length) {
-    home.hidden = true;
-    home.innerHTML = "";
-    return;
-  }
-  const section = (title, items, kind) => {
-    if (!items.length) return "";
-    return `<div class="usage-home-section" data-kind="${kind}"><span class="usage-home-label">${title}</span><div class="usage-home-chips" tabindex="0">${items.map((item) => `<button class="usage-chip" type="button" data-action="reveal-usage-note" data-id="${escapeHtml(item.id)}" title="${escapeHtml(item.content)}">${escapeHtml(item.title)}</button>`).join("")}</div></div>`;
-  };
-  home.hidden = false;
-  home.innerHTML = [
-    '<div class="usage-home-heading"><strong>最近入口</strong><span>优先复制最近与常用速记</span></div>',
-    section("最近速记", recent, "recent-notes"),
-    section("常用速记", frequent, "frequent-notes"),
-  ].join("");
-  bindUsageHomeScroll(home);
-}
-
 export function renderNotes() {
   renderNoteGroups();
-  renderNoteUsageHome();
   withPreservedWindowScroll(() => {
     const query = normalize(state.noteSearch);
     const rows = [...state.notes]
@@ -64,17 +33,22 @@ export function renderNotes() {
       })
       .sort((a, b) => compareRecords(a, b, (value) => value.title));
     elements.noteList.innerHTML = rows.map((item) => `
-    <div class="kv-row note-row ${item.pinned ? "is-pinned" : ""} ${state.highlightNoteId === item.id ? "duplicate-hit" : ""}" data-id="${escapeHtml(item.id)}">
-      <div class="kv-key"><strong title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</strong><small>${item.pinned ? "PINNED · " : ""}KEY</small><span class="tag-strip">${renderTagChips(item)}</span></div>
-      <button class="kv-value" data-action="copy-note" type="button" title="点击复制内容">${escapeHtml(item.content)}</button>
-      <div class="kv-meta">${formatDate(item.updatedAt)}</div>
-      <div class="row-actions">
-        <button class="row-button ${item.pinned ? "is-active" : ""}" data-action="pin-note" data-label="${item.pinned ? "取消置顶" : "置顶"}" ${item.pinned ? 'data-long="true"' : ""} type="button" ${state.connected ? "" : "disabled"}>${icon("pin")}</button>
-        <button class="row-button" data-action="copy-note" data-label="复制" type="button">${icon("copy")}</button>
-        <button class="row-button" data-action="edit-note" data-label="编辑" type="button" ${state.connected ? "" : "disabled"}>${icon("edit")}</button>
-        <button class="row-button danger" data-action="delete-note" data-label="删除" type="button" ${state.connected ? "" : "disabled"}>${icon("trash")}</button>
-      </div>
-    </div>`).join("");
+    <article class="note-item ${item.pinned ? "is-pinned" : ""} ${state.highlightNoteId === item.id ? "duplicate-hit" : ""}" role="listitem" data-id="${escapeHtml(item.id)}">
+      <header class="note-item-head">
+        <div class="note-item-keyline">
+          <strong class="note-item-key" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</strong>
+          <span class="tag-strip">${renderTagChips(item)}</span>
+        </div>
+        <time class="note-item-meta" datetime="${escapeHtml(item.updatedAt || "")}">${formatDate(item.updatedAt)}</time>
+        <div class="row-actions note-item-actions">
+          <button class="row-button ${item.pinned ? "is-active" : ""}" data-action="pin-note" data-label="${item.pinned ? "取消置顶" : "置顶"}" ${item.pinned ? 'data-long="true"' : ""} type="button" ${state.connected ? "" : "disabled"} aria-label="${item.pinned ? "取消置顶" : "置顶"}">${icon("pin")}</button>
+          <button class="row-button" data-action="copy-note" data-label="复制" type="button" aria-label="复制">${icon("copy")}</button>
+          <button class="row-button" data-action="edit-note" data-label="编辑" type="button" ${state.connected ? "" : "disabled"} aria-label="编辑">${icon("edit")}</button>
+          <button class="row-button danger" data-action="delete-note" data-label="删除" type="button" ${state.connected ? "" : "disabled"} aria-label="删除">${icon("trash")}</button>
+        </div>
+      </header>
+      <button class="note-item-body" data-action="copy-note" type="button" title="点击复制内容">${escapeHtml(item.content)}</button>
+    </article>`).join("");
     document.querySelector("#noteCount").textContent = String(state.notes.length);
     document.querySelector("#totalNoteCount").textContent = String(state.notes.length);
     document.querySelector("#visibleNoteCount").textContent = String(rows.length);
@@ -85,12 +59,6 @@ export function renderNotes() {
 export async function handleNoteAction(event) {
   const action = event.target.closest("[data-action]");
   if (!action) return;
-  if (action.dataset.action === "reveal-usage-note") {
-    const note = state.notes.find((candidate) => candidate.id === action.dataset.id);
-    if (!note) return showToast("未找到对应速记");
-    revealExistingNote(note);
-    return;
-  }
   const row = action?.closest("[data-id]");
   const item = state.notes.find((candidate) => candidate.id === row?.dataset.id);
   if (!item) return;

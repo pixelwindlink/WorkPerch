@@ -112,20 +112,13 @@ const GUIDE_STEPS = [
   },
   {
     tab: "notes",
-    target: "#noteUsageHome",
-    when: () => !document.querySelector("#noteUsageHome")?.hidden,
-    title: "最近与常用速记",
-    description: "复制过的速记会按最近使用和使用频率出现在这里；点击入口即可清除冲突筛选并定位原记录。",
-  },
-  {
-    tab: "notes",
     target: "#addNoteButton",
     title: "随手添加一条速记",
-    description: "在速记看板按 Enter 可打开添加窗口；KEY 自动递增且唯一，光标在 VALUE。弹窗内再按 Enter 保存，TAG 可选。",
+    description: "在速记看板按 Enter 可打开添加窗口；KEY 默认自动编号，也可改成任意字符串（需唯一）。光标在 VALUE；Enter 添加，⌘/Ctrl+Enter 换行。",
   },
   {
     tab: "notes",
-    target: () => document.querySelector(".note-row") || document.querySelector(".note-list .kv-head") || document.querySelector(".note-list"),
+    target: () => document.querySelector(".note-item") || document.querySelector("#noteList"),
     title: "复制与整理速记",
     description: "点击 VALUE 可以快速复制；右侧动作可以置顶、复制、编辑或删除。所有修改仍由 WorkPerch 单写入保存。",
   },

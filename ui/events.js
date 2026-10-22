@@ -19,7 +19,7 @@ import { toggleMinimalMode } from "./minimal.js";
 import { bindGuide } from "./guide.js";
 import { bindKeyboardInteractions } from "./keyboard.js";
 import { persistNoteLengthFilter, persistNoteShortMaxChars } from "./note-length-preferences.js";
-import { syncNoteLengthFilterButtons } from "./note-length-filter-ui.js";
+import { bindNoteShortThresholdFold, syncNoteLengthFilterButtons, syncNoteShortThresholdIcon } from "./note-length-filter-ui.js";
 import {
   refreshClipboardHistory,
   renderClipboard,
@@ -157,10 +157,13 @@ export function bindEvents() {
     syncNoteLengthFilterButtons();
     renderNotes();
   });
+  bindNoteShortThresholdFold();
   document.querySelector("#noteShortMaxChars")?.addEventListener("change", (event) => {
     persistNoteShortMaxChars(event.target.value);
+    syncNoteShortThresholdIcon();
     renderNotes();
   });
+  document.querySelector("#noteShortMaxChars")?.addEventListener("input", () => syncNoteShortThresholdIcon());
   document.querySelector("#clearNoteFilter").addEventListener("click", () => {
     state.noteSearch = "";
     state.noteCategory = "all";
@@ -171,7 +174,6 @@ export function bindEvents() {
     renderNotes();
   });
   elements.noteList.addEventListener("click", handleNoteAction);
-  document.querySelector("#noteUsageHome").addEventListener("click", handleNoteAction);
   bindDialogSubmit("#editNoteForm", elements.editNoteDialog, saveNoteEdit);
 
   document.querySelector("#sortMode").addEventListener("change", (event) => { state.sortMode = event.target.value; state.activeViewId = ""; renderAll(); });

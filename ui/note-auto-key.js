@@ -20,3 +20,9 @@ export function allocateAutoNoteTitle(notes, { exceptId } = {}) {
   while (isNoteTitleTaken(notes, String(candidate), { exceptId })) candidate += 1;
   return String(candidate);
 }
+
+export function resolveNoteTitleForSave(rawTitle, notes, { exceptId } = {}) {
+  const title = String(rawTitle ?? "").trim();
+  if (title) return title;
+  return allocateAutoNoteTitle(notes, { exceptId });
+}

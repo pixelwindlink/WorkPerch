@@ -3,7 +3,7 @@ import { elements, tagNames, parseTagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError } from "./engine-client.js";
 import { setButtonKeyboardLabel } from "./keyboard.js";
 import { normalizeClipboardNoteContent, suggestNoteTitleFromClipboard } from "./note-paste-create.js";
-import { allocateAutoNoteTitle, isNoteTitleTaken } from "./note-auto-key.js";
+import { allocateAutoNoteTitle, isNoteTitleTaken, resolveNoteTitleForSave } from "./note-auto-key.js";
 
 export function noteInput(item, changes = {}) {
   return { id: item.id, title: item.title, content: item.content, tagIds: item.tagIds, pinned: item.pinned, ...changes };
@@ -19,9 +19,9 @@ export function openNoteEditor(item = null) {
   const valueInput = document.querySelector("#editNoteValue");
   document.querySelector("#editNoteId").value = item?.id || "";
   keyInput.value = editing ? (item?.title || "") : allocateAutoNoteTitle(state.notes);
-  keyInput.readOnly = !editing;
-  keyInput.dataset.autoKey = editing ? "false" : "true";
-  keyInput.setAttribute("aria-readonly", String(!editing));
+  keyInput.readOnly = false;
+  keyInput.placeholder = editing ? "" : "可自定义；留空则自动编号";
+  keyInput.removeAttribute("aria-readonly");
   valueInput.value = item?.content || "";
   document.querySelector("#editNoteTags").value = tagNames(item).join(", ");
   elements.editNoteDialog.showModal();
@@ -65,9 +65,8 @@ export async function saveNoteEdit() {
   const id = document.querySelector("#editNoteId").value;
   const existing = state.notes.find((item) => item.id === id);
   const keyInput = document.querySelector("#editNoteKey");
-  let title = keyInput.value.trim();
-  if (!id) title = allocateAutoNoteTitle(state.notes);
-  else if (!title) return showToast("KEY 不能为空"), false;
+  let title = resolveNoteTitleForSave(keyInput.value, state.notes, { exceptId: id || undefined });
+  if (id && !String(keyInput.value ?? "").trim()) return showToast("KEY 不能为空"), false;
   if (isNoteTitleTaken(state.notes, title, { exceptId: id || undefined })) {
     showToast(`KEY「${title}」已被占用，请换一个`, 2800);
     if (id) keyInput.focus();

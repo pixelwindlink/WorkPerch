@@ -9,6 +9,11 @@ const ENTER_SUBMIT_FORMS = [
 import { shouldCycleNoteLengthFilterOnTab } from "./note-length-filter.js";
 import { shouldCreateNoteFromPaste } from "./note-paste-create.js";
 import { shouldOpenAddNoteOnEnter } from "./note-board-shortcuts.js";
+import {
+  insertTextareaNewline,
+  shouldInsertNoteValueNewline,
+  shouldSubmitNoteFormOnEnter,
+} from "./note-form-keyboard.js";
 
 const SEARCH_INPUTS = ["#pathSearch", "#projectSearch", "#noteSearch"];
 
@@ -40,6 +45,22 @@ export function isPlainEnterOnSingleLineInput(event) {
   const input = event.target.closest("input");
   if (!input || input.disabled || input.readOnly) return false;
   return !["button", "submit", "reset", "checkbox", "radio", "file", "color", "range", "hidden"].includes(input.type);
+}
+
+function bindNoteValueEnter() {
+  const form = document.querySelector("#editNoteForm");
+  const submit = document.querySelector("#noteDialogSubmit");
+  if (!form || !submit) return;
+  form.addEventListener("keydown", (event) => {
+    if (shouldInsertNoteValueNewline(event)) {
+      event.preventDefault();
+      insertTextareaNewline(event.target);
+      return;
+    }
+    if (!shouldSubmitNoteFormOnEnter(event)) return;
+    event.preventDefault();
+    if (!submit.disabled) submit.click();
+  });
 }
 
 function bindPrimaryEnter(formSelector, submitSelector) {
@@ -131,6 +152,7 @@ function bindHorizontalControl(rootSelector, buttonSelector) {
 export function bindKeyboardInteractions() {
   for (const [selector, label, key] of STATIC_KEY_LABELS) setButtonKeyboardLabel(selector, label, key);
   for (const [form, submit] of ENTER_SUBMIT_FORMS) bindPrimaryEnter(form, submit);
+  bindNoteValueEnter();
   for (const selector of SEARCH_INPUTS) bindSearchEscape(selector);
   bindHorizontalControl(".tabs", ".tab");
   bindHorizontalControl("#projectFilters", "[data-filter]");

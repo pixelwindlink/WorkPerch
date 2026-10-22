@@ -1,6 +1,7 @@
 import { state } from "./state.js";
 import { escapeHtml, icon, showToast } from "./dom.js";
 import { copyText } from "./engine-client.js";
+import { CLIPBOARD_HISTORY_LIMIT } from "./clipboard-config.js";
 import { clipboardLengthTier, filterClipboardItems, formatClipboardTimestamp } from "./clipboard-format.js";
 
 const DETAIL_FADE_MS = 160;
@@ -37,12 +38,17 @@ function syncClipboardChrome() {
   const panel = document.querySelector("#clipboardPanel");
   const hint = document.querySelector("#clipboardBrowserHint");
   const meta = document.querySelector("#clipboardMeta");
-  if (panel) panel.dataset.desktop = state.clipboardAvailable ? "true" : "false";
+  if (panel) {
+    panel.dataset.desktop = state.clipboardAvailable ? "true" : "false";
+    panel.dataset.historyLimit = String(CLIPBOARD_HISTORY_LIMIT);
+  }
   if (hint) hint.hidden = state.clipboardAvailable;
   if (meta) {
     meta.textContent = state.clipboardAvailable ? "Desktop" : "Web";
     meta.dataset.state = state.clipboardAvailable ? "live" : "offline";
-    meta.title = state.clipboardAvailable ? "Desktop 已连接，正在记录剪贴板" : "仅 Desktop 记录剪贴板";
+    meta.title = state.clipboardAvailable
+      ? `Desktop 已连接；环形缓冲最多 ${CLIPBOARD_HISTORY_LIMIT} 条，满则覆盖最旧`
+      : "仅 Desktop 记录剪贴板";
   }
 }
 

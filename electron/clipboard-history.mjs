@@ -1,8 +1,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { CLIPBOARD_HISTORY_LIMIT } from "../ui/clipboard-config.js";
 
-export const CLIPBOARD_HISTORY_LIMIT = 200;
+export { CLIPBOARD_HISTORY_LIMIT };
 export const CLIPBOARD_TEXT_MAX_CHARS = 32_000;
 
 export function clipboardHistoryPath(userDataDir) {
@@ -63,7 +64,7 @@ export function createClipboardHistoryStore({ filePath, limit = CLIPBOARD_HISTOR
       length: normalized.length,
     };
     items.unshift(entry);
-    if (items.length > limit) items.length = limit;
+    while (items.length > limit) items.pop();
     lastFingerprint = fp;
     persist();
     return entry;

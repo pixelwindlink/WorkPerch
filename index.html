@@ -19,7 +19,7 @@
           </span>
         </a>
 
-        <nav class="tabs" aria-label="看板导航" role="tablist">
+        <nav class="tabs" aria-label="看板导航（可拖拽调整顺序）" role="tablist">
           <button class="tab is-active" id="pathsTab" data-tab="paths" type="button" role="tab" aria-controls="pathsPanel" aria-selected="true" tabindex="0">文件路径 <span id="pathCount">0</span></button>
           <button class="tab" id="notesTab" data-tab="notes" type="button" role="tab" aria-controls="notesPanel" aria-selected="false" tabindex="-1">速记 <span id="noteCount">0</span></button>
           <button class="tab" id="clipboardTab" data-tab="clipboard" type="button" role="tab" aria-controls="clipboardPanel" aria-selected="false" tabindex="-1">剪贴板</button>
@@ -64,6 +64,7 @@
     <main class="workspace" data-readonly="true">
       <section class="panel is-active" id="pathsPanel" data-panel="paths" role="tabpanel" aria-labelledby="pathsTab" aria-hidden="false">
         <div class="tab-sticky-bar">
+          <div class="path-view-tools-mount" id="pathViewToolsMount" hidden></div>
           <div class="sticky-title">
             <strong>文件路径</strong>
             <span><b id="visiblePathCount">0</b> / <i id="totalPathCount">0</i></span>
@@ -73,7 +74,6 @@
             <input id="pathSearch" type="search" placeholder="搜索 key、路径、标签、状态或备注…" />
             <kbd>/</kbd>
           </label>
-          <button class="add-icon-button" id="addPathButton" type="button" aria-label="添加文件路径" title="添加文件路径">＋</button>
           <select id="pathCategory" aria-label="按标签筛选">
             <option value="all">全部标签</option>
           </select>
@@ -93,8 +93,13 @@
           <div class="kv-head path-columns" aria-hidden="true">
             <span>NAME / TAGS / NOTE</span><span>FILE PATH</span><span>ACTIONS</span>
           </div>
-          <div id="pathList"></div>
+          <div class="path-list-body">
+            <div id="pathList"></div>
+            <div class="list-bottom-view" aria-hidden="true"></div>
+          </div>
         </div>
+
+        <button class="add-icon-button panel-fab-add" id="addPathButton" type="button" aria-label="添加文件路径">＋</button>
 
         <div class="empty-state" id="pathEmpty" hidden>
           <strong>没有匹配的路径</strong>
@@ -138,44 +143,51 @@
 
       <section class="panel" id="notesPanel" data-panel="notes" role="tabpanel" aria-labelledby="notesTab" aria-hidden="true">
         <div class="tab-sticky-bar notes-sticky-bar">
-          <div class="sticky-title">
+          <div class="sticky-title notes-sticky-title">
             <strong>速记</strong>
             <span><b id="visibleNoteCount">0</b> / <i id="totalNoteCount">0</i></span>
           </div>
-          <label class="search-control note-search-control">
-            <span class="search-icon"></span>
-            <input id="noteSearch" type="search" placeholder="搜索速记 key 或内容…" />
-            <kbd>/</kbd>
-          </label>
-          <button class="add-icon-button" id="addNoteButton" type="button" aria-label="添加速记" title="添加速记">＋</button>
-          <select id="noteCategory" aria-label="按标签筛选速记">
-            <option value="all">全部标签</option>
-          </select>
-          <div class="note-length-filter-control">
-            <div class="segmented note-length-filter" id="noteLengthFilter" role="group" aria-label="按文本长度筛选速记" title="Tab 循环：全部长度 → 长文本 → 短文本">
-              <button type="button" data-length-filter="all" class="is-active" aria-pressed="true" tabindex="0">全部长度</button>
-              <button type="button" data-length-filter="long" aria-pressed="false" tabindex="-1">长文本</button>
-              <button type="button" data-length-filter="short" aria-pressed="false" tabindex="-1">短文本</button>
+          <div class="notes-toolbar-primary">
+            <label class="search-control note-search-control">
+              <span class="search-icon"></span>
+              <input id="noteSearch" type="search" placeholder="搜索 key 或内容…" />
+              <kbd>/</kbd>
+            </label>
+            <select id="noteCategory" aria-label="按标签筛选速记">
+              <option value="all">全部标签</option>
+            </select>
+          </div>
+          <div class="notes-filter-row">
+            <div class="note-length-filter-control">
+              <div class="segmented note-length-filter" id="noteLengthFilter" role="group" aria-label="按文本长度筛选速记" title="Tab 循环：全部长度 → 长文本 → 短文本">
+                <button type="button" data-length-filter="all" class="is-active" aria-pressed="true" tabindex="0">全部</button>
+                <button type="button" data-length-filter="long" aria-pressed="false" tabindex="-1">长</button>
+                <button type="button" data-length-filter="short" aria-pressed="false" tabindex="-1">短</button>
+                <details class="note-short-threshold-fold" id="noteShortThresholdFold">
+                  <summary class="note-short-threshold-icon" aria-label="短文本字数上限，当前 100 字">
+                    <span class="note-short-threshold-icon-glyph" aria-hidden="true">≤</span>
+                    <span class="note-short-threshold-icon-value" id="noteShortThresholdIconValue">100</span>
+                  </summary>
+                  <label class="note-short-threshold" title="短文本按 VALUE 字数统计">
+                    <span class="note-short-threshold-label">≤</span>
+                    <input id="noteShortMaxChars" type="number" min="1" max="5000" step="1" value="100" aria-label="短文本字数上限" />
+                    <span class="note-short-threshold-suffix">字</span>
+                  </label>
+                </details>
+              </div>
+              <kbd class="filter-cycle-hint" aria-hidden="true">Tab</kbd>
             </div>
-            <kbd class="filter-cycle-hint" aria-hidden="true">Tab</kbd>
+            <button class="quiet-button group-registry-button" id="manageNoteGroupsButton" type="button">TAGS <b id="noteGroupCount">0</b></button>
+            <button class="quiet-button clear-filter" id="clearNoteFilter" type="button">清除</button>
           </div>
-          <label class="note-short-threshold" title="短文本按 VALUE 字数统计">
-            <span class="note-short-threshold-label">≤</span>
-            <input id="noteShortMaxChars" type="number" min="1" max="5000" step="1" value="100" aria-label="短文本字数上限" />
-            <span class="note-short-threshold-suffix">字</span>
-          </label>
-          <button class="quiet-button group-registry-button" id="manageNoteGroupsButton" type="button">TAGS <b id="noteGroupCount">0</b></button>
-          <button class="quiet-button clear-filter" id="clearNoteFilter" type="button">清除</button>
         </div>
 
-        <div class="usage-home note-usage-home" id="noteUsageHome" hidden></div>
-
-        <div class="kv-list note-list">
-          <div class="kv-head note-columns" aria-hidden="true">
-            <span>KEY</span><span>VALUE</span><span>UPDATED</span><span>ACTIONS</span>
-          </div>
-          <div id="noteList"></div>
+        <div class="note-list" id="noteListShell">
+          <div id="noteList" role="list" aria-label="速记列表"></div>
+          <div class="list-bottom-view" aria-hidden="true"></div>
         </div>
+
+        <button class="add-icon-button panel-fab-add" id="addNoteButton" type="button" aria-label="添加速记">＋</button>
 
         <div class="empty-state" id="noteEmpty" hidden>
           <strong>没有匹配的速记</strong>
@@ -187,17 +199,17 @@
         <div class="tab-sticky-bar clipboard-sticky-bar">
           <div class="sticky-title clipboard-sticky-title">
             <strong>剪贴板</strong>
-            <span><b id="clipboardVisibleCount">0</b> 条</span>
+            <span class="clipboard-count"><b id="clipboardVisibleCount">0</b> 条</span>
             <span class="clipboard-status-pill" id="clipboardMeta" data-state="offline">…</span>
           </div>
+          <button class="quiet-button clipboard-refresh-button" id="refreshClipboardButton" type="button" aria-label="刷新剪贴板历史">刷新</button>
           <label class="search-control clipboard-search-control">
             <span class="search-icon" aria-hidden="true"></span>
-            <input id="clipboardSearch" type="search" placeholder="筛选历史内容…" autocomplete="off" />
+            <input id="clipboardSearch" type="search" placeholder="筛选…" autocomplete="off" />
           </label>
-          <button class="quiet-button clipboard-refresh-button" id="refreshClipboardButton" type="button" aria-label="刷新剪贴板历史">刷新</button>
         </div>
         <div class="clipboard-panel-body">
-          <p class="clipboard-browser-hint" id="clipboardBrowserHint" hidden role="status">浏览器模式不记录剪贴板，请使用 Perch Desktop（最多 200 条）。</p>
+          <p class="clipboard-browser-hint" id="clipboardBrowserHint" hidden role="status">浏览器模式不记录剪贴板，请使用 Perch Desktop（环形缓冲最多 100 条，满则覆盖最旧）。</p>
           <div class="clipboard-split" id="clipboardSplit" hidden>
             <div class="kv-list clipboard-list">
               <div class="kv-head clipboard-columns" aria-hidden="true">

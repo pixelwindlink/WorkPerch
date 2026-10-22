@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   theme: "local-dashboard.theme.v1",
   alwaysOnTop: "local-dashboard.window-always-on-top.v1",
   activeTab: "local-dashboard.active-tab.v1",
+  tabOrder: "local-perch.tab-order.v1",
   migration: "local-dashboard.engine-migration.v1",
   silentRefreshAt: "local-dashboard.path-silent-refresh-at.v1",
   minimalMode: "local-dashboard.minimal-mode.v1",

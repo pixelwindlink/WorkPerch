@@ -5,6 +5,7 @@ import { inspectLegacyData } from "./backup-legacy.js";
 import { refreshProjectStatuses, refreshLauncherStatuses } from "./render-projects.js";
 import { refreshClipboardHistory } from "./render-clipboard.js";
 import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
+import { syncHeaderLayout } from "./header-layout.js";
 
 export const LAUNCHER_UNAVAILABLE_GUIDANCE = "Project Launcher 未接入。启动/停止请用 Perch.app（并确认已打包 Launcher 资源）；路径、速记和项目目录管理不受影响。";
 
@@ -22,6 +23,7 @@ export function switchTab(name, updateHash = true) {
   let tab = name === "launcher" ? "paths" : name;
   if (!VISIBLE_TABS.includes(tab)) tab = "paths";
   state.activeTab = tab;
+  document.documentElement.dataset.activeTab = tab;
   elements.tabs.forEach((item) => {
     const selected = item.dataset.tab === tab;
     item.classList.toggle("is-active", selected);
@@ -37,6 +39,7 @@ export function switchTab(name, updateHash = true) {
   storageSet(STORAGE_KEYS.activeTab, tab);
   if (tab === "clipboard") refreshClipboardHistory().then(() => import("./render-clipboard.js").then(({ renderClipboard }) => renderClipboard())).catch(() => {});
   if (tab === "notes") import("./note-length-filter-ui.js").then(({ syncNoteLengthFilterButtons }) => syncNoteLengthFilterButtons()).catch(() => {});
+  syncHeaderLayout();
 }
 
 export function setConnectionStatus(kind, title, message) {

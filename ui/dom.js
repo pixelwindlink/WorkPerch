@@ -20,6 +20,10 @@ export const ICONS = {
 
 export const GROUP_COLORS = ["#FF4D6D", "#FF8A00", "#FFD60A", "#22C55E", "#2DD4BF", "#38BDF8", "#6366F1", "#A855F7", "#EC4899", "#F97316"];
 
+export function refreshTabElements() {
+  elements.tabs = [...document.querySelectorAll(".tab")];
+}
+
 export const elements = {
   tabs: [...document.querySelectorAll(".tab")],
   panels: [...document.querySelectorAll(".panel")],

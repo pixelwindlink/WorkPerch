@@ -11,14 +11,15 @@ async function readJson(reference) {
   return JSON.parse(await fs.readFile(reference, "utf8"));
 }
 
-test("manifest 1.2 consumers match Perch-owned facts", async () => {
+test("manifest 1.3 consumers and operator-surface declaration match Perch-owned facts", async () => {
   const manifest = await readJson(path.join(PERCH_ROOT, "engine.manifest.json"));
   const packageJson = await readJson(path.join(PERCH_ROOT, "package.json"));
   const catalog = await readJson(path.join(PERCH_ROOT, manifest.actions.catalog));
-  const manifestSchema = await readJson(path.join(GENERIC_ENGINES_ROOT, "governance/manifests/engine-manifest-1.2.schema.json"));
+  const manifestSchema = await readJson(path.join(GENERIC_ENGINES_ROOT, "governance/manifests/engine-manifest-1.3.schema.json"));
 
   assert.deepEqual(validateJsonSchema(manifestSchema, manifest), []);
-  assert.equal(manifest.schemaVersion, "1.2");
+  assert.equal(manifest.schemaVersion, "1.3");
+  assert.deepEqual(manifest.runtime.operatorSurfaces, { mode: "none" });
   assert.equal(manifest.version, "2.2.0");
   assert.equal(packageJson.version, manifest.version);
   assert.deepEqual(

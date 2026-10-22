@@ -6,8 +6,10 @@ import { applyTheme, initializeDesktopWindowControls } from "./ui/desktop.js";
 import { applyMinimalMode } from "./ui/minimal.js";
 import { bindHeaderLayout } from "./ui/header-layout.js";
 import { bindEvents } from "./ui/events.js";
+import { loadNoteLengthPreferences } from "./ui/note-length-preferences.js";
 
 if (window.perchDesktop?.getPathForFile) document.documentElement.dataset.desktop = "true";
+loadNoteLengthPreferences();
 applyTheme(storageGet(STORAGE_KEYS.theme) || "dark");
 applyMinimalMode(storageGet(STORAGE_KEYS.minimalMode) === "true", { persist: false, render: false });
 setConnectionStatus("connecting", "正在连接 WorkPerch…", "业务数据由 Engine Server 单一持有。");

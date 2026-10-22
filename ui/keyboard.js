@@ -6,6 +6,10 @@ const ENTER_SUBMIT_FORMS = [
   ["#groupRegistryForm", "#groupRegistrySubmit"],
 ];
 
+import { shouldCycleNoteLengthFilterOnTab } from "./note-length-filter.js";
+import { shouldCreateNoteFromPaste } from "./note-paste-create.js";
+import { shouldOpenAddNoteOnEnter } from "./note-board-shortcuts.js";
+
 const SEARCH_INPUTS = ["#pathSearch", "#projectSearch", "#noteSearch"];
 
 const STATIC_KEY_LABELS = [
@@ -70,6 +74,45 @@ export function horizontalKeyTarget(buttons, current, key) {
   return null;
 }
 
+function bindNotesEnterAdd() {
+  document.addEventListener("keydown", (event) => {
+    if (!shouldOpenAddNoteOnEnter(event)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void import("./dialogs-note.js").then(({ openNoteEditor }) => openNoteEditor());
+  }, true);
+}
+
+function bindNotePasteCreate() {
+  document.addEventListener("keydown", async (event) => {
+    const notesActive = document.querySelector("#notesPanel")?.classList.contains("is-active");
+    if (!shouldCreateNoteFromPaste(event, notesActive ? "notes" : "")) return;
+    event.preventDefault();
+    const { createNoteFromClipboard } = await import("./dialogs-note.js");
+    await createNoteFromClipboard();
+  });
+}
+
+function bindNoteLengthFilterTabCycle() {
+  document.addEventListener("keydown", (event) => {
+    const notesActive = document.querySelector("#notesPanel")?.classList.contains("is-active");
+    if (!shouldCycleNoteLengthFilterOnTab(event, notesActive ? "notes" : "")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    void (async () => {
+      const [{ cycleNoteLengthFilter }, { renderNotes }, { syncNoteLengthFilterButtons }] = await Promise.all([
+        import("./note-length-preferences.js"),
+        import("./render-notes.js"),
+        import("./note-length-filter-ui.js"),
+      ]);
+      cycleNoteLengthFilter(event.shiftKey ? -1 : 1);
+      syncNoteLengthFilterButtons();
+      renderNotes();
+      document.querySelector("#noteLengthFilter [data-length-filter].is-active")?.focus({ preventScroll: true });
+    })();
+  }, true);
+}
+
 function bindHorizontalControl(rootSelector, buttonSelector) {
   const root = document.querySelector(rootSelector);
   if (!root) return;
@@ -93,4 +136,8 @@ export function bindKeyboardInteractions() {
   bindHorizontalControl("#projectFilters", "[data-filter]");
   bindHorizontalControl("#groupRegistryFilter", "[data-tag-filter]");
   bindHorizontalControl("#groupColorPalette", "[data-group-color]");
+  bindHorizontalControl("#noteLengthFilter", "[data-length-filter]");
+  bindNoteLengthFilterTabCycle();
+  bindNotePasteCreate();
+  bindNotesEnterAdd();
 }

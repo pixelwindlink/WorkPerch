@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#101214" />
-    <title>Path List · 快速路径看板</title>
+    <title>WorkPerch</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="app-header">
       <div class="header-inner">
         <a class="brand" href="#paths" aria-label="返回文件路径">
-          <span class="brand-symbol">KV</span>
+          <span class="brand-symbol">WP</span>
           <span>
-            <strong>Path List</strong>
-            <small>LOCAL QUICK BOARD</small>
+            <strong>WorkPerch</strong>
+            <small>LOCAL WORK PERCH</small>
           </span>
         </a>
 
         <nav class="tabs" aria-label="看板导航" role="tablist">
           <button class="tab is-active" id="pathsTab" data-tab="paths" type="button" role="tab" aria-controls="pathsPanel" aria-selected="true" tabindex="0">文件路径 <span id="pathCount">0</span></button>
-          <button class="tab" id="launcherTab" data-tab="launcher" type="button" role="tab" aria-controls="launcherPanel" aria-selected="false" tabindex="-1">项目入口 <span id="projectCount">0</span></button>
           <button class="tab" id="notesTab" data-tab="notes" type="button" role="tab" aria-controls="notesPanel" aria-selected="false" tabindex="-1">速记 <span id="noteCount">0</span></button>
+          <button class="tab" id="clipboardTab" data-tab="clipboard" type="button" role="tab" aria-controls="clipboardPanel" aria-selected="false" tabindex="-1">剪贴板</button>
         </nav>
 
         <div class="header-actions">
@@ -47,6 +47,7 @@
           <div class="header-icons">
             <button class="icon-button guide-entry-button" id="guideButton" type="button" aria-label="打开界面指引" aria-pressed="false" title="界面指引"></button>
             <button class="icon-button desktop-window-button" id="alwaysOnTopButton" type="button" aria-label="全局置顶" aria-pressed="false" data-label="全局置顶" title="全局置顶" hidden></button>
+            <button class="icon-button" id="windowPresetsButton" type="button" aria-label="外窗尺寸预设" title="外窗尺寸预设（macOS）" hidden></button>
             <button class="icon-button" id="minimalModeButton" type="button" aria-label="极简模式" aria-pressed="false" title="极简模式"></button>
             <button class="icon-button" id="themeButton" type="button" aria-label="切换主题" title="切换主题"></button>
           </div>
@@ -101,7 +102,7 @@
         </div>
       </section>
 
-      <section class="panel" id="launcherPanel" data-panel="launcher" role="tabpanel" aria-labelledby="launcherTab" aria-hidden="true">
+      <section class="panel panel--retired" id="launcherPanel" data-panel="launcher" data-retired="true" role="tabpanel" aria-labelledby="launcherTab" aria-hidden="true" hidden>
         <div class="tab-sticky-bar project-sticky-bar">
           <div class="sticky-title">
             <strong>项目入口</strong>
@@ -150,6 +151,19 @@
           <select id="noteCategory" aria-label="按标签筛选速记">
             <option value="all">全部标签</option>
           </select>
+          <div class="note-length-filter-control">
+            <div class="segmented note-length-filter" id="noteLengthFilter" role="group" aria-label="按文本长度筛选速记" title="Tab 循环：全部长度 → 长文本 → 短文本">
+              <button type="button" data-length-filter="all" class="is-active" aria-pressed="true" tabindex="0">全部长度</button>
+              <button type="button" data-length-filter="long" aria-pressed="false" tabindex="-1">长文本</button>
+              <button type="button" data-length-filter="short" aria-pressed="false" tabindex="-1">短文本</button>
+            </div>
+            <kbd class="filter-cycle-hint" aria-hidden="true">Tab</kbd>
+          </div>
+          <label class="note-short-threshold" title="短文本按 VALUE 字数统计">
+            <span class="note-short-threshold-label">≤</span>
+            <input id="noteShortMaxChars" type="number" min="1" max="5000" step="1" value="100" aria-label="短文本字数上限" />
+            <span class="note-short-threshold-suffix">字</span>
+          </label>
           <button class="quiet-button group-registry-button" id="manageNoteGroupsButton" type="button">TAGS <b id="noteGroupCount">0</b></button>
           <button class="quiet-button clear-filter" id="clearNoteFilter" type="button">清除</button>
         </div>
@@ -168,11 +182,50 @@
           <p>在上方输入 key 和内容即可添加。</p>
         </div>
       </section>
+
+      <section class="panel" id="clipboardPanel" data-panel="clipboard" role="tabpanel" aria-labelledby="clipboardTab" aria-hidden="true">
+        <div class="tab-sticky-bar clipboard-sticky-bar">
+          <div class="sticky-title clipboard-sticky-title">
+            <strong>剪贴板</strong>
+            <span><b id="clipboardVisibleCount">0</b> 条</span>
+            <span class="clipboard-status-pill" id="clipboardMeta" data-state="offline">…</span>
+          </div>
+          <label class="search-control clipboard-search-control">
+            <span class="search-icon" aria-hidden="true"></span>
+            <input id="clipboardSearch" type="search" placeholder="筛选历史内容…" autocomplete="off" />
+          </label>
+          <button class="quiet-button clipboard-refresh-button" id="refreshClipboardButton" type="button" aria-label="刷新剪贴板历史">刷新</button>
+        </div>
+        <div class="clipboard-panel-body">
+          <p class="clipboard-browser-hint" id="clipboardBrowserHint" hidden role="status">浏览器模式不记录剪贴板，请使用 Perch Desktop（最多 200 条）。</p>
+          <div class="clipboard-split" id="clipboardSplit" hidden>
+            <div class="kv-list clipboard-list">
+              <div class="kv-head clipboard-columns" aria-hidden="true">
+                <span>#</span><span>内容</span><span>信息</span><span></span>
+              </div>
+              <div class="clipboard-rows" id="clipboardList" role="list" aria-label="剪贴板历史"></div>
+            </div>
+            <section class="clipboard-detail" id="clipboardDetail" aria-label="剪贴板全文预览">
+              <div class="clipboard-detail-head">
+                <span class="clipboard-detail-label">全文</span>
+                <span class="clipboard-detail-meta" id="clipboardDetailMeta"></span>
+              </div>
+              <div class="clipboard-detail-body">
+                <pre class="clipboard-detail-text" id="clipboardDetailText"></pre>
+              </div>
+            </section>
+          </div>
+          <div class="empty-state clipboard-empty-state" id="clipboardEmpty" hidden>
+            <strong data-empty-title>还没有剪贴板历史</strong>
+            <p data-empty-copy>Desktop 复制文本后会自动出现在列表；点击行或复制按钮可再次写入系统剪贴板。</p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="app-footer">
       <span><i></i> WorkPerch · single-writer</span>
-      <span>Enter 添加 · 点击 VALUE 复制 · <b>⌘/Ctrl + K</b> 搜索 · Desktop <b>⌘⇧D</b> 召唤</span>
+      <span>速记 <b>Enter</b> 新建 / <b>⌘/Ctrl + V</b> 粘贴建记 · 点击 VALUE 复制 · <b>⌘/Ctrl + K</b> 搜索 · Desktop <b>⌘⇧D</b> 召唤</span>
     </footer>
 
     <dialog class="edit-dialog" id="editPathDialog">
@@ -239,7 +292,7 @@
           <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
         </div>
         <input id="editNoteId" type="hidden" />
-        <label><span>KEY</span><input id="editNoteKey" required maxlength="60" /></label>
+        <label><span>KEY</span><input id="editNoteKey" required maxlength="120" autocomplete="off" /></label>
         <label><span>VALUE / NOTE</span><textarea id="editNoteValue" required rows="6" maxlength="2000"></textarea></label>
         <label><span>TAGS（逗号分隔）</span><input id="editNoteTags" maxlength="500" list="pathGroups" /></label>
         <div class="dialog-actions">
@@ -309,6 +362,20 @@
         <div class="dialog-actions">
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
           <button class="add-button" id="launchProjectSubmit" value="save" type="submit">保存启动配置</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="edit-dialog" id="windowPresetsDialog">
+      <form method="dialog">
+        <div class="dialog-heading">
+          <div><small>DESKTOP LAYOUT</small><h2>外窗尺寸预设</h2></div>
+          <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <p class="dialog-copy">在目标应用前台时点击「保存当前窗口」，WorkPerch 会记住该应用最前窗口的位置与大小（macOS AppleScript）。恢复前请先打开对应应用。</p>
+        <div class="window-presets-list" id="windowPresetsList"></div>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>关闭</button>
         </div>
       </form>
     </dialog>

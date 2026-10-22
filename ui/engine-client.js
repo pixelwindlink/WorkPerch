@@ -3,6 +3,8 @@ import { elements, messageId, showToast, storageSet } from "./dom.js";
 import { renderAll } from "./render-shared.js";
 import { inspectLegacyData } from "./backup-legacy.js";
 import { refreshProjectStatuses, refreshLauncherStatuses } from "./render-projects.js";
+import { refreshClipboardHistory } from "./render-clipboard.js";
+import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 
 export const LAUNCHER_UNAVAILABLE_GUIDANCE = "Project Launcher 未接入。启动/停止请用 Perch.app（并确认已打包 Launcher 资源）；路径、速记和项目目录管理不受影响。";
 
@@ -14,8 +16,11 @@ export class EngineClientError extends Error {
   }
 }
 
+const VISIBLE_TABS = ["paths", "notes", "clipboard"];
+
 export function switchTab(name, updateHash = true) {
-  const tab = ["paths", "launcher", "notes"].includes(name) ? name : "paths";
+  let tab = name === "launcher" ? "paths" : name;
+  if (!VISIBLE_TABS.includes(tab)) tab = "paths";
   state.activeTab = tab;
   elements.tabs.forEach((item) => {
     const selected = item.dataset.tab === tab;
@@ -30,6 +35,8 @@ export function switchTab(name, updateHash = true) {
   });
   if (updateHash) history.replaceState(null, "", `#${tab}`);
   storageSet(STORAGE_KEYS.activeTab, tab);
+  if (tab === "clipboard") refreshClipboardHistory().then(() => import("./render-clipboard.js").then(({ renderClipboard }) => renderClipboard())).catch(() => {});
+  if (tab === "notes") import("./note-length-filter-ui.js").then(({ syncNoteLengthFilterButtons }) => syncNoteLengthFilterButtons()).catch(() => {});
 }
 
 export function setConnectionStatus(kind, title, message) {
@@ -72,6 +79,7 @@ export function patchInspection(kind, id, inspection) {
 }
 
 async function refreshProbes() {
+  if (PROJECT_ENTRY_SURFACE_RETIRED) return;
   refreshProjectStatuses();
   refreshLauncherStatuses({ silent: true });
 }
@@ -125,7 +133,7 @@ export async function loadSnapshot({ silent = false, probe = true } = {}) {
     setConnectionStatus("connected", "已连接", `revision ${state.aggregateRevision}`);
     renderAll();
     inspectLegacyData();
-    if (probe) {
+    if (probe && !PROJECT_ENTRY_SURFACE_RETIRED) {
       refreshProjectStatuses();
       refreshLauncherStatuses({ silent: true });
     }

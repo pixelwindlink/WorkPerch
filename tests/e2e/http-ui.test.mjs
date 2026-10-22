@@ -31,6 +31,12 @@ test("HTTP Adapter, CLI client and static UI share one running Engine boundary",
     assert.equal(htmlResponse.status, 200);
     const htmlText = await htmlResponse.text();
     assert.match(htmlText, /WorkPerch/);
+    assert.match(htmlText, /id="clipboardList"/);
+    assert.match(htmlText, /id="clipboardSearch"/);
+    assert.match(htmlText, /clipboard-list/);
+    assert.match(htmlText, /id="clipboardDetail"/);
+    assert.match(htmlText, /id="noteLengthFilter"/);
+    assert.doesNotMatch(htmlText, /升为项目/);
     assert.match(htmlText, /type="module"\s+src="\.\/app\.js"/);
     const appResponse = await fetch(`${baseUrl}/app.js`);
     assert.equal(appResponse.status, 200);

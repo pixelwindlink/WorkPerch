@@ -63,4 +63,10 @@ export async function initializeDesktopWindowControls() {
   } catch {
     elements.alwaysOnTopButton.hidden = true;
   }
+  const presetsButton = document.querySelector("#windowPresetsButton");
+  if (presetsButton && typeof bridge?.externalWindows?.list === "function") {
+    presetsButton.hidden = false;
+    presetsButton.innerHTML = icon("settings");
+    presetsButton.dataset.label = "外窗预设";
+  }
 }

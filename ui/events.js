@@ -1,5 +1,5 @@
 import { state } from "./state.js";
-import { elements } from "./dom.js";
+import { elements, showToast } from "./dom.js";
 import { loadSnapshot, switchTab } from "./engine-client.js";
 import { renderAll, activateSavedView, saveCurrentView, deleteCurrentView } from "./render-shared.js";
 import { renderPaths, handlePathAction, refreshAllPathStatuses, setAbnormalPathFilter, batchDeleteAbnormalPaths } from "./render-paths.js";
@@ -18,9 +18,21 @@ import { bindConfirmDialog } from "./confirm.js";
 import { toggleMinimalMode } from "./minimal.js";
 import { bindGuide } from "./guide.js";
 import { bindKeyboardInteractions } from "./keyboard.js";
+import { persistNoteLengthFilter, persistNoteShortMaxChars } from "./note-length-preferences.js";
+import { syncNoteLengthFilterButtons } from "./note-length-filter-ui.js";
+import {
+  refreshClipboardHistory,
+  renderClipboard,
+  handleClipboardAction,
+  handleClipboardCardKeydown,
+  bindClipboardDetailPreview,
+} from "./render-clipboard.js";
+import { openWindowPresetsDialog, handleWindowPresetAction } from "./window-presets.js";
+import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 
 export function focusActiveSearch() {
-  const selector = state.activeTab === "paths" ? "#pathSearch" : state.activeTab === "launcher" ? "#projectSearch" : "#noteSearch";
+  const selector = state.activeTab === "paths" ? "#pathSearch" : state.activeTab === "notes" ? "#noteSearch" : null;
+  if (!selector) return;
   document.querySelector(selector).focus();
 }
 
@@ -100,32 +112,62 @@ export function bindEvents() {
     try { await saveGroupEdit(); } finally { event.submitter.disabled = false; }
   });
 
-  document.querySelector("#addProjectButton").addEventListener("click", () => openProjectEditor());
-  document.querySelector("#projectSearch").addEventListener("input", (event) => { state.projectSearch = event.target.value; renderProjects(); });
-  document.querySelector("#projectFilters").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-filter]");
-    if (!button) return;
-    state.projectFilter = button.dataset.filter;
-    document.querySelectorAll("#projectFilters button").forEach((item) => {
-      const selected = item === button;
-      item.classList.toggle("is-active", selected);
-      item.setAttribute("aria-pressed", String(selected));
-      item.tabIndex = selected ? 0 : -1;
+  if (!PROJECT_ENTRY_SURFACE_RETIRED) {
+    document.querySelector("#addProjectButton").addEventListener("click", () => openProjectEditor());
+    document.querySelector("#projectSearch").addEventListener("input", (event) => { state.projectSearch = event.target.value; renderProjects(); });
+    document.querySelector("#projectFilters").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-filter]");
+      if (!button) return;
+      state.projectFilter = button.dataset.filter;
+      document.querySelectorAll("#projectFilters button").forEach((item) => {
+        const selected = item === button;
+        item.classList.toggle("is-active", selected);
+        item.setAttribute("aria-pressed", String(selected));
+        item.tabIndex = selected ? 0 : -1;
+      });
+      renderProjects();
     });
-    renderProjects();
+    elements.projectList.addEventListener("click", handleProjectAction);
+    bindDialogSubmit("#editProjectForm", elements.editProjectDialog, saveProjectEdit);
+    bindDialogSubmit("#launchProjectForm", elements.launchProjectDialog, saveProjectLaunchConfiguration);
+  }
+
+  document.querySelector("#refreshClipboardButton")?.addEventListener("click", async () => {
+    await refreshClipboardHistory();
+    renderClipboard();
+    showToast("剪贴板历史已刷新");
   });
-  elements.projectList.addEventListener("click", handleProjectAction);
-  bindDialogSubmit("#editProjectForm", elements.editProjectDialog, saveProjectEdit);
-  bindDialogSubmit("#launchProjectForm", elements.launchProjectDialog, saveProjectLaunchConfiguration);
+  document.querySelector("#clipboardSearch")?.addEventListener("input", (event) => {
+    state.clipboardSearch = event.target.value;
+    renderClipboard();
+  });
+  document.querySelector("#clipboardList")?.addEventListener("click", handleClipboardAction);
+  document.querySelector("#clipboardList")?.addEventListener("keydown", handleClipboardCardKeydown);
+  bindClipboardDetailPreview();
+  document.querySelector("#windowPresetsButton")?.addEventListener("click", () => openWindowPresetsDialog());
+  document.querySelector("#windowPresetsList")?.addEventListener("click", handleWindowPresetAction);
 
   document.querySelector("#addNoteButton").addEventListener("click", () => openNoteEditor());
   document.querySelector("#noteSearch").addEventListener("input", (event) => { state.noteSearch = event.target.value; renderNotes(); });
   document.querySelector("#noteCategory").addEventListener("change", (event) => { state.noteCategory = event.target.value; renderNotes(); });
+  document.querySelector("#noteLengthFilter")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-length-filter]");
+    if (!button) return;
+    persistNoteLengthFilter(button.dataset.lengthFilter);
+    syncNoteLengthFilterButtons();
+    renderNotes();
+  });
+  document.querySelector("#noteShortMaxChars")?.addEventListener("change", (event) => {
+    persistNoteShortMaxChars(event.target.value);
+    renderNotes();
+  });
   document.querySelector("#clearNoteFilter").addEventListener("click", () => {
     state.noteSearch = "";
     state.noteCategory = "all";
     document.querySelector("#noteSearch").value = "";
     document.querySelector("#noteCategory").value = "all";
+    persistNoteLengthFilter("all");
+    syncNoteLengthFilterButtons();
     renderNotes();
   });
   elements.noteList.addEventListener("click", handleNoteAction);

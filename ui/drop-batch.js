@@ -1,6 +1,7 @@
 import { state } from "./state.js";
 import { elements, escapeHtml, parseTagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError, switchTab } from "./engine-client.js";
+import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 import { comparablePath, normalizeDroppedPath, pathName, findExistingPath, revealExistingPath } from "./render-paths.js";
 import { inspectionLabel } from "./render-shared.js";
 import { openPathEditor } from "./dialogs-path.js";
@@ -81,7 +82,7 @@ export function renderDropBatchPlan() {
     return `<div class="batch-row" data-batch-index="${candidate.index}">
       <input class="batch-include" type="checkbox" ${blocked ? "" : "checked"} ${blocked ? "disabled" : ""} aria-label="选择 ${escapeHtml(candidate.path)}" />
       <div class="batch-main"><input class="batch-name" value="${escapeHtml(candidate.inspection.suggestedName || pathName(candidate.path))}" maxlength="120" ${blocked ? "disabled" : ""} /><code>${escapeHtml(candidate.path)}</code><small>${escapeHtml(reason)}</small>${candidate.existing ? `<button class="quiet-button batch-reveal" type="button" data-existing-kind="${escapeHtml(candidate.existing.kind)}" data-existing-id="${escapeHtml(candidate.existing.id)}">查看已收录</button>` : ""}</div>
-      <select class="batch-target" ${blocked ? "disabled" : ""}><option value="path" ${candidate.suggestedTarget === "path" ? "selected" : ""}>文件路径</option><option value="project" ${candidate.suggestedTarget === "project" ? "selected" : ""}>项目入口</option></select>
+      ${PROJECT_ENTRY_SURFACE_RETIRED ? "" : `<select class="batch-target" ${blocked ? "disabled" : ""}><option value="path" ${candidate.suggestedTarget === "path" ? "selected" : ""}>文件路径</option><option value="project" ${candidate.suggestedTarget === "project" ? "selected" : ""}>项目入口</option></select>`}
     </div>`;
   }).join("");
 }
@@ -91,12 +92,12 @@ export async function revealExistingEntry(kind, id) {
     const item = state.projects.find((candidate) => candidate.id === id);
     if (!item) return showToast("未找到对应项目入口");
     elements.dropBatchDialog.close();
-    switchTab("launcher");
-    state.projectSearch = item.name;
-    document.querySelector("#projectSearch").value = item.name;
-    const { renderProjects } = await import("./render-projects.js");
-    renderProjects();
-    requestAnimationFrame(() => document.querySelector(`#projectList [data-id="${CSS.escape(item.id)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    switchTab("paths");
+    state.pathSearch = item.name;
+    document.querySelector("#pathSearch").value = item.name;
+    const { renderPaths } = await import("./render-paths.js");
+    renderPaths();
+    requestAnimationFrame(() => document.querySelector(`#pathList [data-id="${CSS.escape(item.id)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
     showToast(`已定位项目：${item.name} → ${item.path}`, 3600);
     return;
   }
@@ -122,7 +123,7 @@ export async function saveDropBatch() {
   const tags = parseTagNames(document.querySelector("#dropBatchTags").value);
   const items = [...document.querySelectorAll("#dropBatchList [data-batch-index]")].filter((row) => row.querySelector(".batch-include").checked).map((row) => {
     const candidate = state.dropPlan[Number(row.dataset.batchIndex)];
-    const target = row.querySelector(".batch-target").value;
+    const target = PROJECT_ENTRY_SURFACE_RETIRED ? "path" : row.querySelector(".batch-target").value;
     const name = row.querySelector(".batch-name").value.trim() || candidate.inspection.suggestedName || pathName(candidate.path);
     const item = target === "path"
       ? { name, path: candidate.path, tags, description: "", pinned: false }

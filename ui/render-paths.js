@@ -5,6 +5,7 @@ import { compareRecords, inspectionLabel } from "./render-shared.js";
 import { openLocalPathInFinder } from "./desktop.js";
 import { openPathEditor, pathInput } from "./dialogs-path.js";
 import { openProjectEditor } from "./dialogs-project.js";
+import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 import { requestConfirm } from "./confirm.js";
 import { isAbnormalInspectionStatus } from "./path-status.js";
 import { bindUsageHomeScroll } from "./usage-home.js";
@@ -51,7 +52,7 @@ function renderUsageHome() {
     .filter((item) => (item.usage?.count || 0) > 0)
     .sort((a, b) => (b.usage.count || 0) - (a.usage.count || 0) || Date.parse(b.usage?.lastUsedAt || 0) - Date.parse(a.usage?.lastUsedAt || 0) || a.name.localeCompare(b.name, "zh-CN"))
     .slice(0, limit);
-  const recentProjects = [...state.projects]
+  const recentProjects = PROJECT_ENTRY_SURFACE_RETIRED ? [] : [...state.projects]
     .filter((item) => item.usage?.lastUsedAt)
     .sort((a, b) => Date.parse(b.usage.lastUsedAt) - Date.parse(a.usage.lastUsedAt) || a.name.localeCompare(b.name, "zh-CN"))
     .slice(0, limit);
@@ -72,10 +73,10 @@ function renderUsageHome() {
   };
   home.hidden = false;
   home.innerHTML = [
-    `<div class="usage-home-heading"><strong>最近入口</strong>${state.minimalMode ? "" : "<span>优先打开常用路径与项目</span>"}</div>`,
+    `<div class="usage-home-heading"><strong>最近入口</strong>${state.minimalMode ? "" : "<span>优先打开常用路径</span>"}</div>`,
     section("最近路径", recent, "recent", "reveal-usage-path"),
     section("常用路径", frequent, "frequent", "reveal-usage-path"),
-    section("最近项目", recentProjects, "recent-projects", "reveal-usage-project"),
+    ...(PROJECT_ENTRY_SURFACE_RETIRED ? [] : [section("最近项目", recentProjects, "recent-projects", "reveal-usage-project")]),
   ].join("");
   bindUsageHomeScroll(home);
 }
@@ -111,7 +112,7 @@ export function renderPaths({ resetScroll = false } = {}) {
     elements.pathList.innerHTML = rows.map((item) => {
       const status = item.inspection?.status || "unchecked";
       const abnormal = isAbnormalInspectionStatus(status);
-      const projectHit = findProjectForPath(item.path);
+      const projectHit = PROJECT_ENTRY_SURFACE_RETIRED ? null : findProjectForPath(item.path);
       return `
     <div class="kv-row path-row ${item.pinned ? "is-pinned" : ""} ${state.highlightPathId === item.id ? "duplicate-hit" : ""}" data-id="${escapeHtml(item.id)}">
       <div class="path-identity">
@@ -129,7 +130,7 @@ export function renderPaths({ resetScroll = false } = {}) {
         ${abnormal ? `<button class="row-button" data-action="open-path-parent" data-label="父目录" type="button" aria-label="在访达打开父目录">${icon("folder")}</button>` : ""}
         <button class="row-button" data-action="inspect-path" data-label="检查" type="button" aria-label="检查路径状态">${icon("refresh")}</button>
         ${abnormal ? `<button class="row-button" data-action="repair-path" data-label="修复" type="button" aria-label="修复路径">${icon("edit")}</button>` : ""}
-        <button class="row-button" data-action="promote-path" data-label="升为项目" data-long="true" type="button" aria-label="升为项目入口" ${state.connected ? "" : "disabled"}>${icon("play")}</button>
+        ${PROJECT_ENTRY_SURFACE_RETIRED ? "" : `<button class="row-button" data-action="promote-path" data-label="升为项目" data-long="true" type="button" aria-label="升为项目入口" ${state.connected ? "" : "disabled"}>${icon("play")}</button>`}
         <button class="row-button" data-action="edit-path" data-label="编辑" type="button" aria-label="编辑" ${state.connected ? "" : "disabled"}>${icon("edit")}</button>
         <button class="row-button danger" data-action="delete-path" data-label="删除" type="button" aria-label="删除" ${state.connected ? "" : "disabled"}>${icon("trash")}</button>
       </div>

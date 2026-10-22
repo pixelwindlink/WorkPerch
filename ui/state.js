@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   migration: "local-dashboard.engine-migration.v1",
   silentRefreshAt: "local-dashboard.path-silent-refresh-at.v1",
   minimalMode: "local-dashboard.minimal-mode.v1",
+  noteLengthFilter: "local-perch.note-length-filter.v1",
+  noteShortMaxChars: "local-perch.note-short-max-chars.v1",
 };
 
 export const state = {
@@ -22,6 +24,8 @@ export const state = {
   projectFilter: "all",
   noteSearch: "",
   noteCategory: "all",
+  noteLengthFilter: "all",
+  noteShortMaxChars: 100,
   sortMode: "smart",
   activeViewId: "",
   dropQueue: [],
@@ -43,4 +47,8 @@ export const state = {
   legacyChecked: false,
   alwaysOnTop: false,
   minimalMode: false,
+  clipboardItems: [],
+  clipboardAvailable: false,
+  clipboardSearch: "",
+  clipboardPreviewId: "",
 };

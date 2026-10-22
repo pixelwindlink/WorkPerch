@@ -2,6 +2,8 @@ import { state } from "./state.js";
 import { elements, tagNames, parseTagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError } from "./engine-client.js";
 import { setButtonKeyboardLabel } from "./keyboard.js";
+import { normalizeClipboardNoteContent, suggestNoteTitleFromClipboard } from "./note-paste-create.js";
+import { allocateAutoNoteTitle, isNoteTitleTaken } from "./note-auto-key.js";
 
 export function noteInput(item, changes = {}) {
   return { id: item.id, title: item.title, content: item.content, tagIds: item.tagIds, pinned: item.pinned, ...changes };
@@ -13,21 +15,74 @@ export function openNoteEditor(item = null) {
   document.querySelector("#noteDialogKicker").textContent = editing ? "EDIT PAIR" : "ADD PAIR";
   document.querySelector("#noteDialogTitle").textContent = editing ? "编辑速记" : "添加速记";
   setButtonKeyboardLabel("#noteDialogSubmit", editing ? "保存修改" : "添加速记", "Enter");
+  const keyInput = document.querySelector("#editNoteKey");
+  const valueInput = document.querySelector("#editNoteValue");
   document.querySelector("#editNoteId").value = item?.id || "";
-  document.querySelector("#editNoteKey").value = item?.title || "";
-  document.querySelector("#editNoteValue").value = item?.content || "";
+  keyInput.value = editing ? (item?.title || "") : allocateAutoNoteTitle(state.notes);
+  keyInput.readOnly = !editing;
+  keyInput.dataset.autoKey = editing ? "false" : "true";
+  keyInput.setAttribute("aria-readonly", String(!editing));
+  valueInput.value = item?.content || "";
   document.querySelector("#editNoteTags").value = tagNames(item).join(", ");
   elements.editNoteDialog.showModal();
-  setTimeout(() => document.querySelector("#editNoteKey").focus(), 0);
+  setTimeout(() => valueInput.focus(), 0);
+}
+
+export async function createNoteFromClipboard() {
+  if (!state.connected) return showToast("请先连接 WorkPerch Server");
+  let raw;
+  try {
+    raw = await navigator.clipboard.readText();
+  } catch {
+    return showToast("无法读取系统剪贴板", 2800);
+  }
+  const { content, truncated } = normalizeClipboardNoteContent(raw);
+  if (!content) return showToast("剪贴板没有可用文本", 2400);
+  const item = {
+    title: suggestNoteTitleFromClipboard(content),
+    content,
+    tags: [],
+    pinned: false,
+  };
+  try {
+    const result = await engineAction("perch.note.upsert", { expectedRevision: state.aggregateRevision, item });
+    await afterWrite(truncated ? "已从剪贴板添加速记（内容已截断至 10000 字）" : "已从剪贴板添加速记", {
+      result,
+      patch: { type: "upsert", collection: "notes" },
+    });
+    if (result?.item) {
+      const { revealExistingNote } = await import("./render-notes.js");
+      revealExistingNote(result.item, "");
+    }
+    return true;
+  } catch (error) {
+    await handleWriteError(error, "从剪贴板添加速记失败");
+    return false;
+  }
 }
 
 export async function saveNoteEdit() {
   const id = document.querySelector("#editNoteId").value;
   const existing = state.notes.find((item) => item.id === id);
+  const keyInput = document.querySelector("#editNoteKey");
+  let title = keyInput.value.trim();
+  if (!id) title = allocateAutoNoteTitle(state.notes);
+  else if (!title) return showToast("KEY 不能为空"), false;
+  if (isNoteTitleTaken(state.notes, title, { exceptId: id || undefined })) {
+    showToast(`KEY「${title}」已被占用，请换一个`, 2800);
+    if (id) keyInput.focus();
+    return false;
+  }
+  const content = document.querySelector("#editNoteValue").value.trim();
+  if (!content) {
+    showToast("VALUE 不能为空");
+    document.querySelector("#editNoteValue").focus();
+    return false;
+  }
   const item = {
     ...(id ? { id } : {}),
-    title: document.querySelector("#editNoteKey").value.trim(),
-    content: document.querySelector("#editNoteValue").value.trim(),
+    title,
+    content,
     tags: parseTagNames(document.querySelector("#editNoteTags").value),
     pinned: existing?.pinned || false,
   };

@@ -3,6 +3,7 @@ import { escapeHtml, normalize, tagNames, showToast } from "./dom.js";
 import { openLocalPathInFinder } from "./desktop.js";
 import { revealExistingPath } from "./render-paths.js";
 import { revealExistingProject } from "./render-projects.js";
+import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 
 let activeIndex = 0;
 let currentHits = [];
@@ -41,7 +42,7 @@ function matchText(item, kind) {
 function buildHits(query) {
   const q = normalize(query);
   const pathItems = byRecent(state.paths).map((item) => ({ kind: "path", item }));
-  const projectItems = byRecent(state.projects).map((item) => ({ kind: "project", item }));
+  const projectItems = PROJECT_ENTRY_SURFACE_RETIRED ? [] : byRecent(state.projects).map((item) => ({ kind: "project", item }));
   const combined = [...pathItems, ...projectItems];
   const filtered = q
     ? combined.filter((entry) => matchText(entry.item, entry.kind).includes(q))

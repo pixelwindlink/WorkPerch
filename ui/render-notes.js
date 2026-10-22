@@ -5,6 +5,9 @@ import { compareRecords } from "./render-shared.js";
 import { openNoteEditor, noteInput } from "./dialogs-note.js";
 import { requestConfirm } from "./confirm.js";
 import { bindUsageHomeScroll } from "./usage-home.js";
+import { matchesNoteLengthFilter } from "./note-length-filter.js";
+import { syncNoteLengthFilterButtons } from "./note-length-filter-ui.js";
+import { persistNoteLengthFilter } from "./note-length-preferences.js";
 
 export function renderNoteGroups() {
   const groups = [...state.tags].sort((a, b) => a.name.localeCompare(b.name, "zh-CN"));
@@ -14,6 +17,9 @@ export function renderNoteGroups() {
   select.value = groups.some((group) => group.id === current) ? current : "all";
   state.noteCategory = select.value;
   document.querySelector("#noteGroupCount").textContent = String(groups.length);
+  syncNoteLengthFilterButtons();
+  const thresholdInput = document.querySelector("#noteShortMaxChars");
+  if (thresholdInput) thresholdInput.value = String(state.noteShortMaxChars);
 }
 
 function renderNoteUsageHome() {
@@ -53,7 +59,8 @@ export function renderNotes() {
     const rows = [...state.notes]
       .filter((item) => {
         const groupMatches = state.noteCategory === "all" || item.tagIds.includes(state.noteCategory);
-        return groupMatches && (!query || normalize([item.title, item.content, ...tagNames(item)].join(" ")).includes(query));
+        const lengthMatches = matchesNoteLengthFilter(item.content, state.noteLengthFilter, state.noteShortMaxChars);
+        return groupMatches && lengthMatches && (!query || normalize([item.title, item.content, ...tagNames(item)].join(" ")).includes(query));
       })
       .sort((a, b) => compareRecords(a, b, (value) => value.title));
     elements.noteList.innerHTML = rows.map((item) => `
@@ -116,6 +123,8 @@ export function revealExistingNote(item, message = `已定位速记：${item.tit
   state.highlightNoteId = item.id;
   document.querySelector("#noteSearch").value = "";
   document.querySelector("#noteCategory").value = "all";
+  persistNoteLengthFilter("all");
+  syncNoteLengthFilterButtons();
   renderNotes();
   requestAnimationFrame(() => elements.noteList.querySelector(`[data-id="${CSS.escape(item.id)}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
   setTimeout(() => {

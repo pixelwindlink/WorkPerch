@@ -12,12 +12,12 @@ const GUIDE_STEPS = [
   {
     target: ".brand",
     title: "你的本地快速入口",
-    description: "Perch 把常用文件路径、项目入口和速记集中在一个高密度看板里。点击左上角品牌可以随时回到文件路径。",
+    description: "WorkPerch 把常用文件路径、速记与剪贴板集中在一个高密度看板里。点击左上角品牌可以随时回到文件路径。",
   },
   {
     target: ".tabs",
     title: "三个工作区",
-    description: "文件路径用于快速打开和复制本机路径；项目入口负责项目目录与安全启动；速记保存随手记录的 key-value 内容。",
+    description: "文件路径用于快速打开和复制本机路径；速记保存随手记录的 key-value 内容；剪贴板将承载历史剪贴记录（建设中）。",
   },
   {
     target: "#sortMode",
@@ -78,37 +78,19 @@ const GUIDE_STEPS = [
     target: "#usageHome",
     when: () => !document.querySelector("#usageHome")?.hidden,
     title: "最近入口",
-    description: "这里汇总最近和高频使用的路径、项目。极简模式会把它扩展成整个快速启动首页。",
+    description: "这里汇总最近和高频使用的路径。极简模式会把它扩展成整个快速启动首页。",
   },
   {
     tab: "paths",
     target: () => document.querySelector(".path-row") || document.querySelector(".path-list .kv-head") || document.querySelector(".path-list"),
     title: "路径记录与快捷动作",
-    description: "每行突出 NAME、TAGS、NOTE 和真实路径。可以置顶、复制、在访达打开、检查或修复、升为项目、编辑与删除。",
+    description: "每行突出 NAME、TAGS、NOTE 和真实路径。可以置顶、复制、在访达打开、检查或修复、编辑与删除。",
   },
   {
-    tab: "launcher",
-    target: "#projectSearch",
-    title: "搜索项目入口",
-    description: "项目搜索会匹配名称、类型、TAG、目录和端口。切换 Tab 时，各自的搜索与筛选状态会保留。",
-  },
-  {
-    tab: "launcher",
-    target: "#addProjectButton",
-    title: "登记一个项目",
-    description: "点击加号录入项目真实名称、类型、绝对路径、URL、端口、启动命令建议、标签和说明。",
-  },
-  {
-    tab: "launcher",
-    target: () => hasVisibleBox(document.querySelector("#projectFilters")) ? document.querySelector("#projectFilters") : document.querySelector(".project-sticky-bar"),
-    title: "按项目类型聚焦",
-    description: "快速筛选 Engine、Candidate、Tool 或 Workspace。窄窗口会优先让出空间给搜索和项目列表。",
-  },
-  {
-    tab: "launcher",
-    target: () => document.querySelector(".project-row") || document.querySelector(".project-list .kv-head") || document.querySelector(".project-list"),
-    title: "打开、检查与安全启动",
-    description: "项目行支持在访达打开、复制路径或命令、探测状态和编辑。桌面应用接入 Project Launcher 后，还能配置并安全启动或停止项目。",
+    tab: "clipboard",
+    target: "#clipboardSearch",
+    title: "剪贴板工作区",
+    description: "Desktop 自动记录系统剪贴板文本。用上方搜索筛选历史，点击卡片或「复制」可再次写入系统剪贴板。",
   },
   {
     tab: "notes",
@@ -139,7 +121,7 @@ const GUIDE_STEPS = [
     tab: "notes",
     target: "#addNoteButton",
     title: "随手添加一条速记",
-    description: "点击加号填写 KEY、VALUE 和共享 TAG。弹窗使用和文件路径一致的布局，保存前会完成必填校验。",
+    description: "在速记看板按 Enter 可打开添加窗口；KEY 自动递增且唯一，光标在 VALUE。弹窗内再按 Enter 保存，TAG 可选。",
   },
   {
     tab: "notes",

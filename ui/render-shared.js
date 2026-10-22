@@ -4,6 +4,8 @@ import { engineAction, afterWrite, handleWriteError, switchTab } from "./engine-
 import { renderPathGroups, renderPaths } from "./render-paths.js";
 import { renderProjects } from "./render-projects.js";
 import { renderNotes } from "./render-notes.js";
+import { renderClipboard } from "./render-clipboard.js";
+import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 import { renderGroupRegistry } from "./dialogs-tag-registry.js";
 import { elements } from "./dom.js";
 import { requestConfirm } from "./confirm.js";
@@ -36,8 +38,9 @@ export function inspectionLabel(item) {
 export function renderAll() {
   renderPathGroups();
   renderPaths();
-  renderProjects();
+  if (!PROJECT_ENTRY_SURFACE_RETIRED) renderProjects();
   renderNotes();
+  renderClipboard();
   renderSavedViews();
   if (elements.groupRegistryDialog?.open) renderGroupRegistry();
 }
@@ -62,7 +65,7 @@ export function activateSavedView(id) {
     document.querySelector("#pathSearch").value = state.pathSearch;
     document.querySelector("#pathStatusFilter").value = state.pathStatus;
   } else if (view.scope === "projects") {
-    switchTab("launcher"); state.projectSearch = view.query; document.querySelector("#projectSearch").value = state.projectSearch;
+    switchTab("paths"); state.pathSearch = view.query; document.querySelector("#pathSearch").value = state.pathSearch;
   } else if (view.scope === "notes") {
     switchTab("notes"); state.noteSearch = view.query; state.noteCategory = view.tagIds[0] || "all";
     document.querySelector("#noteSearch").value = state.noteSearch;
@@ -75,8 +78,8 @@ export async function saveCurrentView() {
   const existing = state.savedViews.find((item) => item.id === state.activeViewId);
   const name = prompt("保存视图名称", existing?.name || "");
   if (!name?.trim()) return;
-  const scope = state.activeTab === "launcher" ? "projects" : state.activeTab;
-  const query = scope === "paths" ? state.pathSearch : scope === "projects" ? state.projectSearch : state.noteSearch;
+  const scope = state.activeTab === "paths" ? "paths" : "notes";
+  const query = scope === "paths" ? state.pathSearch : state.noteSearch;
   const item = {
     ...(existing ? { id: existing.id } : {}), name: name.trim(), scope, query,
     tagIds: scope === "paths" && state.pathCategory !== "all"

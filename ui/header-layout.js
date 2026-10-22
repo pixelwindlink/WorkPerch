@@ -12,7 +12,8 @@ function activeTab() {
 export function syncHeaderHeight() {
   const header = document.querySelector(".app-header");
   if (!header) return;
-  const floor = document.documentElement.classList.contains("header-is-narrow") ? 38 : 62;
+  const narrow = document.documentElement.classList.contains("header-is-narrow");
+  const floor = narrow ? 0 : 62;
   const next = `${Math.max(header.offsetHeight, floor)}px`;
   if (document.documentElement.style.getPropertyValue("--header-height") !== next) {
     document.documentElement.style.setProperty("--header-height", next);

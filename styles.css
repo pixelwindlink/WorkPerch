@@ -955,10 +955,12 @@ html.header-is-narrow .header-inner {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-block: 3px;
+  min-height: 0;
+  padding-block: 8px;
 }
 html.header-is-narrow .app-header {
   min-height: 0;
+  height: auto;
 }
 html.header-is-narrow .brand {
   flex: 0 0 auto;

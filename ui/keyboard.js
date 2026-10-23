@@ -10,6 +10,7 @@ import { shouldCycleNoteLengthFilterOnShiftTab } from "./note-length-filter.js";
 import { nextMainPanelTab, orderedMainPanelTabs, shouldSwitchMainPanelOnTab } from "./main-tab-shortcuts.js";
 import { shouldCreateNoteFromPaste } from "./note-paste-create.js";
 import { shouldOpenAddNoteOnEnter } from "./note-board-shortcuts.js";
+import { shouldOpenAddPathOnEnter } from "./path-board-shortcuts.js";
 import {
   insertTextareaNewline,
   shouldInsertNoteValueNewline,
@@ -105,6 +106,15 @@ function bindNotesEnterAdd() {
   }, true);
 }
 
+function bindPathsEnterAdd() {
+  document.addEventListener("keydown", (event) => {
+    if (!shouldOpenAddPathOnEnter(event)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void import("./dialogs-path.js").then(({ openPathEditor }) => openPathEditor());
+  }, true);
+}
+
 function bindNotePasteCreate() {
   document.addEventListener("keydown", async (event) => {
     const notesActive = document.querySelector("#notesPanel")?.classList.contains("is-active");
@@ -177,4 +187,5 @@ export function bindKeyboardInteractions() {
   bindMainPanelTabCycle();
   bindNotePasteCreate();
   bindNotesEnterAdd();
+  bindPathsEnterAdd();
 }

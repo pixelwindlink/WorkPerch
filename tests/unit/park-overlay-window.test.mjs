@@ -8,9 +8,13 @@ const overlaySource = readFileSync(
   path.join(path.dirname(fileURLToPath(import.meta.url)), "../../electron/park-overlay-window.mjs"),
   "utf8",
 );
+const chargeSource = readFileSync(
+  path.join(path.dirname(fileURLToPath(import.meta.url)), "../../electron/park-charge-overlay.mjs"),
+  "utf8",
+);
 
-test("charge overlays stack below owner while frame overlays stay above", () => {
+test("park overlay stacking supports above-owner and below-owner modes", () => {
   assert.match(overlaySource, /stacking === "below"/);
   assert.match(overlaySource, /alwaysOnTop: !belowOwner/);
-  assert.match(overlaySource, /raiseOwnerAboveOverlay/);
+  assert.match(chargeSource, /stacking: "above"/);
 });

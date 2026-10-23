@@ -1,6 +1,7 @@
 import { chargeOverlayBounds, PARK_CHARGE_GLOW_PAD } from "./park-frame-geometry.mjs";
 import {
   PARK_CHARGE_COLLAPSE_MS,
+  PARK_CHARGE_APPEAR_MS,
   PARK_CHARGE_EXPAND_MS,
   PARK_CHARGE_MASTER_FADE_MS,
 } from "./park-charge-timing.mjs";
@@ -9,6 +10,7 @@ import {
   loadParkOverlayHtml,
   revealParkOverlay,
 } from "./park-overlay-window.mjs";
+import { normalizeParkTheme } from "./park-theme-colors.mjs";
 import {
   parkChargeCollapseKeyframes,
   parkChargeKeyframes,
@@ -19,6 +21,7 @@ import {
 
 export { PARK_CHARGE_GLOW_PAD, chargeOverlayBounds };
 export {
+  PARK_CHARGE_APPEAR_MS,
   PARK_CHARGE_COLLAPSE_MS,
   PARK_CHARGE_EXPAND_MS,
   PARK_CHARGE_MASTER_FADE_MS,
@@ -26,7 +29,7 @@ export {
   PARK_PRESS_PARK_MS,
 } from "./park-charge-timing.mjs";
 
-function buildParkChargeHtml(localWindow, durationMs, glowPad, masterFadeDurationMs) {
+function buildParkChargeHtml(localWindow, durationMs, glowPad, masterFadeDurationMs, theme) {
   const { x, y, width, height } = localWindow;
   const end = { x: 0, y: 0, width: width + glowPad * 2, height: height + glowPad * 2 };
   return `<!doctype html>
@@ -35,17 +38,19 @@ function buildParkChargeHtml(localWindow, durationMs, glowPad, masterFadeDuratio
 <meta charset="utf-8" />
 <style>
 ${parkOverlayBaseCss()}
-${parkChargeLayerCss(durationMs, masterFadeDurationMs)}
-${parkChargeKeyframes({ x, y, width, height }, end)}
+${parkChargeLayerCss(durationMs, masterFadeDurationMs, theme, PARK_CHARGE_APPEAR_MS)}
+${parkChargeKeyframes(end, { x, y, width, height })}
 ${parkChargeMasterKeyframes(durationMs, masterFadeDurationMs)}
 ${parkChargeCollapseKeyframes({ x, y, width, height }, end)}
 </style>
 </head>
 <body>
   <div id="shell" aria-hidden="true">
-    <div id="master">
-      <div id="halo"></div>
-      <div id="ring"></div>
+    <div id="fade">
+      <div id="master">
+        <div id="halo"></div>
+        <div id="ring"></div>
+      </div>
     </div>
   </div>
 </body>
@@ -111,6 +116,7 @@ export async function startParkChargeOverlay(
   windowBounds,
   {
     ownerWindow = null,
+    theme = null,
     durationMs = PARK_CHARGE_EXPAND_MS,
     masterFadeDurationMs = PARK_CHARGE_MASTER_FADE_MS,
   } = {},
@@ -124,13 +130,14 @@ export async function startParkChargeOverlay(
     width: windowBounds.width,
     height: windowBounds.height,
   };
-  const html = buildParkChargeHtml(localWindow, durationMs, PARK_CHARGE_GLOW_PAD, masterFadeDurationMs);
-  const overlay = createParkOverlayBrowserWindow(overlayScreen, { stacking: "below" });
+  const resolvedTheme = normalizeParkTheme(theme);
+  const html = buildParkChargeHtml(localWindow, durationMs, PARK_CHARGE_GLOW_PAD, masterFadeDurationMs, resolvedTheme);
+  const overlay = createParkOverlayBrowserWindow(overlayScreen, { stacking: "above" });
   activeChargeOverlay = overlay;
   overlay.once("closed", () => {
     if (activeChargeOverlay === overlay) activeChargeOverlay = null;
   });
-  await loadParkOverlayHtml(overlay, html, { stacking: "below", ownerWindow });
+  await loadParkOverlayHtml(overlay, html, { stacking: "above", ownerWindow });
   if (session !== chargeSession) {
     closeActiveChargeOverlay();
     return null;

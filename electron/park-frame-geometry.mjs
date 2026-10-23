@@ -1,3 +1,12 @@
+export function normalizeScreenBounds(raw) {
+  const x = Number(raw?.x);
+  const y = Number(raw?.y);
+  const width = Number(raw?.width);
+  const height = Number(raw?.height);
+  if (![x, y, width, height].every(Number.isFinite)) return null;
+  return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
+}
+
 export function unionBounds(a, b, pad = 12) {
   const x = Math.min(a.x, b.x) - pad;
   const y = Math.min(a.y, b.y) - pad;

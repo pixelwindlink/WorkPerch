@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { app, BrowserWindow, clipboard, globalShortcut, ipcMain, shell, screen } from "electron";
+import { app, BrowserWindow, clipboard, globalShortcut, ipcMain, nativeImage, shell, screen } from "electron";
 import { clipboardHistoryPath, createClipboardHistoryStore } from "./clipboard-history.mjs";
 import {
   applyWindowBounds,
@@ -19,12 +19,22 @@ import {
   MIN_WINDOW_SIZE,
   windowStatePath,
 } from "./window-state.mjs";
-import { cancelParkChargeOverlay, collapseParkChargeOverlay, startParkChargeOverlay } from "./park-charge-overlay.mjs";
+import { cancelParkChargeOverlay, startParkChargeOverlay } from "./park-charge-overlay.mjs";
+import { readPerchThemeColors } from "./park-theme-colors.mjs";
 import { PARK_CHARGE_COLLAPSE_MS } from "./park-charge-timing.mjs";
 import { showParkFrameAnimation } from "./park-animation.mjs";
 import { compactTopRightBounds, resolveCompactTopRightBounds } from "./window-park.mjs";
 
 const ELECTRON_DIR = path.dirname(fileURLToPath(import.meta.url));
+const APP_ICON_PATH = path.join(ELECTRON_DIR, "..", "assets", "app-icon", "Perch.icns");
+
+function applyPerchAppIcon() {
+  if (!nativeImage.createFromPath(APP_ICON_PATH).isEmpty()) {
+    if (process.platform === "darwin" && app.dock) app.dock.setIcon(APP_ICON_PATH);
+    return nativeImage.createFromPath(APP_ICON_PATH);
+  }
+  return null;
+}
 const DEVELOPMENT_GENERIC_ENGINES_ROOT = path.resolve(ELECTRON_DIR, "../../..");
 const DEVELOPMENT_PROJECT_LAUNCHER_ROOT = path.resolve(ELECTRON_DIR, "../../project-launcher");
 const LAUNCHER_ACTIONS = ["launcher.definition.upsert", "launcher.project.start", "launcher.project.stop", "launcher.runtime.get"];
@@ -155,12 +165,14 @@ function applyParkTargetBounds(window, target) {
 }
 
 async function parkPerchWindowCompactTopRight(window, options = {}) {
-  const from = normalizeBounds(options.fromBounds) || window.getBounds();
-  const target = computeParkTargetBounds(from);
-  await collapseParkChargeOverlay(PARK_CHARGE_COLLAPSE_MS);
   prepareWindowForPark(window);
+  const from = normalizeBounds(window.getBounds()) || normalizeBounds(options.fromBounds);
+  if (!from) throw new TypeError("park source bounds are invalid.");
+  const target = computeParkTargetBounds(from);
   const parked = applyParkTargetBounds(window, target);
-  await showParkFrameAnimation(from, target);
+  const to = normalizeBounds(window.getBounds()) || target;
+  const theme = await readPerchThemeColors(window);
+  await showParkFrameAnimation(from, to, { theme });
   cancelParkChargeOverlay();
   return parked;
 }
@@ -193,7 +205,8 @@ function registerDesktopIpcHandlers() {
   ipcMain.handle(WINDOW_PARK_CHARGE_START, async (event) => {
     const window = currentPerchWindow(event);
     const bounds = window.getBounds();
-    await startParkChargeOverlay(bounds, { ownerWindow: window });
+    const theme = await readPerchThemeColors(window);
+    await startParkChargeOverlay(bounds, { ownerWindow: window, theme });
     return bounds;
   });
   ipcMain.handle(WINDOW_PARK_CHARGE_CANCEL, () => {
@@ -335,8 +348,10 @@ async function createWindow() {
     getDisplays: () => screen.getAllDisplays(),
   });
   const saved = windowStateTracker.load();
+  const appIcon = applyPerchAppIcon();
   mainWindow = new BrowserWindow({
     title: "WorkPerch",
+    ...(appIcon ? { icon: appIcon } : {}),
     width: saved.width,
     height: saved.height,
     ...(Number.isFinite(saved.x) ? { x: saved.x } : {}),

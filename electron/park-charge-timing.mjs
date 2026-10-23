@@ -10,5 +10,9 @@ export const PARK_CHARGE_SHOW_DELAY_MS = Math.round(BASE_CHARGE_SHOW_DELAY_MS * 
 /** Press timeline: master envelope reaches 50% at (show + fade) ms. */
 export const PARK_CHARGE_MASTER_FADE_MS = Math.round(BASE_CHARGE_MASTER_FADE_MS * PARK_TIMING_SCALE);
 export const PARK_CHARGE_EXPAND_MS = PARK_PRESS_PARK_MS - PARK_CHARGE_SHOW_DELAY_MS;
+/** Opacity fade-in when the charge overlay first appears. */
+export const PARK_CHARGE_APPEAR_MS = 150;
 /** Rapid collapse of charge glow to window bounds before the frame flies. */
 export const PARK_CHARGE_COLLAPSE_MS = 120;
+/** Fade out the flight glow after park animation lands. */
+export const PARK_FRAME_FADE_OUT_MS = 120;

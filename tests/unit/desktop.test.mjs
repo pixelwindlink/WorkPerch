@@ -163,7 +163,6 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.match(main, /WINDOW_PARK_COMPACT_TOP_RIGHT/);
   assert.match(main, /parkPerchWindowCompactTopRight/);
   assert.match(main, /showParkFrameAnimation/);
-  assert.match(main, /collapseParkChargeOverlay/);
   assert.match(preload, /ipcRenderer\.invoke\(PATH_OPEN_IN_FINDER, localPath\)/);
   assert.match(preload, /onSummon\(handler\)/);
   assert.match(preload, /ipcRenderer\.on\(SUMMON_CHANNEL, listener\)/);

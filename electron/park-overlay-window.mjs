@@ -1,4 +1,15 @@
 import { BrowserWindow } from "electron";
+import { normalizeScreenBounds } from "./park-frame-geometry.mjs";
+
+const OVERLAY_BOUNDS_SETTLE_MS = process.platform === "darwin" ? 20 : 0;
+
+export async function readOverlayScreenBounds(overlay, fallback) {
+  if (!overlay || overlay.isDestroyed()) return fallback;
+  if (OVERLAY_BOUNDS_SETTLE_MS > 0) {
+    await new Promise((resolve) => setTimeout(resolve, OVERLAY_BOUNDS_SETTLE_MS));
+  }
+  return normalizeScreenBounds(overlay.getBounds()) ?? fallback;
+}
 
 export function createParkOverlayBrowserWindow(screenBounds, { stacking = "above" } = {}) {
   const belowOwner = stacking === "below";

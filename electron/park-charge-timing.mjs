@@ -16,3 +16,19 @@ export const PARK_CHARGE_APPEAR_MS = 150;
 export const PARK_CHARGE_COLLAPSE_MS = 120;
 /** Fade out the flight glow after park animation lands. */
 export const PARK_FRAME_FADE_OUT_MS = 120;
+
+export function parkTimingForScale(scale = PARK_TIMING_SCALE) {
+  const s = Math.min(1.2, Math.max(0.4, Number(scale) || PARK_TIMING_SCALE));
+  const pressParkMs = Math.round(BASE_PRESS_PARK_MS * s);
+  const showDelayMs = Math.round(BASE_CHARGE_SHOW_DELAY_MS * s);
+  const masterFadeMs = Math.round(BASE_CHARGE_MASTER_FADE_MS * s);
+  return {
+    PARK_PRESS_PARK_MS: pressParkMs,
+    PARK_CHARGE_SHOW_DELAY_MS: showDelayMs,
+    PARK_CHARGE_MASTER_FADE_MS: masterFadeMs,
+    PARK_CHARGE_EXPAND_MS: pressParkMs - showDelayMs,
+    PARK_CHARGE_APPEAR_MS,
+    PARK_CHARGE_COLLAPSE_MS,
+    PARK_FRAME_FADE_OUT_MS,
+  };
+}

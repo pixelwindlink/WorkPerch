@@ -57,6 +57,7 @@
             </details>
           </div>
           <div class="header-icons">
+            <button class="icon-button" id="settingsButton" type="button" aria-label="设置" title="设置"></button>
             <button class="icon-button guide-entry-button" id="guideButton" type="button" aria-label="打开界面指引" aria-pressed="false" title="界面指引"></button>
             <button class="icon-button" id="alwaysOnTopButton" type="button" aria-label="全局置顶" aria-pressed="false" hidden></button>
             <button class="icon-button" id="windowPresetsButton" type="button" aria-label="外窗尺寸预设" title="外窗尺寸预设（macOS）" hidden></button>
@@ -115,7 +116,7 @@
 
         <div class="empty-state" id="pathEmpty" hidden>
           <strong>没有匹配的路径</strong>
-          <p>直接在上方填写名称和路径，按 Enter 保存。</p>
+          <p>按 <b>Enter</b> 打开添加窗口，或点击右下角 ＋。</p>
         </div>
       </section>
 
@@ -229,13 +230,17 @@
               </div>
               <div class="clipboard-rows" id="clipboardList" role="list" aria-label="剪贴板历史"></div>
             </div>
-            <section class="clipboard-detail" id="clipboardDetail" aria-label="剪贴板全文预览">
+            <section class="clipboard-detail" id="clipboardDetail" aria-label="剪贴板预览">
               <div class="clipboard-detail-head">
-                <span class="clipboard-detail-label">全文</span>
+                <span class="clipboard-detail-label">预览</span>
                 <span class="clipboard-detail-meta" id="clipboardDetailMeta"></span>
               </div>
               <div class="clipboard-detail-body">
                 <pre class="clipboard-detail-text" id="clipboardDetailText"></pre>
+                <div class="clipboard-detail-media" id="clipboardDetailImageWrap" hidden>
+                  <img id="clipboardDetailImage" alt="剪贴板图片预览" />
+                </div>
+                <ul class="clipboard-detail-files" id="clipboardDetailFiles" hidden></ul>
               </div>
             </section>
           </div>
@@ -249,7 +254,7 @@
 
     <footer class="app-footer">
       <span><i></i> WorkPerch · single-writer</span>
-      <span>速记 <b>Enter</b> 新建 / <b>⌘/Ctrl + V</b> 粘贴建记 · 点击 VALUE 复制 · <b>⌘/Ctrl + K</b> 搜索 · Desktop <b>⌘⇧D</b> 召唤</span>
+      <span>文件路径 / 速记 <b>Enter</b> 新建 · 速记 <b>⌘/Ctrl + V</b> 粘贴建记 · <b>⌘/Ctrl + K</b> 搜索 · Desktop <b>⌘⇧D</b> 召唤</span>
     </footer>
 
     <dialog class="edit-dialog" id="editPathDialog">
@@ -472,6 +477,114 @@
         <p class="guide-shortcuts">← → 切换步骤 · Enter 确认 · Esc 退出</p>
       </section>
     </div>
+
+    <dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsDialogTitle">
+      <form method="dialog" id="settingsForm">
+        <div class="settings-shell">
+          <nav class="settings-nav" aria-label="设置分类" role="tablist">
+            <button class="settings-nav-item is-active" type="button" role="tab" data-settings-panel="appearance" aria-selected="true" tabindex="0">外观</button>
+            <button class="settings-nav-item" type="button" role="tab" data-settings-panel="pin" aria-selected="false" tabindex="-1">置顶与泊车</button>
+            <button class="settings-nav-item" type="button" role="tab" data-settings-panel="notes" aria-selected="false" tabindex="-1">速记</button>
+            <button class="settings-nav-item" type="button" role="tab" data-settings-panel="browse" aria-selected="false" tabindex="-1">浏览</button>
+            <button class="settings-nav-item" type="button" role="tab" data-settings-panel="desktop" aria-selected="false" tabindex="-1" hidden>桌面</button>
+          </nav>
+          <div class="settings-panels">
+            <header class="settings-panels-header">
+              <small>SETTINGS</small>
+              <h2 id="settingsDialogTitle">WorkPerch 设置</h2>
+            </header>
+            <section class="settings-panel is-active" data-settings-panel="appearance" role="tabpanel">
+              <h3>外观</h3>
+              <p class="settings-lead">主题与界面密度，只影响本机展示，不会写入 Engine 数据。</p>
+              <label class="settings-field">
+                <span>主题</span>
+                <select id="settingsTheme">
+                  <option value="dark">深色</option>
+                  <option value="light">浅色</option>
+                </select>
+              </label>
+              <label class="settings-toggle">
+                <input id="settingsMinimalMode" type="checkbox" />
+                <span>极简模式（仅保留文件路径看板）</span>
+              </label>
+            </section>
+            <section class="settings-panel" data-settings-panel="pin" role="tabpanel" hidden>
+              <h3>置顶按钮效果</h3>
+              <p class="settings-lead">控制右上角图钉的短按置顶与长按「泊车」动画。仅 Perch 桌面版会播放蓄力泛光与飞行动画。</p>
+              <label class="settings-field settings-field--range">
+                <span>失焦时透明度 <output data-settings-output="pinAlwaysOnTopTransparency">0%</output></span>
+                <input id="settingsPinAlwaysOnTopTransparency" type="range" min="0" max="80" step="5" />
+              </label>
+              <p class="settings-hint">仅在「全局置顶 + 窗口未获得焦点 + 鼠标不在 WorkPerch 上」时生效；聚焦或鼠标移入窗口会在 120ms 内恢复不透明。</p>
+              <label class="settings-toggle">
+                <input id="settingsPinEffectsEnabled" type="checkbox" checked />
+                <span>启用蓄力泛光与泊车飞行动画</span>
+              </label>
+              <div class="settings-pin-only">
+                <label class="settings-field settings-field--range">
+                  <span>长按泊车时长 <output data-settings-output="pinLongPress">840 ms</output></span>
+                  <input id="settingsPinLongPress" type="range" min="500" max="1400" step="20" />
+                </label>
+                <label class="settings-field settings-field--range">
+                  <span>蓄力预览提前量 <output data-settings-output="pinChargeDelay">210 ms</output></span>
+                  <input id="settingsPinChargeDelay" type="range" min="80" max="500" step="10" />
+                </label>
+                <label class="settings-field">
+                  <span>动画节奏</span>
+                  <select id="settingsPinAnimationPreset"></select>
+                </label>
+                <label class="settings-field settings-field--range">
+                  <span>落地后泛光淡出 <output data-settings-output="pinFadeOut">120 ms</output></span>
+                  <input id="settingsPinFadeOut" type="range" min="0" max="400" step="10" />
+                </label>
+              </div>
+            </section>
+            <section class="settings-panel" data-settings-panel="notes" role="tabpanel" hidden>
+              <h3>速记</h3>
+              <p class="settings-lead">长度筛选与「短文」阈值，保存在本机偏好中。</p>
+              <label class="settings-field">
+                <span>短文字数上限</span>
+                <input id="settingsNoteShortMax" type="number" min="20" max="500" step="10" />
+              </label>
+              <label class="settings-field">
+                <span>默认长度筛选</span>
+                <select id="settingsNoteLengthFilter">
+                  <option value="all">全部</option>
+                  <option value="short">短文</option>
+                  <option value="long">长文</option>
+                </select>
+              </label>
+            </section>
+            <section class="settings-panel" data-settings-panel="browse" role="tabpanel" hidden>
+              <h3>浏览</h3>
+              <p class="settings-lead">列表默认排序方式；仍可在顶栏随时切换。</p>
+              <label class="settings-field">
+                <span>默认排序</span>
+                <select id="settingsSortMode">
+                  <option value="smart">智能排序</option>
+                  <option value="recent">最近使用</option>
+                  <option value="frequent">最常使用</option>
+                  <option value="name">名称</option>
+                  <option value="updated">最近更新</option>
+                </select>
+              </label>
+            </section>
+            <section class="settings-panel" data-settings-panel="desktop" role="tabpanel" hidden>
+              <h3>桌面</h3>
+              <p class="settings-lead">Perch.app 窗口行为；外窗尺寸预设仍在顶栏滑块按钮中管理。</p>
+              <label class="settings-toggle">
+                <input id="settingsRestoreAlwaysOnTop" type="checkbox" />
+                <span>下次启动时恢复全局置顶</span>
+              </label>
+            </section>
+          </div>
+        </div>
+        <footer class="settings-footer dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>
+          <button class="add-button" value="save" type="submit">保存</button>
+        </footer>
+      </form>
+    </dialog>
 
     <dialog class="edit-dialog confirm-dialog" id="confirmDialog" aria-labelledby="confirmDialogTitle">
       <form method="dialog" id="confirmDialogForm">

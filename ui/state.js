@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
   minimalMode: "local-dashboard.minimal-mode.v1",
   noteLengthFilter: "local-perch.note-length-filter.v1",
   noteShortMaxChars: "local-perch.note-short-max-chars.v1",
+  sortMode: "local-perch.sort-mode.v1",
 };
 
 export const state = {

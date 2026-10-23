@@ -116,7 +116,12 @@ async function localizeBoundsInOverlay(overlay, from, to, { concealDuringResize 
   };
 }
 
-async function playParkFlightOnChargeOverlay(overlay, from, to, { durationMs = PARK_FRAME_ANIMATION_MS, theme = null } = {}) {
+async function playParkFlightOnChargeOverlay(
+  overlay,
+  from,
+  to,
+  { durationMs = PARK_FRAME_ANIMATION_MS, fadeOutMs = PARK_FRAME_FADE_OUT_MS, theme = null } = {},
+) {
   const resolvedTheme = normalizeParkTheme(theme);
   const { fromLocal, toLocal } = await localizeBoundsInOverlay(overlay, from, to, {
     concealDuringResize: true,
@@ -169,15 +174,19 @@ async function playParkFlightOnChargeOverlay(overlay, from, to, { durationMs = P
     });
   `);
 
-  await fadeOutParkOverlay(overlay, PARK_FRAME_FADE_OUT_MS);
+  await fadeOutParkOverlay(overlay, fadeOutMs);
   if (!overlay.isDestroyed()) overlay.close();
 }
 
-export function showParkFrameAnimation(from, to, { durationMs = PARK_FRAME_ANIMATION_MS, theme = null } = {}) {
+export function showParkFrameAnimation(
+  from,
+  to,
+  { durationMs = PARK_FRAME_ANIMATION_MS, fadeOutMs = PARK_FRAME_FADE_OUT_MS, theme = null } = {},
+) {
   const resolvedTheme = normalizeParkTheme(theme);
   const chargeOverlay = handoffChargeOverlayToFrame();
   if (chargeOverlay) {
-    return playParkFlightOnChargeOverlay(chargeOverlay, from, to, { durationMs, theme: resolvedTheme });
+    return playParkFlightOnChargeOverlay(chargeOverlay, from, to, { durationMs, fadeOutMs, theme: resolvedTheme });
   }
 
   const origin = unionBounds(from, to);
@@ -188,7 +197,7 @@ export function showParkFrameAnimation(from, to, { durationMs = PARK_FRAME_ANIMA
       const html = buildParkFlightHtml(fromLocal, toLocal, durationMs, resolvedTheme);
       try {
         await loadParkOverlayHtml(overlay, html);
-        await closeOverlayAfterParkFlight(overlay, durationMs, PARK_FRAME_FADE_OUT_MS);
+        await closeOverlayAfterParkFlight(overlay, durationMs, fadeOutMs);
       } catch {
         if (!overlay.isDestroyed()) overlay.close();
       }

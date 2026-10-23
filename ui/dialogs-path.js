@@ -14,7 +14,7 @@ export function openPathEditor(item = null, options = {}) {
   state.pathDialogFromDrop = Boolean(options.fromDrop);
   document.querySelector("#pathDialogKicker").textContent = editing ? "EDIT PAIR" : "ADD PAIR";
   document.querySelector("#pathDialogTitle").textContent = editing ? "编辑文件路径" : "添加文件路径";
-  setButtonKeyboardLabel("#pathDialogSubmit", editing ? "保存修改" : "添加路径", "Enter");
+  setButtonKeyboardLabel("#pathDialogSubmit", editing ? "保存修改" : "添加文件路径", "Enter");
   const notice = document.querySelector("#pathDialogNotice");
   notice.textContent = options.notice || "";
   notice.hidden = !options.notice;
@@ -24,7 +24,10 @@ export function openPathEditor(item = null, options = {}) {
   document.querySelector("#editPathGroup").value = tagNames(item).join(", ");
   document.querySelector("#editPathNote").value = item?.description || "";
   elements.editPathDialog.showModal();
-  setTimeout(() => document.querySelector(options.fromDrop && !item?.path ? "#editPathValue" : "#editPathKey").focus(), 0);
+  const focusSelector = options.fromDrop && !item?.path
+    ? "#editPathValue"
+    : (editing ? "#editPathKey" : "#editPathValue");
+  setTimeout(() => document.querySelector(focusSelector)?.focus(), 0);
 }
 
 export async function savePathEdit() {

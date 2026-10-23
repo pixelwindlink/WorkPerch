@@ -1,5 +1,5 @@
 import { state } from "./state.js";
-import { elements, showToast } from "./dom.js";
+import { elements, icon, showToast } from "./dom.js";
 import { loadSnapshot, switchTab } from "./engine-client.js";
 import { renderAll, activateSavedView, saveCurrentView, deleteCurrentView } from "./render-shared.js";
 import { renderPaths, handlePathAction, refreshAllPathStatuses, setAbnormalPathFilter, batchDeleteAbnormalPaths } from "./render-paths.js";
@@ -14,6 +14,7 @@ import { openGroupRegistry, resetGroupEditor, setRegistryGroupColor, handleGroup
 import { saveDropBatch, processNextDroppedCandidate, handleDrop, revealExistingEntry } from "./drop-batch.js";
 import { exportData, importData, inspectLegacyData, migrateLegacyData, cleanupLegacyData } from "./backup-legacy.js";
 import { applyTheme } from "./desktop.js";
+import { bindSettingsDialog, openSettingsDialog } from "./settings-dialog.js";
 import { bindConfirmDialog } from "./confirm.js";
 import { toggleMinimalMode } from "./minimal.js";
 import { bindGuide } from "./guide.js";
@@ -48,6 +49,12 @@ export function bindDialogSubmit(formSelector, dialog, save) {
 
 export function bindEvents() {
   bindConfirmDialog();
+  bindSettingsDialog();
+  const settingsButton = document.querySelector("#settingsButton");
+  if (settingsButton) {
+    settingsButton.innerHTML = icon("gear");
+    settingsButton.addEventListener("click", () => openSettingsDialog());
+  }
   bindGuide();
   elements.tabs.forEach((tab) => tab.addEventListener("click", () => switchTab(tab.dataset.tab)));
   window.addEventListener("hashchange", () => switchTab(location.hash.slice(1), false));

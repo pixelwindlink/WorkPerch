@@ -76,26 +76,30 @@
 
     <main class="workspace" data-readonly="true">
       <section class="panel is-active" id="pathsPanel" data-panel="paths" role="tabpanel" aria-labelledby="pathsTab" aria-hidden="false">
-        <div class="tab-sticky-bar">
+        <div class="tab-sticky-bar paths-sticky-bar">
           <div class="path-view-tools-mount" id="pathViewToolsMount" hidden></div>
-          <div class="sticky-title">
+          <div class="sticky-title paths-sticky-title">
             <strong>文件路径</strong>
             <span><b id="visiblePathCount">0</b> / <i id="totalPathCount">0</i></span>
           </div>
-          <label class="search-control path-search-control">
-            <span class="search-icon"></span>
-            <input id="pathSearch" type="search" placeholder="搜索 key、路径、标签、状态或备注…" />
-            <kbd>/</kbd>
-          </label>
-          <select id="pathCategory" aria-label="按标签筛选">
-            <option value="all">全部标签</option>
-          </select>
-          <select id="pathStatusFilter" aria-label="按路径状态筛选"><option value="any">全部状态</option><option value="abnormal">异常</option><option value="available">有效</option><option value="missing">已移动/删除</option><option value="denied">无权限</option><option value="invalid">无效</option><option value="unchecked">未检查</option></select>
-          <button class="quiet-button path-refresh-all-button" id="refreshAllPathsButton" type="button" title="全量检查路径是否有效" aria-label="全量检查路径是否有效">刷新</button>
-          <button class="quiet-button path-abnormal-button" id="abnormalPathsButton" type="button" title="只看异常路径" aria-label="只看异常路径" aria-pressed="false">异常 <b>0</b></button>
-          <button class="quiet-button danger-text path-cleanup-abnormal-button" id="cleanupAbnormalPathsButton" type="button" title="删除当前可见异常路径" hidden>清理异常</button>
-          <button class="quiet-button group-registry-button" id="manageGroupsButton" type="button">TAGS <b id="groupCount">0</b></button>
-          <button class="quiet-button clear-filter" id="clearPathFilter" type="button">清除</button>
+          <div class="paths-toolbar-primary">
+            <label class="search-control path-search-control">
+              <span class="search-icon"></span>
+              <input id="pathSearch" type="search" placeholder="搜索 key、路径、标签、状态或备注…" />
+              <kbd>/</kbd>
+            </label>
+            <select id="pathCategory" aria-label="按标签筛选">
+              <option value="all">全部标签</option>
+            </select>
+          </div>
+          <div class="paths-filter-row">
+            <select id="pathStatusFilter" aria-label="按路径状态筛选"><option value="any">全部状态</option><option value="abnormal">异常</option><option value="available">有效</option><option value="missing">已移动/删除</option><option value="denied">无权限</option><option value="invalid">无效</option><option value="unchecked">未检查</option></select>
+            <button class="quiet-button path-refresh-all-button" id="refreshAllPathsButton" type="button" title="全量检查路径是否有效" aria-label="全量检查路径是否有效">刷新</button>
+            <button class="quiet-button path-abnormal-button" id="abnormalPathsButton" type="button" title="只看异常路径" aria-label="只看异常路径" aria-pressed="false">异常 <b>0</b></button>
+            <button class="quiet-button danger-text path-cleanup-abnormal-button" id="cleanupAbnormalPathsButton" type="button" title="删除当前可见异常路径" hidden>清理异常</button>
+            <button class="quiet-button group-registry-button" id="manageGroupsButton" type="button">TAGS <b id="groupCount">0</b></button>
+            <button class="quiet-button clear-filter" id="clearPathFilter" type="button">清除</button>
+          </div>
         </div>
 
         <div class="usage-home" id="usageHome" hidden></div>

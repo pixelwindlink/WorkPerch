@@ -172,9 +172,10 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(css, /\.confirm-dialog/);
   assert.match(css, /\.group-registry-toolbar/);
   assert.match(css, /@media \(max-width: 600px\)[\s\S]*\.header-tools[\s\S]*display:\s*flex/);
-  assert.match(css, /@media \(max-width: 600px\)[\s\S]*#pathCategory[\s\S]*display:\s*inline-block/);
-  assert.match(css, /@media \(max-width: 600px\)[\s\S]*\.path-search-control[\s\S]*height:\s*34px/);
-  assert.match(css, /@media \(max-width: 600px\)[\s\S]*\.path-search-control[\s\S]*display:\s*flex/);
+  assert.match(html, /paths-toolbar-primary/);
+  assert.match(css, /#pathsPanel \.paths-toolbar-primary[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*86px/);
+  assert.match(css, /@media \(max-width: 600px\)[\s\S]*#pathCategory[\s\S]*height:\s*28px/);
+  assert.match(css, /@media \(max-width: 600px\)[\s\S]*#pathsPanel \.paths-toolbar-primary \.path-search-control[\s\S]*height:\s*28px/);
   assert.match(css, /\.kv-value[\s\S]*text-align:\s*left/);
   assert.match(css, /\.path-row[\s\S]*minmax\(280px, 1\.6fr\)/);
   assert.match(css, /\.path-name[\s\S]*white-space:\s*normal/);

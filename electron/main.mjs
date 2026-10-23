@@ -2,6 +2,11 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { app, BrowserWindow, clipboard, globalShortcut, ipcMain, nativeImage, shell, screen } from "electron";
 import { clipboardHistoryPath, createClipboardHistoryStore } from "./clipboard-history.mjs";
+import { createClipboardWatcher } from "./clipboard-watcher.mjs";
+import { readImageBlob } from "./clipboard-blob-store.mjs";
+import { readClipboardSnapshot } from "./clipboard-snapshot.mjs";
+import { writeClipboardFilePaths } from "./clipboard-files.mjs";
+import { getDesktopCapabilities } from "./desktop-capabilities.mjs";
 import {
   applyWindowBounds,
   captureFrontWindowBounds,
@@ -21,9 +26,10 @@ import {
 } from "./window-state.mjs";
 import { cancelParkChargeOverlay, startParkChargeOverlay } from "./park-charge-overlay.mjs";
 import { readPerchThemeColors } from "./park-theme-colors.mjs";
-import { PARK_CHARGE_COLLAPSE_MS } from "./park-charge-timing.mjs";
+import { PARK_CHARGE_COLLAPSE_MS, PARK_TIMING_SCALE, parkTimingForScale } from "./park-charge-timing.mjs";
 import { showParkFrameAnimation } from "./park-animation.mjs";
 import { compactTopRightBounds, resolveCompactTopRightBounds } from "./window-park.mjs";
+import { createAlwaysOnTopOpacityController } from "./always-on-top-opacity.mjs";
 
 const ELECTRON_DIR = path.dirname(fileURLToPath(import.meta.url));
 const APP_ICON_PATH = path.join(ELECTRON_DIR, "..", "assets", "app-icon", "Perch.icns");
@@ -40,6 +46,8 @@ const DEVELOPMENT_PROJECT_LAUNCHER_ROOT = path.resolve(ELECTRON_DIR, "../../proj
 const LAUNCHER_ACTIONS = ["launcher.definition.upsert", "launcher.project.start", "launcher.project.stop", "launcher.runtime.get"];
 const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
 const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
+const WINDOW_SET_ALWAYS_ON_TOP_OPACITY = "perch:window:set-always-on-top-opacity";
+const WINDOW_POINTER_INSIDE = "perch:window:pointer-inside";
 const WINDOW_GET_BOUNDS = "perch:window:get-bounds";
 const WINDOW_PARK_CHARGE_START = "perch:window:park-charge-start";
 const WINDOW_PARK_CHARGE_CANCEL = "perch:window:park-charge-cancel";
@@ -48,11 +56,14 @@ const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
 const CLIPBOARD_LIST = "perch:clipboard:list";
 const CLIPBOARD_GET = "perch:clipboard:get";
 const CLIPBOARD_WRITE = "perch:clipboard:write";
+const CLIPBOARD_HISTORY_CHANGED = "perch:clipboard:history-changed";
+const CLIPBOARD_SET_PANEL_ACTIVE = "perch:clipboard:set-panel-active";
 const EXTERNAL_WINDOW_LIST = "perch:external-window:list";
 const EXTERNAL_WINDOW_CAPTURE = "perch:external-window:capture";
 const EXTERNAL_WINDOW_APPLY = "perch:external-window:apply";
 const SUMMON_CHANNEL = "perch:summon";
-const SUMMON_HOTKEY = process.platform === "darwin" ? "Command+Shift+D" : "Control+Shift+D";
+const DESKTOP_CAPABILITIES = "perch:desktop:capabilities";
+const SUMMON_HOTKEY = getDesktopCapabilities().summonHotkey;
 const serverTarget = resolveDesktopServerUrl(process.env);
 let lease;
 let launcherEngine;
@@ -60,10 +71,11 @@ let runtimeHost;
 let monitorHallInfo = null;
 let launcherDiagnostic = null;
 let mainWindow;
+let alwaysOnTopOpacityController = null;
 let quitting = false;
 let windowStateTracker = null;
 let clipboardHistoryStore = null;
-let clipboardWatchTimer = null;
+let clipboardWatcher = null;
 let externalWindowLayoutStore = null;
 
 const EXTERNAL_WINDOW_ERROR_MESSAGES = {
@@ -81,8 +93,10 @@ function mapExternalWindowError(error) {
 
 function ensureClipboardHistoryStore() {
   if (!clipboardHistoryStore) {
+    const userDataDir = app.getPath("userData");
     clipboardHistoryStore = createClipboardHistoryStore({
-      filePath: clipboardHistoryPath(app.getPath("userData")),
+      filePath: clipboardHistoryPath(userDataDir),
+      userDataDir,
     });
   }
   return clipboardHistoryStore;
@@ -97,21 +111,31 @@ function ensureExternalWindowLayoutStore() {
   return externalWindowLayoutStore;
 }
 
+function notifyClipboardHistoryChanged(entry) {
+  if (!entry?.id || !mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.webContents.send(CLIPBOARD_HISTORY_CHANGED, { id: entry.id });
+}
+
 function startClipboardWatcher() {
   ensureClipboardHistoryStore();
-  if (clipboardWatchTimer) return;
-  clipboardWatchTimer = setInterval(() => {
-    try {
-      clipboardHistoryStore.observeText(clipboard.readText());
-    } catch {
-      /* ignore clipboard read errors */
-    }
-  }, 800);
+  if (clipboardWatcher) return;
+  clipboardWatcher = createClipboardWatcher({
+    observeClipboardText() {
+      try {
+        const snapshot = readClipboardSnapshot(clipboard);
+        return snapshot ? clipboardHistoryStore.observeSnapshot(snapshot) : null;
+      } catch {
+        return null;
+      }
+    },
+    onHistoryChanged: notifyClipboardHistoryChanged,
+  });
+  clipboardWatcher.start();
 }
 
 function stopClipboardWatcher() {
-  if (clipboardWatchTimer) clearInterval(clipboardWatchTimer);
-  clipboardWatchTimer = null;
+  clipboardWatcher?.stop();
+  clipboardWatcher = null;
 }
 
 function currentPerchWindow(event) {
@@ -128,7 +152,9 @@ function setPerchWindowAlwaysOnTop(window, enabled) {
   if (process.platform === "darwin") {
     window.setVisibleOnAllWorkspaces(enabled, { visibleOnFullScreen: enabled });
   }
-  return window.isAlwaysOnTop();
+  const active = window.isAlwaysOnTop();
+  alwaysOnTopOpacityController?.setAlwaysOnTop(active);
+  return active;
 }
 
 function normalizeBounds(raw) {
@@ -164,6 +190,22 @@ function applyParkTargetBounds(window, target) {
   return { alwaysOnTop, bounds: window.getBounds() };
 }
 
+function resolveParkEffectOptions(options = {}) {
+  const timingScale = Number(options.timingScale);
+  const scale = Number.isFinite(timingScale) ? timingScale : PARK_TIMING_SCALE;
+  const timing = parkTimingForScale(scale);
+  const fadeRaw = Number(options.frameFadeOutMs);
+  const frameFadeOutMs = Number.isFinite(fadeRaw)
+    ? Math.min(400, Math.max(0, Math.round(fadeRaw)))
+    : timing.PARK_FRAME_FADE_OUT_MS;
+  return {
+    effectsEnabled: options.effectsEnabled !== false,
+    timing,
+    frameDurationMs: Math.round(560 * scale),
+    frameFadeOutMs,
+  };
+}
+
 async function parkPerchWindowCompactTopRight(window, options = {}) {
   prepareWindowForPark(window);
   const from = normalizeBounds(window.getBounds()) || normalizeBounds(options.fromBounds);
@@ -171,8 +213,15 @@ async function parkPerchWindowCompactTopRight(window, options = {}) {
   const target = computeParkTargetBounds(from);
   const parked = applyParkTargetBounds(window, target);
   const to = normalizeBounds(window.getBounds()) || target;
-  const theme = await readPerchThemeColors(window);
-  await showParkFrameAnimation(from, to, { theme });
+  const parkFx = resolveParkEffectOptions(options);
+  if (parkFx.effectsEnabled) {
+    const theme = await readPerchThemeColors(window);
+    await showParkFrameAnimation(from, to, {
+      theme,
+      durationMs: parkFx.frameDurationMs,
+      fadeOutMs: parkFx.frameFadeOutMs,
+    });
+  }
   cancelParkChargeOverlay();
   return parked;
 }
@@ -201,12 +250,30 @@ function registerDesktopIpcHandlers() {
     if (typeof enabled !== "boolean") throw new TypeError("always-on-top preference must be boolean.");
     return setPerchWindowAlwaysOnTop(currentPerchWindow(event), enabled);
   });
+  ipcMain.handle(WINDOW_SET_ALWAYS_ON_TOP_OPACITY, (event, payload = {}) => {
+    currentPerchWindow(event);
+    const percent = Number(payload.transparencyPercent);
+    alwaysOnTopOpacityController?.setTransparencyPercent(percent);
+    return true;
+  });
+  ipcMain.handle(WINDOW_POINTER_INSIDE, (event, inside) => {
+    currentPerchWindow(event);
+    alwaysOnTopOpacityController?.setPointerInside(Boolean(inside));
+    return true;
+  });
   ipcMain.handle(WINDOW_GET_BOUNDS, (event) => currentPerchWindow(event).getBounds());
-  ipcMain.handle(WINDOW_PARK_CHARGE_START, async (event) => {
+  ipcMain.handle(WINDOW_PARK_CHARGE_START, async (event, options = {}) => {
     const window = currentPerchWindow(event);
     const bounds = window.getBounds();
+    const parkFx = resolveParkEffectOptions(options);
+    if (!parkFx.effectsEnabled) return bounds;
     const theme = await readPerchThemeColors(window);
-    await startParkChargeOverlay(bounds, { ownerWindow: window, theme });
+    await startParkChargeOverlay(bounds, {
+      ownerWindow: window,
+      theme,
+      durationMs: parkFx.timing.PARK_CHARGE_EXPAND_MS,
+      masterFadeDurationMs: parkFx.timing.PARK_CHARGE_MASTER_FADE_MS,
+    });
     return bounds;
   });
   ipcMain.handle(WINDOW_PARK_CHARGE_CANCEL, () => {
@@ -229,15 +296,45 @@ function registerDesktopIpcHandlers() {
     if (typeof id !== "string") throw new TypeError("clipboard id must be a string.");
     const item = ensureClipboardHistoryStore().get(id);
     if (!item) return null;
-    return { id: item.id, text: item.text, capturedAt: item.capturedAt };
+    if (item.kind === "image") {
+      const buffer = readImageBlob(app.getPath("userData"), item.blobPath);
+      if (!buffer) return null;
+      return {
+        ...item,
+        imageDataUrl: `data:image/png;base64,${buffer.toString("base64")}`,
+      };
+    }
+    return item;
   });
   ipcMain.handle(CLIPBOARD_WRITE, (event, id) => {
     currentPerchWindow(event);
     if (typeof id !== "string") throw new TypeError("clipboard id must be a string.");
     const item = ensureClipboardHistoryStore().get(id);
     if (!item) return null;
-    clipboard.writeText(item.text);
-    return { id: item.id, text: item.text };
+    if (item.kind === "text") {
+      clipboard.writeText(item.text);
+      return { id: item.id, kind: "text" };
+    }
+    if (item.kind === "image") {
+      const buffer = readImageBlob(app.getPath("userData"), item.blobPath);
+      if (!buffer) return null;
+      clipboard.writeImage(nativeImage.createFromBuffer(buffer));
+      return { id: item.id, kind: "image" };
+    }
+    if (item.kind === "files") {
+      if (!writeClipboardFilePaths(clipboard, item.paths)) return null;
+      return { id: item.id, kind: "files", fileCount: item.paths.length };
+    }
+    return null;
+  });
+  ipcMain.handle(CLIPBOARD_SET_PANEL_ACTIVE, (event, active) => {
+    currentPerchWindow(event);
+    clipboardWatcher?.setPanelActive(Boolean(active));
+    return true;
+  });
+  ipcMain.handle(DESKTOP_CAPABILITIES, (event) => {
+    currentPerchWindow(event);
+    return getDesktopCapabilities();
   });
   ipcMain.handle(EXTERNAL_WINDOW_LIST, (event) => {
     currentPerchWindow(event);
@@ -368,6 +465,7 @@ async function createWindow() {
     }
   });
   windowStateTracker.attach(mainWindow);
+  alwaysOnTopOpacityController = createAlwaysOnTopOpacityController(mainWindow);
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("http://") || url.startsWith("https://")) shell.openExternal(url);
     return { action: "deny" };
@@ -385,10 +483,14 @@ async function createWindow() {
     else if (saved.maximized) mainWindow.maximize();
     mainWindow.show();
   });
-  mainWindow.on("closed", () => { mainWindow = null; });
+  mainWindow.on("closed", () => {
+    alwaysOnTopOpacityController?.dispose();
+    alwaysOnTopOpacityController = null;
+    mainWindow = null;
+  });
   await mainWindow.loadURL(activeLease.baseUrl);
   startClipboardWatcher();
-  const desktopBridgeReady = await mainWindow.webContents.executeJavaScript('["getPathForFile", "getAlwaysOnTop", "setAlwaysOnTop", "openPathInFinder", "onSummon"].every((name) => typeof window.perchDesktop?.[name] === "function") && typeof window.perchDesktop?.clipboard?.list === "function" && typeof window.perchDesktop?.externalWindows?.list === "function"');
+  const desktopBridgeReady = await mainWindow.webContents.executeJavaScript('["getPathForFile", "getAlwaysOnTop", "setAlwaysOnTop", "openPathInFinder", "onSummon", "getDesktopCapabilities"].every((name) => typeof window.perchDesktop?.[name] === "function") && typeof window.perchDesktop?.clipboard?.list === "function"');
   if (!desktopBridgeReady) throw new Error("Perch Desktop preload bridge 未完整加载。");
   registerSummonHotkey();
   process.stderr.write(`Perch Desktop ready at ${activeLease.baseUrl} (owned composition Server; Project Launcher ${launcherEngine ? "ready" : `unavailable: ${launcherDiagnostic}`}; desktop bridge ready)\n`);

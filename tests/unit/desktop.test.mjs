@@ -154,6 +154,7 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   const renderer = [appEntry, desktopUi, summonUi, eventsUi, renderPaths, renderProjects, dropBatch, stateUi].join("\n");
   assert.match(preload, /contextBridge\.exposeInMainWorld\("perchDesktop"/);
   assert.match(preload, /webUtils\.getPathForFile/);
+  assert.match(preload, /getDesktopCapabilities/);
   assert.match(preload, /ipcRenderer\.invoke\(WINDOW_GET_ALWAYS_ON_TOP\)/);
   assert.match(preload, /ipcRenderer\.invoke\(WINDOW_SET_ALWAYS_ON_TOP, enabled\)/);
   assert.match(preload, /getWindowBounds/);
@@ -182,7 +183,7 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.match(main, /ipcMain\.handle\(PATH_OPEN_IN_FINDER/);
   assert.match(main, /globalShortcut\.register/);
   assert.match(main, /SUMMON_CHANNEL/);
-  assert.match(main, /Command\+Shift\+D/);
+  assert.match(main, /getDesktopCapabilities\(\)\.summonHotkey/);
   assert.match(main, /new LocalEngineClient/);
   assert.match(main, /allowReuse:\s*false/);
   assert.match(main, /createRuntimeHost/);
@@ -208,8 +209,8 @@ test("Desktop compact window and Finder opening keep IPC and bundle capabilities
   assert.match(renderer, /local-dashboard\.active-tab\.v1/);
   assert.match(renderer, /Desktop Shell 已识别真实绝对路径/);
   assert.match(renderer, /Finder 按 ⌥⌘C/);
-  assert.match(packaging, /platform:\s*"darwin"/);
-  assert.match(packaging, /arch:\s*"arm64"/);
+  assert.match(packaging, /resolveDesktopPackTarget/);
+  assert.match(packaging, /platform,\s*\n\s*arch,/);
   assert.match(packaging, /asar:\s*true/);
   assert.match(packaging, /identity:\s*"-"/);
   assert.match(packaging, /identityValidation:\s*false/);

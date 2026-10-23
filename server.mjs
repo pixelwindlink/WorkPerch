@@ -61,6 +61,9 @@ async function serveStatic(requestPath, response, staticRoot) {
   const asset = STATIC_FILES.get(decoded)
     || (/^\/ui\/[a-z0-9][a-z0-9._-]*\.js$/i.test(decoded)
       ? { file: decoded.slice(1), type: "text/javascript; charset=utf-8" }
+      : null)
+    || (/^\/lib\/[a-z0-9][a-z0-9._-]*\.mjs$/i.test(decoded)
+      ? { file: decoded.slice(1), type: "text/javascript; charset=utf-8" }
       : null);
   if (!asset) {
     response.writeHead(404).end("Not Found");

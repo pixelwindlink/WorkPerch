@@ -255,6 +255,15 @@ ditto dist/desktop/Perch-darwin-arm64/Perch.app /Applications/Perch.app
 
 断网构建可把包含 `electron-v43.2.0-darwin-arm64.zip` 的目录通过 `ELECTRON_ZIP_DIR=/absolute/cache/dir` 显式传入，打包器将只使用该本地 ZIP。
 
+Windows x64 打包（可在 macOS 上交叉打包，需对应 Electron ZIP）：
+
+```bash
+PERCH_DESKTOP_PLATFORM=win32 PERCH_DESKTOP_ARCH=x64 ELECTRON_ZIP_DIR=/absolute/cache/dir npm run desktop:pack
+# 产物：dist/desktop/Perch-win32-x64/Perch.exe
+```
+
+Windows 版当前支持文本/图片/文件剪贴板历史、全局置顶与失焦透明度；外窗尺寸预设仍为 macOS 独占，Win 上会自动隐藏。
+
 构建使用 ASAR，排除 Git、测试、OpenSpec、runtime data、导出和 Agent Skill，并把正式 `governance/` Contract、Project Launcher 的 manifest/contracts/src，以及 Perch/Launcher 共享 describe 投影所需的 Engine Provider SPI `package.json`、component manifest 与 `src/` 作为最小只读资源放入 App。Launcher 与 SPI 的 tests、fixtures、OpenSpec 和 runtime_data 不进入安装包。生成物采用本机 ad-hoc 签名，适用于当前 Mac；跨机器公开分发需要 Developer ID 和 notarization。
 
 当前已实测的开发构建产物位于 `dist/desktop/Perch-darwin-arm64/Perch.app`，可直接用上面的 `ditto` 命令安装到本机。`release/` 当前只保留历史 `Dashboard-*` 镜像及其校验文件，尚未生成可宣称的 Perch DMG；不要把历史镜像当作 WorkPerch 安装包。无论后续是否生成发布镜像，发布包都不应包含 Perch 或 Project Launcher runtime state、锁、备份或用户数据。

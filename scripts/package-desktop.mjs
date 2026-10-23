@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { packager } from "@electron/packager";
 import { finalizeMacAppIconBundle } from "./finalize-mac-app-icon.mjs";
+import { resolveDesktopPackTarget } from "./resolve-desktop-pack-target.mjs";
 
 function resolveXcodeDeveloperDir() {
   const candidates = [
@@ -29,25 +30,51 @@ const commonComponentsResourceRoot = path.join(resourceStagingRoot, "common_comp
 const engineProviderSpiResourceRoot = path.join(commonComponentsResourceRoot, "engine-provider-spi");
 const electronZipDir = process.env.ELECTRON_ZIP_DIR ? path.resolve(process.env.ELECTRON_ZIP_DIR) : null;
 const packageJson = JSON.parse(await fs.readFile(path.join(perchRoot, "package.json"), "utf8"));
+const { platform, arch } = resolveDesktopPackTarget();
 const appIconBase = path.join(perchRoot, "assets", "app-icon", "Perch");
 const appIconPath = `${appIconBase}.icns`;
 const appIconComposerPath = `${appIconBase}.icon`;
 const appIconImagePath = path.join(perchRoot, "assets", "app-icon", "perch-icon-1024.png");
+const winIconPath = path.join(perchRoot, "assets", "app-icon", "Perch.ico");
+const winIconFallbackPath = path.join(perchRoot, "assets", "app-icon", "Perch.pack-icon.png");
 
-execFileSync(process.execPath, [path.join(perchRoot, "scripts", "build-app-icon.mjs")], {
-  cwd: perchRoot,
-  stdio: "inherit",
-});
-await fs.access(appIconPath);
-await fs.access(appIconComposerPath);
+const sharedIgnore = [
+  /^\/\.git(?:\/|$)/,
+  /^\/dist(?:\/|$)/,
+  /^\/tests(?:\/|$)/,
+  /^\/openspec(?:\/|$)/,
+  /^\/runtime_data(?:\/|$)/,
+  /^\/exports(?:\/|$)/,
+  /^\/release(?:\/|$)/,
+  /^\/\.agents(?:\/|$)/,
+  /^\/skills(?:\/|$)/,
+  /^\/prompts(?:\/|$)/,
+  /^\/scripts(?:\/|$)/,
+  /^\/node_modules\/\.cache(?:\/|$)/,
+  /^\/(?:README|AGENT)\.md$/,
+  /\.log$/,
+];
 
-const xcodeDeveloperDir = resolveXcodeDeveloperDir();
-if (xcodeDeveloperDir) {
-  process.env.DEVELOPER_DIR = xcodeDeveloperDir;
+if (platform === "darwin") {
+  execFileSync(process.execPath, [path.join(perchRoot, "scripts", "build-app-icon.mjs")], {
+    cwd: perchRoot,
+    stdio: "inherit",
+  });
+  await fs.access(appIconPath);
+  await fs.access(appIconComposerPath);
+  const xcodeDeveloperDir = resolveXcodeDeveloperDir();
+  if (xcodeDeveloperDir) {
+    process.env.DEVELOPER_DIR = xcodeDeveloperDir;
+  } else {
+    process.stderr.write(
+      "Warning: Xcode actool not found; macOS 26+ Dock icons need Perch.icon compiled with full Xcode.\n",
+    );
+  }
 } else {
-  process.stderr.write(
-    "Warning: Xcode actool not found; macOS 26+ Dock icons need Perch.icon compiled with full Xcode.\n",
-  );
+  execFileSync(process.execPath, [path.join(perchRoot, "scripts", "ensure-win-icon.mjs")], {
+    cwd: perchRoot,
+    stdio: "inherit",
+  });
 }
 
 await fs.access(path.join(governanceRoot, "protocol", "engine-message", "v1.0", "envelope.schema.json"));
@@ -55,7 +82,7 @@ await fs.access(path.join(engineProviderSpiRoot, "src", "index.mjs"));
 await fs.rm(resourceStagingRoot, { recursive: true, force: true });
 await Promise.all([
   fs.mkdir(launcherResourceRoot, { recursive: true }),
-  fs.mkdir(engineProviderSpiResourceRoot, { recursive: true })
+  fs.mkdir(engineProviderSpiResourceRoot, { recursive: true }),
 ]);
 await Promise.all([
   fs.copyFile(path.join(projectLauncherRoot, "engine.manifest.json"), path.join(launcherResourceRoot, "engine.manifest.json")),
@@ -63,10 +90,14 @@ await Promise.all([
   fs.cp(path.join(projectLauncherRoot, "src"), path.join(launcherResourceRoot, "src"), { recursive: true }),
   fs.copyFile(path.join(engineProviderSpiRoot, "package.json"), path.join(engineProviderSpiResourceRoot, "package.json")),
   fs.copyFile(path.join(engineProviderSpiRoot, "component.manifest.json"), path.join(engineProviderSpiResourceRoot, "component.manifest.json")),
-  fs.cp(path.join(engineProviderSpiRoot, "src"), path.join(engineProviderSpiResourceRoot, "src"), { recursive: true })
+  fs.cp(path.join(engineProviderSpiRoot, "src"), path.join(engineProviderSpiResourceRoot, "src"), { recursive: true }),
 ]);
 
-const appPaths = await packager({
+const packIcon = platform === "darwin"
+  ? [appIconPath, appIconComposerPath]
+  : (fsSync.existsSync(winIconPath) ? winIconPath : winIconFallbackPath);
+
+const packagerOptions = {
   dir: perchRoot,
   out: outputRoot,
   name: "Perch",
@@ -74,52 +105,42 @@ const appPaths = await packager({
   appBundleId: "local.ugreen.perch",
   appVersion: packageJson.version,
   buildVersion: packageJson.version,
-  platform: "darwin",
-  arch: "arm64",
+  platform,
+  arch,
   overwrite: true,
-  icon: [appIconPath, appIconComposerPath],
+  icon: packIcon,
   ...(electronZipDir ? { electronZipDir } : {}),
   asar: true,
   prune: true,
-  osxSign: {
-    identity: "-",
-    identityValidation: false,
-    hardenedRuntime: false,
-    preAutoEntitlements: false,
-    optionsForFile: () => ({ entitlements: [], hardenedRuntime: false })
-  },
   extraResource: [governanceRoot, launcherResourceRoot],
   afterCopyExtraResources: [async ({ buildPath }) => {
-    await fs.cp(
-      commonComponentsResourceRoot,
-      path.join(buildPath, "Perch.app", "Contents", "common_components"),
-      { recursive: true }
-    );
+    const destination = platform === "darwin"
+      ? path.join(buildPath, "Perch.app", "Contents", "common_components")
+      : path.join(buildPath, "resources", "common_components");
+    await fs.cp(commonComponentsResourceRoot, destination, { recursive: true });
   }],
-  afterComplete: [
-    async ({ buildPath }) => {
-      await finalizeMacAppIconBundle(path.join(buildPath, "Perch.app"), {
-        perchIcnsPath: appIconPath,
-        iconImagePath: appIconImagePath,
-      });
-    },
-  ],
-  ignore: [
-    /^\/\.git(?:\/|$)/,
-    /^\/dist(?:\/|$)/,
-    /^\/tests(?:\/|$)/,
-    /^\/openspec(?:\/|$)/,
-    /^\/runtime_data(?:\/|$)/,
-    /^\/exports(?:\/|$)/,
-    /^\/release(?:\/|$)/,
-    /^\/\.agents(?:\/|$)/,
-    /^\/skills(?:\/|$)/,
-    /^\/prompts(?:\/|$)/,
-    /^\/scripts(?:\/|$)/,
-    /^\/node_modules\/\.cache(?:\/|$)/,
-    /^\/(?:README|AGENT)\.md$/,
-    /\.log$/
-  ]
-});
+  ignore: sharedIgnore,
+};
 
+if (platform === "darwin") {
+  Object.assign(packagerOptions, {
+    osxSign: {
+      identity: "-",
+      identityValidation: false,
+      hardenedRuntime: false,
+      preAutoEntitlements: false,
+      optionsForFile: () => ({ entitlements: [], hardenedRuntime: false }),
+    },
+    afterComplete: [
+      async ({ buildPath }) => {
+        await finalizeMacAppIconBundle(path.join(buildPath, "Perch.app"), {
+          perchIcnsPath: appIconPath,
+          iconImagePath: appIconImagePath,
+        });
+      },
+    ],
+  });
+}
+
+const appPaths = await packager(packagerOptions);
 process.stdout.write(`${appPaths.join("\n")}\n`);

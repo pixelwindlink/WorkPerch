@@ -1,6 +1,9 @@
 import { STORAGE_KEYS, state } from "./state.js";
 import { elements, storageGet, storageSet, icon, showToast, finderFailureMessage } from "./dom.js";
 import { recordUsage } from "./engine-client.js";
+import { getPinEffectPreferences, pinEffectDesktopOptions } from "./pin-effect-preferences.js";
+import { bindAlwaysOnTopOpacityBridge, syncAlwaysOnTopOpacityPreference } from "./always-on-top-opacity-bridge.js";
+import { bindClipboardLiveRefresh } from "./render-clipboard.js";
 
 export async function openLocalPathInFinder(localPath, label, usage = null) {
   const openPath = window.perchDesktop?.openPathInFinder;
@@ -25,6 +28,11 @@ export function applyTheme(theme) {
   document.querySelector("#themeButton").innerHTML = icon(theme === "light" ? "moon" : "sun");
 }
 
+function alwaysOnTopLongPressHint() {
+  const seconds = (getPinEffectPreferences().longPressMs / 1000).toFixed(1).replace(/\.0$/, "");
+  return `长按约 ${seconds} 秒缩至最小并停靠屏幕右上角`;
+}
+
 export function renderAlwaysOnTopButton(active) {
   const button = elements.alwaysOnTopButton;
   state.alwaysOnTop = Boolean(active);
@@ -32,13 +40,19 @@ export function renderAlwaysOnTopButton(active) {
   button.classList.toggle("is-active", state.alwaysOnTop);
   button.setAttribute("aria-pressed", String(state.alwaysOnTop));
   const label = state.alwaysOnTop ? "取消全局置顶" : "全局置顶";
-  button.setAttribute("aria-label", `${label}；长按约 0.8 秒缩至最小并停靠屏幕右上角`);
+  button.setAttribute("aria-label", `${label}；${alwaysOnTopLongPressHint()}`);
   button.dataset.tooltip = label;
   button.innerHTML = icon("pin");
 }
 
-export const PARK_CHARGE_SHOW_MS = 210;
-export const ALWAYS_ON_TOP_LONG_PRESS_MS = 840;
+function parkChargeShowDelayMs() {
+  return getPinEffectPreferences().chargePreviewDelayMs;
+}
+
+function alwaysOnTopLongPressMs() {
+  return getPinEffectPreferences().longPressMs;
+}
+
 const PARK_OPERATION_TIMEOUT_MS = 6000;
 
 export async function parkWindowCompactTopRight(fromBounds) {
@@ -47,9 +61,10 @@ export async function parkWindowCompactTopRight(fromBounds) {
     return null;
   }
   try {
-    const result = await window.perchDesktop.parkWindowCompactTopRight(
-      fromBounds ? { fromBounds } : {},
-    );
+    const result = await window.perchDesktop.parkWindowCompactTopRight({
+      ...(fromBounds ? { fromBounds } : {}),
+      ...pinEffectDesktopOptions(),
+    });
     renderAlwaysOnTopButton(Boolean(result?.alwaysOnTop));
     storageSet(STORAGE_KEYS.alwaysOnTop, String(Boolean(result?.alwaysOnTop)));
     showToast("窗口已缩至最小并停靠右上角（已置顶）");
@@ -136,16 +151,16 @@ export function bindAlwaysOnTopButton() {
     chargeShowTimer = setTimeout(() => {
       if (epoch !== pressEpoch) return;
       chargeShowTimer = null;
-      void window.perchDesktop?.startParkCharge?.().then((bounds) => {
+      void window.perchDesktop?.startParkCharge?.(pinEffectDesktopOptions()).then((bounds) => {
         if (epoch !== pressEpoch) return;
         if (bounds && typeof bounds === "object") parkStartBounds = bounds;
       }).catch(() => {});
-    }, PARK_CHARGE_SHOW_MS);
+    }, parkChargeShowDelayMs());
     parkTimer = setTimeout(() => {
       if (epoch !== pressEpoch) return;
       parkTimer = null;
       runParkOperation(epoch);
-    }, ALWAYS_ON_TOP_LONG_PRESS_MS);
+    }, alwaysOnTopLongPressMs());
   });
 
   const onPointerRelease = (event) => {
@@ -182,6 +197,8 @@ export async function setAlwaysOnTopPreference(enabled, { persist = true, notify
     const active = await window.perchDesktop.setAlwaysOnTop(Boolean(enabled));
     renderAlwaysOnTopButton(active);
     if (persist) storageSet(STORAGE_KEYS.alwaysOnTop, String(active));
+    syncAlwaysOnTopOpacityPreference();
+    if (!active) window.perchDesktop?.reportWindowPointerInside?.(false);
     if (notify) showToast(active ? "窗口已全局置顶" : "窗口已取消全局置顶");
     return active;
   } catch {
@@ -201,13 +218,29 @@ export async function initializeDesktopWindowControls() {
     if (preferred === "false" && active) active = await setAlwaysOnTopPreference(false, { persist: false, notify: false });
     renderAlwaysOnTopButton(active);
     bindAlwaysOnTopButton();
+    bindAlwaysOnTopOpacityBridge();
+    syncAlwaysOnTopOpacityPreference();
+    bindClipboardLiveRefresh();
   } catch {
     elements.alwaysOnTopButton.hidden = true;
   }
   const presetsButton = document.querySelector("#windowPresetsButton");
-  if (presetsButton && typeof bridge?.externalWindows?.list === "function") {
+  const caps = typeof bridge?.getDesktopCapabilities === "function"
+    ? await bridge.getDesktopCapabilities().catch(() => null)
+    : null;
+  if (caps) {
+    document.documentElement.dataset.desktopPlatform = caps.platform || "";
+    document.documentElement.dataset.externalWindows = caps.externalWindowLayouts ? "true" : "false";
+  }
+  if (
+    presetsButton
+    && caps?.externalWindowLayouts
+    && typeof bridge?.externalWindows?.list === "function"
+  ) {
     presetsButton.hidden = false;
     presetsButton.innerHTML = icon("settings");
     presetsButton.dataset.label = "外窗预设";
+  } else if (presetsButton) {
+    presetsButton.hidden = true;
   }
 }

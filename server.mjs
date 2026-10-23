@@ -13,7 +13,8 @@ const STATIC_FILES = new Map([
   ["/", { file: "index.html", type: "text/html; charset=utf-8" }],
   ["/index.html", { file: "index.html", type: "text/html; charset=utf-8" }],
   ["/app.js", { file: "app.js", type: "text/javascript; charset=utf-8" }],
-  ["/styles.css", { file: "styles.css", type: "text/css; charset=utf-8" }]
+  ["/styles.css", { file: "styles.css", type: "text/css; charset=utf-8" }],
+  ["/assets/app-icon/perch-icon.svg", { file: "assets/app-icon/perch-icon.svg", type: "image/svg+xml" }],
 ]);
 
 function sendJson(response, statusCode, payload) {

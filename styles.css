@@ -85,9 +85,17 @@ button, label { -webkit-tap-highlight-color: transparent; }
 }
 .brand { display: inline-flex; width: max-content; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
 .brand-symbol {
-  width: 34px; height: 34px; display: grid; place-items: center;
-  border: 1px solid var(--border-strong); border-radius: 8px;
-  color: var(--accent); background: var(--surface); font: 700 10px ui-monospace, monospace; letter-spacing: -.03em;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.brand-symbol .brand-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .brand strong { display: block; font-size: 13px; line-height: 1; }
 .brand small { display: block; margin-top: 4px; color: var(--dim); font-size: 8px; font-weight: 700; letter-spacing: .16em; }
@@ -983,7 +991,6 @@ html.header-is-narrow .brand-symbol {
   width: 28px;
   height: 28px;
   border-radius: 7px;
-  font-size: 9px;
 }
 html.header-is-narrow .header-actions {
   display: flex;
@@ -1413,7 +1420,35 @@ kbd { padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; col
 }
 .group-color-palette button:hover { transform: translateY(-1px) scale(1.08); }
 .group-color-palette button.is-selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--swatch-color); }
-.dialog-actions { display: flex; justify-content: flex-end; gap: 6px; padding-top: 4px; }
+.dialog-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+.edit-dialog .dialog-actions > .quiet-button {
+  flex: 0 0 auto;
+  min-width: 5.85rem;
+  padding-inline: 12px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+}
+.edit-dialog .dialog-actions > .add-button {
+  flex: 1 1 9rem;
+  min-width: 0;
+  max-width: 100%;
+  padding-inline: 14px;
+  white-space: nowrap;
+}
+.edit-dialog .dialog-actions > .quiet-button .button-key-hint,
+.edit-dialog .dialog-actions > .add-button .button-key-hint {
+  flex-shrink: 0;
+}
 .project-dialog { width: min(680px, calc(100% - 28px)); }
 .launch-dialog { width: min(620px, calc(100% - 28px)); }
 .dialog-copy { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }

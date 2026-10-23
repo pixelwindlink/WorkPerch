@@ -85,9 +85,16 @@ function detailElements() {
 }
 
 function hideDetailViews(views) {
-  views.text.hidden = true;
-  views.imageWrap.hidden = true;
-  views.files.hidden = true;
+  if (views.text) views.text.hidden = true;
+  if (views.imageWrap) views.imageWrap.hidden = true;
+  if (views.image) {
+    views.image.removeAttribute("src");
+    views.image.alt = "";
+  }
+  if (views.files) {
+    views.files.hidden = true;
+    views.files.innerHTML = "";
+  }
 }
 
 async function resolveClipboardDetail(id) {
@@ -112,15 +119,23 @@ export async function showClipboardDetail(id, { animate = true } = {}) {
 
   const token = ++detailRequestToken;
   const fade = animate && !prefersReducedMotion();
+  hideDetailViews(views);
+  if (fade) views.text?.classList.remove("is-fading");
   if (fade) views.text?.classList.add("is-fading");
 
   const item = await resolveClipboardDetail(id);
-  if (token !== detailRequestToken || !item) return;
+  if (token !== detailRequestToken) return;
+  if (!item) {
+    hideDetailViews(views);
+    if (views.meta) views.meta.textContent = "";
+    return;
+  }
 
   views.meta.textContent = clipboardRowMeta({ ...listItem, ...item });
   hideDetailViews(views);
 
   if (item.kind === "image" && item.imageDataUrl && views.image && views.imageWrap) {
+    views.image.alt = "剪贴板图片预览";
     views.image.src = item.imageDataUrl;
     views.imageWrap.hidden = false;
   } else if (item.kind === "files" && Array.isArray(item.paths) && views.files) {

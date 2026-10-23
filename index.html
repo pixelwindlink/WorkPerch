@@ -238,7 +238,7 @@
               <div class="clipboard-detail-body">
                 <pre class="clipboard-detail-text" id="clipboardDetailText"></pre>
                 <div class="clipboard-detail-media" id="clipboardDetailImageWrap" hidden>
-                  <img id="clipboardDetailImage" alt="剪贴板图片预览" />
+                  <img id="clipboardDetailImage" alt="" />
                 </div>
                 <ul class="clipboard-detail-files" id="clipboardDetailFiles" hidden></ul>
               </div>
@@ -512,7 +512,7 @@
               <h3>置顶按钮效果</h3>
               <p class="settings-lead">控制右上角图钉的短按置顶与长按「泊车」动画。仅 Perch 桌面版会播放蓄力泛光与飞行动画。</p>
               <label class="settings-field settings-field--range">
-                <span>失焦时透明度 <output data-settings-output="pinAlwaysOnTopTransparency">0%</output></span>
+                <span>失焦时透明度（推荐75%） <output data-settings-output="pinAlwaysOnTopTransparency">0%</output></span>
                 <input id="settingsPinAlwaysOnTopTransparency" type="range" min="0" max="80" step="5" />
               </label>
               <p class="settings-hint">仅在「全局置顶 + 窗口未获得焦点 + 鼠标不在 WorkPerch 上」时生效；聚焦或鼠标移入窗口会在 120ms 内恢复不透明。</p>

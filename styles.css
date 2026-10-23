@@ -2468,6 +2468,11 @@ body.is-dragging .drop-card { transform: translateY(0) scale(1); }
 @media (prefers-reduced-motion: reduce) {
   .clipboard-detail-text { transition: none; }
 }
+.clipboard-detail-text[hidden],
+.clipboard-detail-media[hidden],
+.clipboard-detail-files[hidden] {
+  display: none !important;
+}
 .clipboard-detail-media {
   display: flex;
   align-items: center;

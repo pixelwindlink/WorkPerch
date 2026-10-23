@@ -3,7 +3,7 @@ import { elements, messageId, showToast, storageSet } from "./dom.js";
 import { renderAll } from "./render-shared.js";
 import { inspectLegacyData } from "./backup-legacy.js";
 import { refreshProjectStatuses, refreshLauncherStatuses } from "./render-projects.js";
-import { refreshClipboardHistory } from "./render-clipboard.js";
+import { refreshClipboardHistory, syncClipboardWatchPace } from "./render-clipboard.js";
 import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
 import { syncHeaderLayout } from "./header-layout.js";
 
@@ -37,6 +37,7 @@ export function switchTab(name, updateHash = true) {
   });
   if (updateHash) history.replaceState(null, "", `#${tab}`);
   storageSet(STORAGE_KEYS.activeTab, tab);
+  syncClipboardWatchPace(tab === "clipboard");
   if (tab === "clipboard") refreshClipboardHistory().then(() => import("./render-clipboard.js").then(({ renderClipboard }) => renderClipboard())).catch(() => {});
   if (tab === "notes") import("./note-length-filter-ui.js").then(({ syncNoteLengthFilterButtons }) => syncNoteLengthFilterButtons()).catch(() => {});
   syncHeaderLayout();

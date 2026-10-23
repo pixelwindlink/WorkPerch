@@ -17,8 +17,33 @@ export function clipboardLengthTier(length) {
   return { id: "long", label: "长" };
 }
 
+export function clipboardKindLabel(kind) {
+  if (kind === "image") return "图片";
+  if (kind === "files") return "文件";
+  return "文本";
+}
+
+export function clipboardRowMeta(item) {
+  const when = formatClipboardTimestamp(item.capturedAt);
+  const kind = item.kind || "text";
+  if (kind === "image") {
+    const size = item.imageWidth && item.imageHeight ? `${item.imageWidth}×${item.imageHeight}` : "图片";
+    return `${clipboardKindLabel(kind)}·${size}·${when}`;
+  }
+  if (kind === "files") {
+    const count = item.fileCount || item.length || 1;
+    return `${clipboardKindLabel(kind)}·${count} 项·${when}`;
+  }
+  const tier = clipboardLengthTier(item.length || 0);
+  return `${clipboardKindLabel(kind)}·${tier.label}·${item.length} 字·${when}`;
+}
+
 export function filterClipboardItems(items, query) {
   const q = String(query ?? "").trim().toLocaleLowerCase("zh-CN");
   if (!q) return items;
-  return items.filter((item) => String(item.preview ?? "").toLocaleLowerCase("zh-CN").includes(q));
+  return items.filter((item) => {
+    const preview = String(item.preview ?? "").toLocaleLowerCase("zh-CN");
+    const kind = clipboardKindLabel(item.kind).toLocaleLowerCase("zh-CN");
+    return preview.includes(q) || kind.includes(q);
+  });
 }

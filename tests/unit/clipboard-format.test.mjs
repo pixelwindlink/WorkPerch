@@ -1,29 +1,28 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {
-  clipboardLengthTier,
-  filterClipboardItems,
-  formatClipboardTimestamp,
-} from "../../ui/clipboard-format.js";
+import { clipboardRowMeta, filterClipboardItems } from "../../ui/clipboard-format.js";
 
-test("clipboardLengthTier buckets by character count", () => {
-  assert.equal(clipboardLengthTier(20).id, "short");
-  assert.equal(clipboardLengthTier(200).id, "medium");
-  assert.equal(clipboardLengthTier(900).id, "long");
+test("clipboardRowMeta labels image and files", () => {
+  const image = clipboardRowMeta({
+    kind: "image",
+    imageWidth: 100,
+    imageHeight: 50,
+    capturedAt: new Date().toISOString(),
+  });
+  assert.match(image, /图片·100×50/);
+  const files = clipboardRowMeta({
+    kind: "files",
+    fileCount: 3,
+    length: 3,
+    capturedAt: new Date().toISOString(),
+  });
+  assert.match(files, /文件·3 项/);
 });
 
-test("filterClipboardItems matches preview text", () => {
+test("filterClipboardItems matches kind label", () => {
   const items = [
-    { id: "a", preview: "hello world", length: 11 },
-    { id: "b", preview: "诊断报告", length: 4 },
+    { id: "1", kind: "text", preview: "hello", length: 5 },
+    { id: "2", kind: "image", preview: "图片 10×10", length: 100 },
   ];
-  assert.equal(filterClipboardItems(items, "诊断").length, 1);
-  assert.equal(filterClipboardItems(items, "").length, 2);
-});
-
-test("formatClipboardTimestamp returns relative or absolute label", () => {
-  const recent = formatClipboardTimestamp(new Date(Date.now() - 30_000).toISOString());
-  assert.equal(recent, "刚刚");
-  const older = formatClipboardTimestamp("2020-01-02T03:04:00.000Z");
-  assert.match(older, /2020/);
+  assert.equal(filterClipboardItems(items, "图片").length, 1);
 });

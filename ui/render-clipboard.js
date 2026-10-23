@@ -1,12 +1,11 @@
 import { state } from "./state.js";
 import { escapeHtml, icon, showToast } from "./dom.js";
-import { copyText } from "./engine-client.js";
 import { CLIPBOARD_HISTORY_LIMIT } from "./clipboard-config.js";
-import { clipboardLengthTier, filterClipboardItems, formatClipboardTimestamp } from "./clipboard-format.js";
+import { clipboardLengthTier, clipboardRowMeta, filterClipboardItems } from "./clipboard-format.js";
 
 const DETAIL_FADE_MS = 160;
 let detailRequestToken = 0;
-const fullTextCache = new Map();
+const detailCache = new Map();
 
 function desktopClipboard() {
   return window.perchDesktop?.clipboard || null;
@@ -14,6 +13,21 @@ function desktopClipboard() {
 
 function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+}
+
+let clipboardLiveBound = false;
+
+export function syncClipboardWatchPace(active) {
+  void window.perchDesktop?.setClipboardPanelActive?.(Boolean(active));
+}
+
+export function bindClipboardLiveRefresh() {
+  if (clipboardLiveBound || typeof window.perchDesktop?.onClipboardHistoryChange !== "function") return;
+  clipboardLiveBound = true;
+  window.perchDesktop.onClipboardHistoryChange(() => {
+    if (state.activeTab !== "clipboard") return;
+    void refreshClipboardHistory().then(() => renderClipboard());
+  });
 }
 
 export async function refreshClipboardHistory() {
@@ -26,11 +40,11 @@ export async function refreshClipboardHistory() {
   try {
     state.clipboardItems = await api.list();
     state.clipboardAvailable = true;
-    fullTextCache.clear();
+    detailCache.clear();
   } catch {
     state.clipboardItems = [];
     state.clipboardAvailable = false;
-    fullTextCache.clear();
+    detailCache.clear();
   }
 }
 
@@ -47,7 +61,7 @@ function syncClipboardChrome() {
     meta.textContent = state.clipboardAvailable ? "Desktop" : "Web";
     meta.dataset.state = state.clipboardAvailable ? "live" : "offline";
     meta.title = state.clipboardAvailable
-      ? `Desktop 已连接；环形缓冲最多 ${CLIPBOARD_HISTORY_LIMIT} 条，满则覆盖最旧`
+      ? `Desktop 已连接；记录文本、图片与文件，最多 ${CLIPBOARD_HISTORY_LIMIT} 条`
       : "仅 Desktop 记录剪贴板";
   }
 }
@@ -60,20 +74,35 @@ function markPreviewRow(activeId) {
   document.querySelector(`.clipboard-row[data-id="${CSS.escape(activeId)}"]`)?.classList.add("is-preview");
 }
 
-async function resolveFullText(id) {
-  if (fullTextCache.has(id)) return fullTextCache.get(id);
+function detailElements() {
+  return {
+    text: document.querySelector("#clipboardDetailText"),
+    imageWrap: document.querySelector("#clipboardDetailImageWrap"),
+    image: document.querySelector("#clipboardDetailImage"),
+    files: document.querySelector("#clipboardDetailFiles"),
+    meta: document.querySelector("#clipboardDetailMeta"),
+  };
+}
+
+function hideDetailViews(views) {
+  views.text.hidden = true;
+  views.imageWrap.hidden = true;
+  views.files.hidden = true;
+}
+
+async function resolveClipboardDetail(id) {
+  if (detailCache.has(id)) return detailCache.get(id);
   const api = desktopClipboard();
   if (!api?.get) return null;
   const item = await api.get(id);
-  if (!item?.text) return null;
-  fullTextCache.set(id, item.text);
-  return item.text;
+  if (!item) return null;
+  detailCache.set(id, item);
+  return item;
 }
 
 export async function showClipboardDetail(id, { animate = true } = {}) {
-  const detailMeta = document.querySelector("#clipboardDetailMeta");
-  const detailText = document.querySelector("#clipboardDetailText");
-  if (!id || !detailMeta || !detailText) return;
+  const views = detailElements();
+  if (!id || !views.meta) return;
 
   const listItem = (state.clipboardItems || []).find((entry) => entry.id === id);
   if (!listItem) return;
@@ -82,24 +111,29 @@ export async function showClipboardDetail(id, { animate = true } = {}) {
   markPreviewRow(id);
 
   const token = ++detailRequestToken;
-  const tier = clipboardLengthTier(listItem.length || 0);
-  const when = formatClipboardTimestamp(listItem.capturedAt);
-  const metaLine = `${tier.label} · ${listItem.length} 字 · ${when}`;
-
   const fade = animate && !prefersReducedMotion();
-  if (fade) detailText.classList.add("is-fading");
-  if (fade) await new Promise((resolve) => setTimeout(resolve, DETAIL_FADE_MS * 0.55));
+  if (fade) views.text?.classList.add("is-fading");
 
-  const text = await resolveFullText(id);
-  if (token !== detailRequestToken) return;
+  const item = await resolveClipboardDetail(id);
+  if (token !== detailRequestToken || !item) return;
 
-  detailMeta.textContent = metaLine;
-  detailText.textContent = text ?? listItem.preview ?? "";
-  if (fade) {
-    detailText.classList.remove("is-fading");
-  } else {
-    detailText.classList.remove("is-fading");
+  views.meta.textContent = clipboardRowMeta({ ...listItem, ...item });
+  hideDetailViews(views);
+
+  if (item.kind === "image" && item.imageDataUrl && views.image && views.imageWrap) {
+    views.image.src = item.imageDataUrl;
+    views.imageWrap.hidden = false;
+  } else if (item.kind === "files" && Array.isArray(item.paths) && views.files) {
+    views.files.innerHTML = item.paths
+      .map((entry) => `<li><code>${escapeHtml(entry)}</code></li>`)
+      .join("");
+    views.files.hidden = false;
+  } else if (views.text) {
+    views.text.textContent = item.text ?? listItem.preview ?? "";
+    views.text.hidden = false;
   }
+
+  if (fade) views.text?.classList.remove("is-fading");
 }
 
 function ensureDefaultPreview(items) {
@@ -110,6 +144,13 @@ function ensureDefaultPreview(items) {
   if (!items.some((item) => item.id === state.clipboardPreviewId)) {
     state.clipboardPreviewId = items[0].id;
   }
+}
+
+function rowPreviewLabel(item) {
+  const kind = item.kind || "text";
+  if (kind === "image") return `[图片] ${item.preview}`;
+  if (kind === "files") return `[文件] ${item.preview}`;
+  return item.preview;
 }
 
 export function renderClipboard() {
@@ -124,15 +165,16 @@ export function renderClipboard() {
   if (count) count.textContent = String(items.length);
 
   list.innerHTML = items.map((item, index) => {
-    const tier = clipboardLengthTier(item.length || 0);
-    const when = formatClipboardTimestamp(item.capturedAt);
-    const preview = escapeHtml(item.preview);
+    const kind = item.kind || "text";
+    const tier = kind === "text" ? clipboardLengthTier(item.length || 0) : { id: kind };
+    const preview = escapeHtml(rowPreviewLabel(item));
+    const meta = escapeHtml(clipboardRowMeta(item));
     const previewActive = item.id === state.clipboardPreviewId ? " is-preview" : "";
     return `
-    <div class="clipboard-row${previewActive}" role="listitem" data-id="${escapeHtml(item.id)}" tabindex="0">
+    <div class="clipboard-row clipboard-row--${kind}${previewActive}" role="listitem" data-id="${escapeHtml(item.id)}" data-kind="${kind}" tabindex="0">
       <span class="clipboard-idx" aria-hidden="true">${index + 1}</span>
       <button class="clipboard-preview" type="button" data-action="copy-clipboard" title="${preview}">${preview}</button>
-      <span class="clipboard-meta clipboard-tier--${tier.id}">${tier.label}·${item.length}字·${escapeHtml(when)}</span>
+      <span class="clipboard-meta clipboard-tier--${tier.id}">${meta}</span>
       <button class="row-button clipboard-copy" data-action="copy-clipboard" data-label="复制" type="button" aria-label="复制到系统剪贴板">${icon("copy")}</button>
     </div>`;
   }).join("");
@@ -145,7 +187,7 @@ export function renderClipboard() {
   if (copy) {
     copy.textContent = filteredEmpty
       ? "试试更短的关键词，或清空上方筛选框。"
-      : "Desktop 复制文本后会自动出现在列表；悬停条目可在下方查看全文，点击行或复制按钮可再次写入系统剪贴板。";
+      : "Desktop 会在本机复制文本、图片或文件后自动记录；悬停条目可预览，点击可复制回系统剪贴板。";
   }
   empty.hidden = items.length > 0;
   if (split) split.hidden = items.length === 0;
@@ -155,10 +197,12 @@ export function renderClipboard() {
     void showClipboardDetail(state.clipboardPreviewId, { animate: false });
   } else {
     markPreviewRow("");
-    const detailText = document.querySelector("#clipboardDetailText");
-    const detailMeta = document.querySelector("#clipboardDetailMeta");
-    if (detailText) detailText.textContent = "";
-    if (detailMeta) detailMeta.textContent = "";
+    const views = detailElements();
+    hideDetailViews(views);
+    if (views.text) views.text.textContent = "";
+    if (views.image) views.image.removeAttribute("src");
+    if (views.files) views.files.innerHTML = "";
+    if (views.meta) views.meta.textContent = "";
   }
 }
 
@@ -189,10 +233,15 @@ export async function handleClipboardAction(event) {
   const api = desktopClipboard();
   if (!api?.copy) return showToast("剪贴板仅在 Desktop 可用");
   try {
-    const item = await api.copy(targetRow.dataset.id);
-    if (!item?.text) return showToast("条目不存在或已过期");
-    await copyText(item.text, "剪贴板历史", { silentToast: true });
-    showToast("已复制到系统剪贴板");
+    const result = await api.copy(targetRow.dataset.id);
+    if (!result?.id) return showToast("条目不存在或已过期");
+    const kind = result.kind || "text";
+    const message = kind === "image"
+      ? "图片已写入系统剪贴板"
+      : kind === "files"
+        ? "文件已写入系统剪贴板"
+        : "已复制到系统剪贴板";
+    showToast(message);
     targetRow.classList.add("is-copied");
     setTimeout(() => targetRow.classList.remove("is-copied"), 480);
   } catch {

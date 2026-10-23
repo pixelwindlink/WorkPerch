@@ -6,7 +6,7 @@ import { renderPaths, handlePathAction, refreshAllPathStatuses, setAbnormalPathF
 import { bindSilentPathRefresh } from "./silent-refresh.js";
 import { bindSummonPalette } from "./summon.js";
 import { renderProjects, handleProjectAction } from "./render-projects.js";
-import { renderNotes, handleNoteAction } from "./render-notes.js";
+import { renderNotes, handleNoteAction, handleNoteDoubleClick } from "./render-notes.js";
 import { openPathEditor, savePathEdit } from "./dialogs-path.js";
 import { openNoteEditor, saveNoteEdit } from "./dialogs-note.js";
 import { openProjectEditor, saveProjectEdit, saveProjectLaunchConfiguration } from "./dialogs-project.js";
@@ -182,6 +182,7 @@ export function bindEvents() {
     renderNotes();
   });
   elements.noteList.addEventListener("click", handleNoteAction);
+  elements.noteList.addEventListener("dblclick", handleNoteDoubleClick);
   bindDialogSubmit("#editNoteForm", elements.editNoteDialog, saveNoteEdit);
 
   document.querySelector("#sortMode").addEventListener("change", (event) => { state.sortMode = event.target.value; state.activeViewId = ""; renderAll(); });

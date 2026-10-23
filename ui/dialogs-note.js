@@ -2,7 +2,7 @@ import { state } from "./state.js";
 import { elements, tagNames, parseTagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError } from "./engine-client.js";
 import { setButtonKeyboardLabel } from "./keyboard.js";
-import { normalizeClipboardNoteContent, suggestNoteTitleFromClipboard } from "./note-paste-create.js";
+import { NOTE_CONTENT_MAX_LENGTH, normalizeClipboardNoteContent, suggestNoteTitleFromClipboard } from "./note-paste-create.js";
 import { allocateAutoNoteTitle, isNoteTitleTaken, resolveNoteTitleForSave } from "./note-auto-key.js";
 
 export function noteInput(item, changes = {}) {
@@ -22,6 +22,7 @@ export function openNoteEditor(item = null) {
   keyInput.readOnly = false;
   keyInput.placeholder = editing ? "" : "可自定义；留空则自动编号";
   keyInput.removeAttribute("aria-readonly");
+  valueInput.maxLength = NOTE_CONTENT_MAX_LENGTH;
   valueInput.value = item?.content || "";
   document.querySelector("#editNoteTags").value = tagNames(item).join(", ");
   elements.editNoteDialog.showModal();
@@ -72,11 +73,16 @@ export async function saveNoteEdit() {
     if (id) keyInput.focus();
     return false;
   }
-  const content = document.querySelector("#editNoteValue").value.trim();
-  if (!content) {
+  const rawContent = document.querySelector("#editNoteValue").value.trim();
+  if (!rawContent) {
     showToast("VALUE 不能为空");
     document.querySelector("#editNoteValue").focus();
     return false;
+  }
+  const { content, truncated } = normalizeClipboardNoteContent(rawContent);
+  if (truncated) {
+    showToast(`内容超过 ${NOTE_CONTENT_MAX_LENGTH} 字，已截断保存`, 3200);
+    document.querySelector("#editNoteValue").value = content;
   }
   const item = {
     ...(id ? { id } : {}),

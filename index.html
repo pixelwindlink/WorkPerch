@@ -326,7 +326,7 @@
         </div>
         <input id="editNoteId" type="hidden" />
         <label><span>KEY</span><input id="editNoteKey" required maxlength="120" autocomplete="off" /></label>
-        <label><span>VALUE / NOTE</span><textarea id="editNoteValue" required rows="6" maxlength="2000"></textarea></label>
+        <label><span>VALUE / NOTE</span><textarea id="editNoteValue" required rows="6" maxlength="10000" aria-describedby="editNoteValueHint"></textarea><small class="field-hint" id="editNoteValueHint">最多 10000 字（含换行）</small></label>
         <label><span>TAGS（逗号分隔）</span><input id="editNoteTags" maxlength="500" list="pathGroups" /></label>
         <div class="dialog-actions">
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>

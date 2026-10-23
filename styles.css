@@ -1592,6 +1592,7 @@ kbd { padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; col
   line-height: 1.55;
 }
 .edit-dialog label { display: grid; gap: 6px; }
+.edit-dialog .field-hint { margin-top: -2px; color: var(--dim); font-size: 8px; line-height: 1.35; }
 .edit-dialog input, .edit-dialog textarea, .edit-dialog select { width: 100%; padding: 0 9px; outline: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font-size: 10px; }
 .edit-dialog input, .edit-dialog select { height: 36px; }
 .edit-dialog textarea { padding-top: 9px; resize: vertical; line-height: 1.6; }

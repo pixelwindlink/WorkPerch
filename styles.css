@@ -168,6 +168,16 @@ button, label { -webkit-tap-highlight-color: transparent; }
 .file-button { cursor: pointer; }
 .icon-button { width: 32px; height: 32px; padding: 0; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
 .icon-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#alwaysOnTopButton.is-active {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent), var(--border) 42%);
+  background: color-mix(in srgb, var(--accent), var(--surface) 90%);
+}
+#alwaysOnTopButton.is-active:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent), var(--border-strong) 28%);
+  background: color-mix(in srgb, var(--accent), var(--surface-2) 86%);
+}
 .icon-tooltip {
   position: fixed;
   z-index: 120;

@@ -2,6 +2,10 @@ const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
 const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
 const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
+const WINDOW_GET_BOUNDS = "perch:window:get-bounds";
+const WINDOW_PARK_CHARGE_START = "perch:window:park-charge-start";
+const WINDOW_PARK_CHARGE_CANCEL = "perch:window:park-charge-cancel";
+const WINDOW_PARK_COMPACT_TOP_RIGHT = "perch:window:park-compact-top-right";
 const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
 const CLIPBOARD_LIST = "perch:clipboard:list";
 const CLIPBOARD_GET = "perch:clipboard:get";
@@ -30,6 +34,18 @@ contextBridge.exposeInMainWorld("perchDesktop", Object.freeze({
   setAlwaysOnTop(enabled) {
     if (typeof enabled !== "boolean") return Promise.reject(new TypeError("always-on-top preference must be boolean."));
     return ipcRenderer.invoke(WINDOW_SET_ALWAYS_ON_TOP, enabled);
+  },
+  getWindowBounds() {
+    return ipcRenderer.invoke(WINDOW_GET_BOUNDS);
+  },
+  startParkCharge() {
+    return ipcRenderer.invoke(WINDOW_PARK_CHARGE_START);
+  },
+  cancelParkCharge() {
+    return ipcRenderer.invoke(WINDOW_PARK_CHARGE_CANCEL);
+  },
+  parkWindowCompactTopRight(options) {
+    return ipcRenderer.invoke(WINDOW_PARK_COMPACT_TOP_RIGHT, options ?? {});
   },
   openPathInFinder(localPath) {
     if (typeof localPath !== "string") return Promise.reject(new TypeError("local path must be a string."));

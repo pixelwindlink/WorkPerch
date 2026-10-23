@@ -338,7 +338,15 @@ test("Web UI preserves compact interactions without browser-owned business state
   assert.match(css, /\.path-name[\s\S]*font-size:\s*13px/);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.path-row[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\)/);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.row-actions[\s\S]*flex-wrap:\s*wrap/);
-  assert.match(css, /\.desktop-window-button:hover[\s\S]*transition-delay:\s*\.2s/);
+  assert.match(ui["desktop.js"], /parkWindowCompactTopRight/);
+  assert.match(ui["desktop.js"], /getWindowBounds/);
+  assert.match(ui["desktop.js"], /startParkCharge/);
+  assert.match(ui["desktop.js"], /PARK_CHARGE_SHOW_MS = 210/);
+  assert.match(ui["desktop.js"], /ALWAYS_ON_TOP_LONG_PRESS_MS = 840/);
+  assert.match(ui["desktop.js"], /bindAlwaysOnTopButton/);
+  assert.match(ui["desktop.js"], /setPointerCapture/);
+  assert.match(ui["desktop.js"], /pressEpoch/);
+  assert.match(css, /#alwaysOnTopButton\.is-active[\s\S]*color:\s*var\(--accent\)/);
   assert.match(css, /\.edit-dialog[\s\S]*max-height:\s*calc\(100vh - 20px\)/);
   assert.match(css, /\.path-group[\s\S]*font-size:\s*10px/);
   assert.match(css, /position:\s*sticky/);

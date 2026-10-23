@@ -13,7 +13,7 @@ import { openProjectEditor, saveProjectEdit, saveProjectLaunchConfiguration } fr
 import { openGroupRegistry, resetGroupEditor, setRegistryGroupColor, handleGroupRegistryAction, saveGroupEdit, setRegistryFilter } from "./dialogs-tag-registry.js";
 import { saveDropBatch, processNextDroppedCandidate, handleDrop, revealExistingEntry } from "./drop-batch.js";
 import { exportData, importData, inspectLegacyData, migrateLegacyData, cleanupLegacyData } from "./backup-legacy.js";
-import { applyTheme, setAlwaysOnTopPreference } from "./desktop.js";
+import { applyTheme } from "./desktop.js";
 import { bindConfirmDialog } from "./confirm.js";
 import { toggleMinimalMode } from "./minimal.js";
 import { bindGuide } from "./guide.js";
@@ -201,11 +201,6 @@ export function bindEvents() {
   });
   document.querySelector("#themeButton").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
   document.querySelector("#minimalModeButton").addEventListener("click", () => toggleMinimalMode());
-  elements.alwaysOnTopButton.addEventListener("click", async () => {
-    elements.alwaysOnTopButton.disabled = true;
-    try { await setAlwaysOnTopPreference(!state.alwaysOnTop); } finally { elements.alwaysOnTopButton.disabled = false; }
-  });
-
   let dragDepth = 0;
   const hasDropData = (event) => {
     const types = Array.from(event.dataTransfer?.types || []);

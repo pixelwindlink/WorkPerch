@@ -19,6 +19,10 @@ import {
   MIN_WINDOW_SIZE,
   windowStatePath,
 } from "./window-state.mjs";
+import { cancelParkChargeOverlay, collapseParkChargeOverlay, startParkChargeOverlay } from "./park-charge-overlay.mjs";
+import { PARK_CHARGE_COLLAPSE_MS } from "./park-charge-timing.mjs";
+import { showParkFrameAnimation } from "./park-animation.mjs";
+import { compactTopRightBounds, resolveCompactTopRightBounds } from "./window-park.mjs";
 
 const ELECTRON_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEVELOPMENT_GENERIC_ENGINES_ROOT = path.resolve(ELECTRON_DIR, "../../..");
@@ -26,6 +30,10 @@ const DEVELOPMENT_PROJECT_LAUNCHER_ROOT = path.resolve(ELECTRON_DIR, "../../proj
 const LAUNCHER_ACTIONS = ["launcher.definition.upsert", "launcher.project.start", "launcher.project.stop", "launcher.runtime.get"];
 const WINDOW_GET_ALWAYS_ON_TOP = "perch:window:get-always-on-top";
 const WINDOW_SET_ALWAYS_ON_TOP = "perch:window:set-always-on-top";
+const WINDOW_GET_BOUNDS = "perch:window:get-bounds";
+const WINDOW_PARK_CHARGE_START = "perch:window:park-charge-start";
+const WINDOW_PARK_CHARGE_CANCEL = "perch:window:park-charge-cancel";
+const WINDOW_PARK_COMPACT_TOP_RIGHT = "perch:window:park-compact-top-right";
 const PATH_OPEN_IN_FINDER = "perch:path:open-in-finder";
 const CLIPBOARD_LIST = "perch:clipboard:list";
 const CLIPBOARD_GET = "perch:clipboard:get";
@@ -113,6 +121,50 @@ function setPerchWindowAlwaysOnTop(window, enabled) {
   return window.isAlwaysOnTop();
 }
 
+function normalizeBounds(raw) {
+  const x = Number(raw?.x);
+  const y = Number(raw?.y);
+  const width = Number(raw?.width);
+  const height = Number(raw?.height);
+  if (![x, y, width, height].every(Number.isFinite)) return null;
+  return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
+}
+
+function prepareWindowForPark(window) {
+  if (window.isFullScreen()) window.setFullScreen(false);
+  if (window.isMaximized()) window.unmaximize();
+}
+
+function computeParkTargetBounds(anchorBounds) {
+  const anchor = normalizeBounds(anchorBounds);
+  if (!anchor) throw new TypeError("park anchor bounds are invalid.");
+  return resolveCompactTopRightBounds(
+    anchor,
+    (bounds) => screen.getDisplayMatching(bounds),
+    (point) => screen.getDisplayNearestPoint(point),
+    { width: MIN_WINDOW_SIZE.width, height: CLIPBOARD_PANEL_MIN_WINDOW_HEIGHT, margin: 0 },
+  );
+}
+
+function applyParkTargetBounds(window, target) {
+  window.setBounds(target);
+  if (typeof window.setPosition === "function") window.setPosition(target.x, target.y);
+  const alwaysOnTop = setPerchWindowAlwaysOnTop(window, true);
+  windowStateTracker?.saveNow(window);
+  return { alwaysOnTop, bounds: window.getBounds() };
+}
+
+async function parkPerchWindowCompactTopRight(window, options = {}) {
+  const from = normalizeBounds(options.fromBounds) || window.getBounds();
+  const target = computeParkTargetBounds(from);
+  await collapseParkChargeOverlay(PARK_CHARGE_COLLAPSE_MS);
+  prepareWindowForPark(window);
+  const parked = applyParkTargetBounds(window, target);
+  await showParkFrameAnimation(from, target);
+  cancelParkChargeOverlay();
+  return parked;
+}
+
 function summonPerchWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   if (mainWindow.isMinimized()) mainWindow.restore();
@@ -137,6 +189,17 @@ function registerDesktopIpcHandlers() {
     if (typeof enabled !== "boolean") throw new TypeError("always-on-top preference must be boolean.");
     return setPerchWindowAlwaysOnTop(currentPerchWindow(event), enabled);
   });
+  ipcMain.handle(WINDOW_GET_BOUNDS, (event) => currentPerchWindow(event).getBounds());
+  ipcMain.handle(WINDOW_PARK_CHARGE_START, async (event) => {
+    const window = currentPerchWindow(event);
+    const bounds = window.getBounds();
+    await startParkChargeOverlay(bounds, { ownerWindow: window });
+    return bounds;
+  });
+  ipcMain.handle(WINDOW_PARK_CHARGE_CANCEL, () => {
+    cancelParkChargeOverlay();
+  });
+  ipcMain.handle(WINDOW_PARK_COMPACT_TOP_RIGHT, (event, options) => parkPerchWindowCompactTopRight(currentPerchWindow(event), options));
   ipcMain.handle(PATH_OPEN_IN_FINDER, async (event, localPath) => {
     currentPerchWindow(event);
     return openPathInFinder(localPath, {

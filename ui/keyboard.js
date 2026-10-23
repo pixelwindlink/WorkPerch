@@ -36,7 +36,7 @@ export function setButtonKeyboardLabel(target, label, key) {
   hint.className = "button-key-hint";
   hint.setAttribute("aria-hidden", "true");
   hint.textContent = `(${key})`;
-  button.replaceChildren(button.ownerDocument.createTextNode(label), hint);
+  button.replaceChildren(button.ownerDocument.createTextNode(`${label}\u00a0`), hint);
   button.setAttribute("aria-label", `${label}，键盘 ${key}`);
 }
 

@@ -52,7 +52,7 @@ test("button keyboard labels append the visible key after the original text", ()
     replaceChildren(...children) { this.children = children; },
   };
   setButtonKeyboardLabel(button, "上一步", "←");
-  assert.equal(button.children.map((child) => child.textContent).join(""), "上一步(←)");
+  assert.equal(button.children.map((child) => child.textContent).join(""), "上一步\u00a0(←)");
   assert.equal(button.children[1].className, "button-key-hint");
   assert.equal(button.attributes["aria-label"], "上一步，键盘 ←");
 });

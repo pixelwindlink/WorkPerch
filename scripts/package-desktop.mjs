@@ -1,7 +1,21 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { packager } from "@electron/packager";
+import { finalizeMacAppIconBundle } from "./finalize-mac-app-icon.mjs";
+
+function resolveXcodeDeveloperDir() {
+  const candidates = [
+    process.env.DEVELOPER_DIR,
+    "/Applications/Xcode.app/Contents/Developer",
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    if (fsSync.existsSync(path.join(candidate, "usr/bin/actool"))) return candidate;
+  }
+  return null;
+}
 
 const perchRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const genericEnginesRoot = path.resolve(perchRoot, "../..");
@@ -15,6 +29,26 @@ const commonComponentsResourceRoot = path.join(resourceStagingRoot, "common_comp
 const engineProviderSpiResourceRoot = path.join(commonComponentsResourceRoot, "engine-provider-spi");
 const electronZipDir = process.env.ELECTRON_ZIP_DIR ? path.resolve(process.env.ELECTRON_ZIP_DIR) : null;
 const packageJson = JSON.parse(await fs.readFile(path.join(perchRoot, "package.json"), "utf8"));
+const appIconBase = path.join(perchRoot, "assets", "app-icon", "Perch");
+const appIconPath = `${appIconBase}.icns`;
+const appIconComposerPath = `${appIconBase}.icon`;
+const appIconImagePath = path.join(perchRoot, "assets", "app-icon", "perch-icon-1024.png");
+
+execFileSync(process.execPath, [path.join(perchRoot, "scripts", "build-app-icon.mjs")], {
+  cwd: perchRoot,
+  stdio: "inherit",
+});
+await fs.access(appIconPath);
+await fs.access(appIconComposerPath);
+
+const xcodeDeveloperDir = resolveXcodeDeveloperDir();
+if (xcodeDeveloperDir) {
+  process.env.DEVELOPER_DIR = xcodeDeveloperDir;
+} else {
+  process.stderr.write(
+    "Warning: Xcode actool not found; macOS 26+ Dock icons need Perch.icon compiled with full Xcode.\n",
+  );
+}
 
 await fs.access(path.join(governanceRoot, "protocol", "engine-message", "v1.0", "envelope.schema.json"));
 await fs.access(path.join(engineProviderSpiRoot, "src", "index.mjs"));
@@ -43,6 +77,7 @@ const appPaths = await packager({
   platform: "darwin",
   arch: "arm64",
   overwrite: true,
+  icon: [appIconPath, appIconComposerPath],
   ...(electronZipDir ? { electronZipDir } : {}),
   asar: true,
   prune: true,
@@ -61,6 +96,14 @@ const appPaths = await packager({
       { recursive: true }
     );
   }],
+  afterComplete: [
+    async ({ buildPath }) => {
+      await finalizeMacAppIconBundle(path.join(buildPath, "Perch.app"), {
+        perchIcnsPath: appIconPath,
+        iconImagePath: appIconImagePath,
+      });
+    },
+  ],
   ignore: [
     /^\/\.git(?:\/|$)/,
     /^\/dist(?:\/|$)/,

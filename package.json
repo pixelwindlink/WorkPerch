@@ -10,6 +10,7 @@
     "dev:server": "node server.mjs",
     "dev": "node --watch server.mjs",
     "desktop": "electron .",
+    "desktop:icon": "node scripts/build-app-icon.mjs",
     "desktop:pack": "node scripts/package-desktop.mjs",
     "desktop:release": "node scripts/build-release.mjs",
     "check": "node --check server.mjs && node --check cli.mjs && node --check app.js && for f in ui/*.js; do node --check \"$f\" || exit 1; done && node --check electron/main.mjs && node --check electron/finder-path-controller.mjs && node --check electron/local-engine-client.mjs && node --check electron/server-coordinator.mjs && node --check electron/window-state.mjs && node --check electron/preload.cjs && node --check scripts/package-desktop.mjs && node --check scripts/build-release.mjs && node --check src/composition/create-perch-engine.mjs && node --check src/inbound/dispatcher.mjs && node --check src/application/perch-application.mjs && node --check src/domain/perch-aggregate.mjs",

@@ -2473,12 +2473,16 @@ body.is-dragging .drop-card { transform: translateY(0) scale(1); }
 .clipboard-detail-files[hidden] {
   display: none !important;
 }
-.clipboard-detail-media {
+.clipboard-detail-media:not([hidden]) {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 120px;
   padding: 4px 0;
+}
+.clipboard-detail-media[hidden] {
+  min-height: 0;
+  padding: 0;
 }
 .clipboard-detail-media img {
   max-width: 100%;

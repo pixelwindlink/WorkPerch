@@ -84,15 +84,22 @@ function detailElements() {
   };
 }
 
+function setDetailHidden(node, hidden) {
+  if (!node) return;
+  node.hidden = hidden;
+  if (hidden) node.setAttribute("hidden", "");
+  else node.removeAttribute("hidden");
+}
+
 function hideDetailViews(views) {
-  if (views.text) views.text.hidden = true;
-  if (views.imageWrap) views.imageWrap.hidden = true;
+  setDetailHidden(views.text, true);
+  setDetailHidden(views.imageWrap, true);
   if (views.image) {
     views.image.removeAttribute("src");
     views.image.alt = "";
   }
   if (views.files) {
-    views.files.hidden = true;
+    setDetailHidden(views.files, true);
     views.files.innerHTML = "";
   }
 }
@@ -134,18 +141,19 @@ export async function showClipboardDetail(id, { animate = true } = {}) {
   views.meta.textContent = clipboardRowMeta({ ...listItem, ...item });
   hideDetailViews(views);
 
-  if (item.kind === "image" && item.imageDataUrl && views.image && views.imageWrap) {
+  const kind = listItem.kind || item.kind || "text";
+  if (kind === "image" && item.imageDataUrl && views.image && views.imageWrap) {
     views.image.alt = "剪贴板图片预览";
     views.image.src = item.imageDataUrl;
-    views.imageWrap.hidden = false;
-  } else if (item.kind === "files" && Array.isArray(item.paths) && views.files) {
+    setDetailHidden(views.imageWrap, false);
+  } else if (kind === "files" && Array.isArray(item.paths) && views.files) {
     views.files.innerHTML = item.paths
       .map((entry) => `<li><code>${escapeHtml(entry)}</code></li>`)
       .join("");
-    views.files.hidden = false;
+    setDetailHidden(views.files, false);
   } else if (views.text) {
     views.text.textContent = item.text ?? listItem.preview ?? "";
-    views.text.hidden = false;
+    setDetailHidden(views.text, false);
   }
 
   if (fade) views.text?.classList.remove("is-fading");

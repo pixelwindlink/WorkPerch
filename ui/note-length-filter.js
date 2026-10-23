@@ -1,6 +1,6 @@
 export const DEFAULT_NOTE_SHORT_MAX_CHARS = 100;
 export const NOTE_SHORT_MAX_CHARS_LIMIT = { min: 1, max: 5000 };
-/** Tab 循环顺序：全部长度 → 长文本 → 短文本 */
+/** Shift+Tab 循环顺序：全部长度 → 长文本 → 短文本 */
 export const NOTE_LENGTH_FILTER_ORDER = Object.freeze(["all", "long", "short"]);
 
 export function nextNoteLengthFilter(current, step = 1) {
@@ -9,9 +9,9 @@ export function nextNoteLengthFilter(current, step = 1) {
   return order[(index + step + order.length) % order.length];
 }
 
-export function shouldCycleNoteLengthFilterOnTab(event, activeTab) {
+export function shouldCycleNoteLengthFilterOnShiftTab(event, activeTab) {
   if (activeTab !== "notes") return false;
-  if (event.key !== "Tab" || event.isComposing) return false;
+  if (event.key !== "Tab" || event.isComposing || !event.shiftKey) return false;
   if (event.metaKey || event.ctrlKey || event.altKey) return false;
   const element = event.target;
   if (!element || typeof element.closest !== "function") return true;

@@ -6,6 +6,7 @@ import {
   nextNoteLengthFilter,
   parseNoteLengthFilter,
   parseNoteShortMaxChars,
+  shouldCycleNoteLengthFilterOnShiftTab,
 } from "../../ui/note-length-filter.js";
 
 test("parseNoteLengthFilter accepts only all|short|long", () => {
@@ -27,6 +28,13 @@ test("nextNoteLengthFilter cycles all → long → short", () => {
   assert.equal(nextNoteLengthFilter("long", 1), "short");
   assert.equal(nextNoteLengthFilter("short", 1), "all");
   assert.equal(nextNoteLengthFilter("all", -1), "short");
+});
+
+test("shouldCycleNoteLengthFilterOnShiftTab requires Shift+Tab on notes", () => {
+  const target = { closest: () => null };
+  assert.equal(shouldCycleNoteLengthFilterOnShiftTab({ key: "Tab", shiftKey: true, isComposing: false, metaKey: false, ctrlKey: false, altKey: false, target }, "notes"), true);
+  assert.equal(shouldCycleNoteLengthFilterOnShiftTab({ key: "Tab", shiftKey: false, isComposing: false, metaKey: false, ctrlKey: false, altKey: false, target }, "notes"), false);
+  assert.equal(shouldCycleNoteLengthFilterOnShiftTab({ key: "Tab", shiftKey: true, isComposing: false, metaKey: false, ctrlKey: false, altKey: false, target }, "paths"), false);
 });
 
 test("matchesNoteLengthFilter uses content length against threshold", () => {

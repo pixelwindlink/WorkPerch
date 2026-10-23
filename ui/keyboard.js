@@ -6,7 +6,8 @@ const ENTER_SUBMIT_FORMS = [
   ["#groupRegistryForm", "#groupRegistrySubmit"],
 ];
 
-import { shouldCycleNoteLengthFilterOnTab } from "./note-length-filter.js";
+import { shouldCycleNoteLengthFilterOnShiftTab } from "./note-length-filter.js";
+import { nextMainPanelTab, orderedMainPanelTabs, shouldSwitchMainPanelOnTab } from "./main-tab-shortcuts.js";
 import { shouldCreateNoteFromPaste } from "./note-paste-create.js";
 import { shouldOpenAddNoteOnEnter } from "./note-board-shortcuts.js";
 import {
@@ -114,10 +115,10 @@ function bindNotePasteCreate() {
   });
 }
 
-function bindNoteLengthFilterTabCycle() {
+function bindNoteLengthFilterShiftTabCycle() {
   document.addEventListener("keydown", (event) => {
     const notesActive = document.querySelector("#notesPanel")?.classList.contains("is-active");
-    if (!shouldCycleNoteLengthFilterOnTab(event, notesActive ? "notes" : "")) return;
+    if (!shouldCycleNoteLengthFilterOnShiftTab(event, notesActive ? "notes" : "")) return;
     event.preventDefault();
     event.stopPropagation();
     void (async () => {
@@ -126,11 +127,24 @@ function bindNoteLengthFilterTabCycle() {
         import("./render-notes.js"),
         import("./note-length-filter-ui.js"),
       ]);
-      cycleNoteLengthFilter(event.shiftKey ? -1 : 1);
+      cycleNoteLengthFilter(1);
       syncNoteLengthFilterButtons();
       renderNotes();
       document.querySelector("#noteLengthFilter [data-length-filter].is-active")?.focus({ preventScroll: true });
     })();
+  }, true);
+}
+
+function bindMainPanelTabCycle() {
+  document.addEventListener("keydown", (event) => {
+    if (!shouldSwitchMainPanelOnTab(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    void import("./engine-client.js").then(({ switchTab }) => {
+      const current = document.documentElement.dataset.activeTab || "paths";
+      const next = nextMainPanelTab(current, orderedMainPanelTabs());
+      switchTab(next);
+    });
   }, true);
 }
 
@@ -159,7 +173,8 @@ export function bindKeyboardInteractions() {
   bindHorizontalControl("#groupRegistryFilter", "[data-tag-filter]");
   bindHorizontalControl("#groupColorPalette", "[data-group-color]");
   bindHorizontalControl("#noteLengthFilter", "[data-length-filter]");
-  bindNoteLengthFilterTabCycle();
+  bindNoteLengthFilterShiftTabCycle();
+  bindMainPanelTabCycle();
   bindNotePasteCreate();
   bindNotesEnterAdd();
 }

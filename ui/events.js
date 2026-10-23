@@ -12,6 +12,7 @@ import { openNoteEditor, saveNoteEdit } from "./dialogs-note.js";
 import { openProjectEditor, saveProjectEdit, saveProjectLaunchConfiguration } from "./dialogs-project.js";
 import { openGroupRegistry, resetGroupEditor, setRegistryGroupColor, handleGroupRegistryAction, saveGroupEdit, setRegistryFilter } from "./dialogs-tag-registry.js";
 import { saveDropBatch, processNextDroppedCandidate, handleDrop, revealExistingEntry } from "./drop-batch.js";
+import { isExternalPathDropDrag } from "./drag-path-drop.js";
 import { exportData, importData, inspectLegacyData, migrateLegacyData, cleanupLegacyData } from "./backup-legacy.js";
 import { applyTheme } from "./desktop.js";
 import { bindSettingsDialog, openSettingsDialog } from "./settings-dialog.js";
@@ -209,19 +210,15 @@ export function bindEvents() {
   document.querySelector("#themeButton").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
   document.querySelector("#minimalModeButton").addEventListener("click", () => toggleMinimalMode());
   let dragDepth = 0;
-  const hasDropData = (event) => {
-    const types = Array.from(event.dataTransfer?.types || []);
-    return types.includes("Files") || types.includes("text/uri-list") || types.includes("text/plain");
-  };
   const clearDragState = () => { dragDepth = 0; document.body.classList.remove("is-dragging"); };
   document.addEventListener("dragenter", (event) => {
-    if (!hasDropData(event)) return;
+    if (!isExternalPathDropDrag(event.dataTransfer)) return;
     event.preventDefault();
     dragDepth += 1;
     document.body.classList.add("is-dragging");
   });
   document.addEventListener("dragover", (event) => {
-    if (!hasDropData(event)) return;
+    if (!isExternalPathDropDrag(event.dataTransfer)) return;
     event.preventDefault();
     if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
   });
@@ -230,7 +227,7 @@ export function bindEvents() {
     if (dragDepth === 0) document.body.classList.remove("is-dragging");
   });
   document.addEventListener("drop", (event) => {
-    if (!hasDropData(event)) return;
+    if (!isExternalPathDropDrag(event.dataTransfer)) return;
     dragDepth = 0;
     handleDrop(event);
   });

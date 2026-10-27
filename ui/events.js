@@ -4,6 +4,7 @@ import { loadSnapshot, switchTab } from "./engine-client.js";
 import { renderAll, activateSavedView, saveCurrentView, deleteCurrentView } from "./render-shared.js";
 import { renderPaths, handlePathAction, refreshAllPathStatuses, setAbnormalPathFilter, batchDeleteAbnormalPaths } from "./render-paths.js";
 import { bindSilentPathRefresh } from "./silent-refresh.js";
+import { bindPathListWheelScroll } from "./path-list-scroll.js";
 import { bindSummonPalette } from "./summon.js";
 import { renderProjects, handleProjectAction } from "./render-projects.js";
 import { renderNotes, handleNoteAction, handleNoteDoubleClick } from "./render-notes.js";
@@ -244,6 +245,7 @@ export function bindEvents() {
   });
 
   bindSilentPathRefresh();
+  bindPathListWheelScroll();
   bindSummonPalette();
   bindKeyboardInteractions();
 }

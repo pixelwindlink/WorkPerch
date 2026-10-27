@@ -1689,15 +1689,60 @@ kbd { padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; col
   color: #fff;
 }
 .add-button.danger-confirm:hover { filter: brightness(1.06); }
-.batch-dialog { width: min(850px, calc(100% - 28px)); }
-.batch-list { max-height: min(48vh, 480px); overflow: auto; border: 1px solid var(--border); border-radius: 8px; }
-.batch-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) 110px; align-items: center; gap: 8px; padding: 7px 8px; border-bottom: 1px solid var(--border); }
+.batch-dialog { width: min(920px, calc(100% - 28px)); }
+.batch-list { max-height: min(52vh, 520px); overflow: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.batch-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.batch-row:has(.batch-target) { grid-template-columns: 22px minmax(0, 1fr) 110px; }
 .batch-row:last-child { border-bottom: 0; }
-.batch-main { display: grid; min-width: 0; gap: 3px; }
-.batch-main input { height: 28px; }
-.batch-main code, .batch-main small { overflow: hidden; color: var(--dim); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
-.batch-reveal { height: 24px; margin-top: 4px; padding-inline: 8px; font-size: 8px; }
-.batch-target { height: 30px; }
+.batch-row .batch-include { margin-top: 6px; }
+.batch-main { display: grid; min-width: 0; gap: 8px; }
+.batch-field-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--dim);
+  font: 700 7px ui-monospace, monospace;
+  letter-spacing: .12em;
+}
+.batch-name-field { display: block; min-width: 0; }
+.batch-main .batch-name {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 10px;
+}
+.batch-path-full {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--border), transparent 20%);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg), var(--surface-2) 40%);
+}
+.batch-path-full code {
+  display: block;
+  color: var(--muted);
+  font: 9px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.batch-reason {
+  color: var(--dim);
+  font-size: 8px;
+  line-height: 1.45;
+}
+.batch-reveal { height: 28px; padding-inline: 10px; font-size: 8px; justify-self: start; }
+.batch-target { height: 32px; margin-top: 4px; }
 .danger-text { color: var(--red); margin-right: auto; }
 .launcher-dependency-banner {
   margin: 0 0 8px;

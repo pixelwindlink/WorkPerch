@@ -342,7 +342,7 @@
           <button class="icon-button dialog-close" value="cancel" type="submit" formnovalidate aria-label="关闭">×</button>
         </div>
         <p class="dialog-copy">已登记和批内重复项不会默认提交。可逐项选择保存为文件路径或项目入口。</p>
-        <label><span>公共 TAGS（逗号分隔）</span><input id="dropBatchTags" maxlength="500" /></label>
+        <label><span>公共 TAGS（逗号分隔）</span><input id="dropBatchTags" maxlength="500" list="pathGroups" autocomplete="off" placeholder="输入或从列表选择标签" /></label>
         <div class="batch-list" id="dropBatchList"></div>
         <div class="dialog-actions">
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>取消</button>

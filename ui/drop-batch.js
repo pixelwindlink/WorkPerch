@@ -2,7 +2,7 @@ import { state } from "./state.js";
 import { elements, escapeHtml, parseTagNames, showToast } from "./dom.js";
 import { engineAction, afterWrite, handleWriteError, switchTab } from "./engine-client.js";
 import { PROJECT_ENTRY_SURFACE_RETIRED } from "./surface-flags.js";
-import { comparablePath, normalizeDroppedPath, pathName, findExistingPath, revealExistingPath } from "./render-paths.js";
+import { comparablePath, normalizeDroppedPath, pathName, findExistingPath, revealExistingPath, renderPathGroups } from "./render-paths.js";
 import { inspectionLabel } from "./render-shared.js";
 import { openPathEditor } from "./dialogs-path.js";
 
@@ -81,7 +81,12 @@ export function renderDropBatchPlan() {
         : inspectionLabel({ inspection: candidate.inspection });
     return `<div class="batch-row" data-batch-index="${candidate.index}">
       <input class="batch-include" type="checkbox" ${blocked ? "" : "checked"} ${blocked ? "disabled" : ""} aria-label="选择 ${escapeHtml(candidate.path)}" />
-      <div class="batch-main"><input class="batch-name" value="${escapeHtml(candidate.inspection.suggestedName || pathName(candidate.path))}" maxlength="120" ${blocked ? "disabled" : ""} /><code>${escapeHtml(candidate.path)}</code><small>${escapeHtml(reason)}</small>${candidate.existing ? `<button class="quiet-button batch-reveal" type="button" data-existing-kind="${escapeHtml(candidate.existing.kind)}" data-existing-id="${escapeHtml(candidate.existing.id)}">查看已收录</button>` : ""}</div>
+      <div class="batch-main">
+        <label class="batch-name-field"><span class="batch-field-label">NAME</span><input class="batch-name" value="${escapeHtml(candidate.inspection.suggestedName || pathName(candidate.path))}" maxlength="120" ${blocked ? "disabled" : ""} /></label>
+        <div class="batch-path-full" title="${escapeHtml(candidate.path)}"><span class="batch-field-label">PATH</span><code>${escapeHtml(candidate.path)}</code></div>
+        <small class="batch-reason">${escapeHtml(reason)}</small>
+        ${candidate.existing ? `<button class="quiet-button batch-reveal" type="button" data-existing-kind="${escapeHtml(candidate.existing.kind)}" data-existing-id="${escapeHtml(candidate.existing.id)}">查看已收录</button>` : ""}
+      </div>
       ${PROJECT_ENTRY_SURFACE_RETIRED ? "" : `<select class="batch-target" ${blocked ? "disabled" : ""}><option value="path" ${candidate.suggestedTarget === "path" ? "selected" : ""}>文件路径</option><option value="project" ${candidate.suggestedTarget === "project" ? "selected" : ""}>项目入口</option></select>`}
     </div>`;
   }).join("");
@@ -111,6 +116,7 @@ export async function openDropBatch(paths) {
   try {
     const result = await engineAction("perch.path.preflight", { paths });
     state.dropPlan = result.candidates;
+    renderPathGroups();
     renderDropBatchPlan();
     document.querySelector("#dropBatchTags").value = "";
     elements.dropBatchDialog.showModal();

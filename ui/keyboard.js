@@ -9,8 +9,8 @@ const ENTER_SUBMIT_FORMS = [
 import { shouldCycleNoteLengthFilterOnShiftTab } from "./note-length-filter.js";
 import { nextMainPanelTab, orderedMainPanelTabs, shouldSwitchMainPanelOnTab } from "./main-tab-shortcuts.js";
 import { shouldCreateNoteFromPaste } from "./note-paste-create.js";
-import { shouldOpenAddNoteOnEnter } from "./note-board-shortcuts.js";
-import { shouldOpenAddPathOnEnter } from "./path-board-shortcuts.js";
+import { shouldOpenAddNoteOnEnter, shouldOpenAddNoteOnShortcut } from "./note-board-shortcuts.js";
+import { shouldOpenAddPathOnEnter, shouldOpenAddPathOnShortcut } from "./path-board-shortcuts.js";
 import {
   insertTextareaNewline,
   shouldInsertNoteValueNewline,
@@ -99,7 +99,7 @@ export function horizontalKeyTarget(buttons, current, key) {
 
 function bindNotesEnterAdd() {
   document.addEventListener("keydown", (event) => {
-    if (!shouldOpenAddNoteOnEnter(event)) return;
+    if (!shouldOpenAddNoteOnEnter(event) && !shouldOpenAddNoteOnShortcut(event)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     void import("./dialogs-note.js").then(({ openNoteEditor }) => openNoteEditor());
@@ -108,7 +108,7 @@ function bindNotesEnterAdd() {
 
 function bindPathsEnterAdd() {
   document.addEventListener("keydown", (event) => {
-    if (!shouldOpenAddPathOnEnter(event)) return;
+    if (!shouldOpenAddPathOnEnter(event) && !shouldOpenAddPathOnShortcut(event)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     void import("./dialogs-path.js").then(({ openPathEditor }) => openPathEditor());

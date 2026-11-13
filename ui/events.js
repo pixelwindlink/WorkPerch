@@ -238,6 +238,14 @@ export function bindEvents() {
 
   document.addEventListener("keydown", (event) => {
     const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || "");
+    const searchablePanel = document.querySelector("#pathsPanel")?.classList.contains("is-active")
+      ? "#pathSearch"
+      : document.querySelector("#notesPanel")?.classList.contains("is-active") ? "#noteSearch" : null;
+    if (searchablePanel && event.key.toLowerCase() === "f" && (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey) {
+      event.preventDefault();
+      document.querySelector(searchablePanel)?.focus();
+      return;
+    }
     if ((event.key === "/" && !typing) || (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey))) {
       event.preventDefault();
       focusActiveSearch();

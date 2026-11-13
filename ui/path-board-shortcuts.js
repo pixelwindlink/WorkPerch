@@ -18,3 +18,14 @@ export function shouldOpenAddPathOnEnter(event) {
   if (element.isContentEditable) return false;
   return true;
 }
+
+export function shouldOpenAddPathOnShortcut(event) {
+  if (event.key?.toLowerCase() !== "i" || !(event.metaKey || event.ctrlKey)) return false;
+  if (event.altKey || event.shiftKey || event.isComposing) return false;
+  if (!pathsTabActive()) return false;
+  if (document.querySelector("dialog[open]")) return false;
+  if (document.body.classList.contains("guide-is-active")) return false;
+  const summonOverlay = document.querySelector("#summonOverlay");
+  if (summonOverlay && !summonOverlay.hidden) return false;
+  return !event.target?.closest?.("#summonOverlay");
+}

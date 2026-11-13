@@ -446,6 +446,7 @@ html.header-is-narrow .desktop-window-button:hover svg {
 #pathsPanel.panel.is-active {
   display: flex;
   flex-direction: column;
+  height: calc(100dvh - var(--header-height) - 52px);
   min-height: calc(100dvh - var(--header-height) - 52px);
   padding-bottom: 0;
 }
@@ -1065,6 +1066,12 @@ html.header-is-narrow .brand {
 html.header-is-narrow .brand strong,
 html.header-is-narrow .brand small {
   display: none;
+}
+@media (min-width: 901px) {
+  html.header-is-narrow .brand strong,
+  html.header-is-narrow .brand small {
+    display: block;
+  }
 }
 html.header-is-narrow .brand-symbol {
   width: 28px;

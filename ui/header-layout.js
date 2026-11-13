@@ -1,4 +1,4 @@
-const NARROW_QUERY = "(max-width: 900px)";
+const NARROW_QUERY = "(max-width: 1024px)";
 const OVERFLOW_PANEL_MARGIN = 8;
 
 function isNarrow() {

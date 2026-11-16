@@ -549,6 +549,7 @@ html.header-is-narrow .desktop-window-button:hover svg {
 .panel[data-panel="notes"].is-active {
   display: flex;
   flex-direction: column;
+  height: calc(100dvh - var(--header-height) - 52px);
   min-height: calc(100dvh - var(--header-height) - 52px);
   padding-bottom: 0;
 }
@@ -2178,6 +2179,7 @@ body.is-dragging .drop-card { transform: translateY(0) scale(1); }
   }
   #pathsPanel.panel.is-active,
   #notesPanel.panel.is-active {
+    height: calc(100dvh - var(--header-height) - 88px);
     min-height: calc(100dvh - var(--header-height) - 88px);
     padding-bottom: 0;
   }
